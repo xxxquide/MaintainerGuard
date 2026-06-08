@@ -175,7 +175,7 @@ class CLITests(unittest.TestCase):
             result = self.run_cli(["doctor"], cwd=root)
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertIn("MaintainerGuard Doctor", result.stdout)
-            self.assertIn("OK  Config found: .maintainerguard.toml", result.stdout)
+            self.assertRegex(result.stdout, r"OK\s+Config found: \.maintainerguard\.toml")
             self.assertIn("MaintainerGuard is ready.", result.stdout)
 
     def test_doctor_suggests_init_when_config_is_missing(self):
@@ -189,8 +189,8 @@ class CLITests(unittest.TestCase):
         result = self.run_cli(["verify"])
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn("MaintainerGuard Verify", result.stdout)
-        self.assertIn("OK  demo: high-risk-auth", result.stdout)
-        self.assertIn("OK  sample release analysis", result.stdout)
+        self.assertRegex(result.stdout, r"OK\s+demo: high-risk-auth")
+        self.assertRegex(result.stdout, r"OK\s+sample release analysis")
         self.assertIn("All checks passed.", result.stdout)
 
 

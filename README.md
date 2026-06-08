@@ -82,7 +82,7 @@ For local development from a checkout:
 
 ```bash
 git clone https://github.com/xxxquide/MaintainerGuard.git
-cd maintainerguard
+cd MaintainerGuard
 python3 -m pip install -e .
 mg verify
 mg demo

@@ -1,0 +1,24 @@
+name: MaintainerGuard scheduled release sample
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 7 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Generate release-readiness report from prepared feed
+        uses: ./
+        with:
+          mode: analyze-release
+          scenario-or-sample-input-path: examples/sample-data/releases/v0.2.0.json
+          dry-run: "true"

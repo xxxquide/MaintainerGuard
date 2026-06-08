@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "number": 106,
+  "title": "Remove deprecated CLI flag",
+  "body": "Removes the deprecated legacy output flag.",
+  "draft": false,
+  "author": {"login": "cli-contributor", "type": "User"},
+  "labels": ["breaking-change"],
+  "files": [
+    {
+      "path": "src/cli.py",
+      "status": "modified",
+      "patch": "-parser.add_argument('--legacy-output')\n+# BREAKING: remove deprecated legacy output"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "status": "modified",
+      "patch": "+Removed the deprecated --legacy-output flag."
+    },
+    {
+      "path": "tests/test_cli.py",
+      "status": "modified",
+      "patch": "+def test_legacy_output_is_rejected(): ..."
+    }
+  ]
+}

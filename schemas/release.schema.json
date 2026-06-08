@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://maintainerguard.dev/schemas/v1/release.schema.json",
+  "title": "MaintainerGuard release input",
+  "type": "object",
+  "required": ["schema_version", "version", "pull_requests"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "version": {"type": "string"},
+    "pull_requests": {"type": "array"},
+    "scanner_inputs": {"type": "array"},
+    "issues": {"type": "array"},
+    "changelog": {
+      "oneOf": [
+        {"type": "string"},
+        {"type": "array", "items": {"type": "string"}}
+      ]
+    }
+  }
+}

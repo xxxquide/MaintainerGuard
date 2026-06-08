@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "number": 203,
+  "title": "Documentation typo in configuration guide",
+  "body": "The README uses the wrong example path.",
+  "labels": []
+}

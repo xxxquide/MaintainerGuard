@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "scanner": "example-mixed-scan",
+  "findings": [
+    {
+      "id": "MIX-1",
+      "severity": "low",
+      "title": "Informational code-quality signal",
+      "description": "A low-severity maintainability signal."
+    },
+    {
+      "id": "MIX-2",
+      "severity": "high",
+      "title": "High-severity scanner warning",
+      "description": "A supplied scanner warning that requires maintainer review.",
+      "affected_files": ["src/auth/session.py"]
+    }
+  ]
+}

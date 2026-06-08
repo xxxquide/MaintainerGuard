@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "version": "0.2.0",
+  "pull_requests": [
+    {
+      "number": 103,
+      "title": "Change session token validation",
+      "files": [
+        {"path": "src/auth/session.py", "status": "modified"},
+        {"path": "tests/test_session.py", "status": "modified"}
+      ]
+    },
+    {
+      "number": 104,
+      "title": "Update HTTP dependency",
+      "files": [
+        {"path": "requirements.txt", "status": "modified"}
+      ]
+    },
+    {
+      "number": 106,
+      "title": "Remove deprecated CLI flag",
+      "files": [
+        {"path": "src/cli.py", "status": "modified", "patch": "+BREAKING: remove old flag"},
+        {"path": "CHANGELOG.md", "status": "modified"}
+      ]
+    }
+  ],
+  "scanner_inputs": [
+    {
+      "scanner": "release-scan",
+      "findings": [
+        {
+          "id": "REL-1",
+          "severity": "medium",
+          "title": "Review dependency update",
+          "description": "Manual review recommended."
+        }
+      ]
+    }
+  ]
+}

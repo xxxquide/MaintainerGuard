@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://maintainerguard.dev/schemas/v1/report.schema.json",
+  "title": "MaintainerGuard report output",
+  "type": "object",
+  "required": ["report_type", "schema_version", "evidence", "limitations"],
+  "properties": {
+    "report_type": {
+      "enum": ["merge_readiness_report", "issue_triage_report", "release_readiness_report"]
+    },
+    "schema_version": {"const": "1.0"},
+    "verdict": {"type": "string"},
+    "decision_guidance": {"type": "string"},
+    "decision_reason": {"type": "string"},
+    "risk_level": {"type": "string"},
+    "evidence": {"type": "array"},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }
+}

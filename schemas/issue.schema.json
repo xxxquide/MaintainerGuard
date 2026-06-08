@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://maintainerguard.dev/schemas/v1/issue.schema.json",
+  "title": "MaintainerGuard issue input",
+  "type": "object",
+  "required": ["schema_version", "title", "body"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "number": {"type": "integer"},
+    "title": {"type": "string"},
+    "body": {"type": "string"},
+    "labels": {"type": "array"},
+    "duplicate_candidates": {"type": "array"}
+  }
+}

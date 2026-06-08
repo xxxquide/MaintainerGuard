@@ -1,0 +1,73 @@
+name: MaintainerGuard
+description: Evidence-first merge, issue, and release readiness reports for maintainers.
+author: MaintainerGuard contributors
+
+inputs:
+  mode:
+    description: analyze-pr, analyze-issue, analyze-release, validate-config, or demo.
+    required: false
+    default: analyze-pr
+  config-path:
+    description: Path to .maintainerguard.toml.
+    required: false
+    default: .maintainerguard.toml
+  output-format:
+    description: markdown or json.
+    required: false
+    default: markdown
+  dry-run:
+    description: Keep publication disabled unless explicitly set to false with post-comment enabled.
+    required: false
+    default: "true"
+  post-comment:
+    description: Publish or update one MaintainerGuard PR comment when all safety gates permit it.
+    required: false
+    default: "false"
+  update-existing-comment:
+    description: Update the existing MaintainerGuard comment instead of creating duplicates.
+    required: false
+    default: "true"
+  fail-on-risk:
+    description: none, critical, or high.
+    required: false
+    default: none
+  scanner-result-paths:
+    description: Newline- or comma-separated scanner result paths.
+    required: false
+    default: ""
+  scenario-or-sample-input-path:
+    description: Demo scenario name or sample JSON path, depending on mode.
+    required: false
+    default: ""
+  ai-enabled:
+    description: Enable optional configured AI enrichment.
+    required: false
+    default: "false"
+  report-length:
+    description: concise or detailed.
+    required: false
+    default: concise
+
+runs:
+  using: composite
+  steps:
+    - name: Run MaintainerGuard
+      shell: bash
+      env:
+        MG_MODE: ${{ inputs.mode }}
+        MG_OUTPUT_FORMAT: ${{ inputs.output-format }}
+        MG_DRY_RUN: ${{ inputs.dry-run }}
+        MG_POST_COMMENT: ${{ inputs.post-comment }}
+        MG_UPDATE_EXISTING_COMMENT: ${{ inputs.update-existing-comment }}
+        MG_FAIL_ON_RISK: ${{ inputs.fail-on-risk }}
+        MG_SCANNER_RESULT_PATHS: ${{ inputs.scanner-result-paths }}
+        MG_INPUT_PATH: ${{ inputs.scenario-or-sample-input-path }}
+        MG_AI_ENABLED: ${{ inputs.ai-enabled }}
+        MG_REPORT_LENGTH: ${{ inputs.report-length }}
+      run: |
+        export PYTHONPATH="${GITHUB_ACTION_PATH}:${PYTHONPATH:-}"
+        if [ -n "${{ inputs.config-path }}" ] && [ -f "${{ inputs.config-path }}" ]; then
+          python3 -m maintainerguard --config "${{ inputs.config-path }}" action-run
+        else
+          python3 -m maintainerguard action-run
+        fi

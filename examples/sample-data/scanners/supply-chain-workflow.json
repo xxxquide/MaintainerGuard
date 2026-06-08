@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "scanner": "workflow-policy",
+  "findings": [
+    {
+      "id": "WF-2026-001",
+      "category": "supply-chain",
+      "severity": "high",
+      "title": "Release workflow gained write and OIDC permissions",
+      "description": "The supplied workflow policy check reports that the release workflow now requests contents: write and id-token: write.",
+      "affected_files": [".github/workflows/release.yml"],
+      "recommendation": "Confirm these permissions are necessary, scoped to the release job, and protected by release approval rules."
+    }
+  ]
+}

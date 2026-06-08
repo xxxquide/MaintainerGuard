@@ -1,0 +1,20 @@
+{
+  "action": "opened",
+  "number": 103,
+  "repository": {"full_name": "example/maintainerguard-demo"},
+  "pull_request": {
+    "number": 103,
+    "title": "Change session token validation",
+    "body": "Updates session validation behavior.",
+    "draft": false,
+    "user": {"login": "contributor", "type": "User"},
+    "labels": []
+  },
+  "files": [
+    {
+      "path": "src/auth/session.py",
+      "status": "modified",
+      "patch": "+validate_session(token)"
+    }
+  ]
+}

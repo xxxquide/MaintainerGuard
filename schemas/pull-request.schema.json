@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://maintainerguard.dev/schemas/v1/pull-request.schema.json",
+  "title": "MaintainerGuard pull request input",
+  "type": "object",
+  "required": ["schema_version", "title", "files"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "number": {"type": "integer"},
+    "title": {"type": "string"},
+    "body": {"type": "string"},
+    "draft": {"type": "boolean"},
+    "author": {"type": "object"},
+    "labels": {"type": "array"},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": {"type": "string"},
+          "status": {"type": "string"},
+          "patch": {"type": "string"}
+        }
+      }
+    }
+  }
+}

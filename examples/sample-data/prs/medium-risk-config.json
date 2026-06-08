@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "number": 102,
+  "title": "Require explicit report mode",
+  "body": "Changes configuration validation for report output.",
+  "draft": false,
+  "author": {"login": "config-contributor", "type": "User"},
+  "labels": [],
+  "files": [
+    {
+      "path": "src/config/validation.py",
+      "status": "modified",
+      "patch": "-mode = value or 'concise'\n+mode = require_value(value)"
+    }
+  ]
+}

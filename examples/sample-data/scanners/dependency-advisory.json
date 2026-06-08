@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "scanner": "dependency-check",
+  "findings": [
+    {
+      "id": "ADV-2026-001",
+      "severity": "critical",
+      "title": "Critical advisory reported for example-http",
+      "description": "The supplied scanner associates example-http 1.2.3 with ADV-2026-001.",
+      "dependency": "example-http@1.2.3",
+      "blocking": true
+    }
+  ]
+}

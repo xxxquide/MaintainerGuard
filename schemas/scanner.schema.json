@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://maintainerguard.dev/schemas/v1/scanner.schema.json",
+  "title": "MaintainerGuard generic scanner input",
+  "type": "object",
+  "required": ["scanner", "findings"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "scanner": {"type": "string"},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "title"],
+        "properties": {
+          "id": {"type": "string"},
+          "severity": {"type": "string"},
+          "category": {"type": "string"},
+          "title": {"type": "string"},
+          "description": {"type": "string"},
+          "affected_files": {"type": "array", "items": {"type": "string"}},
+          "dependency": {"type": "string"},
+          "advisory_id": {"type": "string"},
+          "recommendation": {"type": "string"},
+          "blocking": {"type": "boolean"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "number": 105,
+  "title": "Update release workflow permissions",
+  "body": "Changes the release workflow used for package publishing.",
+  "draft": false,
+  "author": {"login": "release-contributor", "type": "User"},
+  "labels": [],
+  "files": [
+    {
+      "path": ".github/workflows/release.yml",
+      "status": "modified",
+      "patch": "-permissions: read-all\n+permissions:\n+  contents: write\n+  id-token: write"
+    }
+  ]
+}

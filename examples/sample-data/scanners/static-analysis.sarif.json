@@ -1,0 +1,22 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {"driver": {"name": "Example Static Analyzer"}},
+      "results": [
+        {
+          "ruleId": "example/unsafe-render",
+          "level": "warning",
+          "message": {"text": "Potential unsafe rendering path"},
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {"uri": "src/views/template.js"}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "number": 104,
+  "title": "Update HTTP dependency",
+  "body": "Updates the HTTP client dependency and lockfile.",
+  "draft": false,
+  "author": {"login": "dependency-bot", "type": "Bot"},
+  "labels": ["dependencies"],
+  "files": [
+    {
+      "path": "requirements.txt",
+      "status": "modified",
+      "patch": "-example-http==1.1.0\n+example-http==1.2.3"
+    },
+    {
+      "path": "requirements.lock",
+      "status": "modified",
+      "patch": "-example-http==1.1.0\n+example-http==1.2.3"
+    }
+  ]
+}

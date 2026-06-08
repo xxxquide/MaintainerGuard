@@ -1,0 +1,11 @@
+{
+  "action": "opened",
+  "number": 201,
+  "repository": {"full_name": "example/maintainerguard-demo"},
+  "issue": {
+    "number": 201,
+    "title": "The command crashes",
+    "body": "The analyze command throws an error.",
+    "labels": []
+  }
+}

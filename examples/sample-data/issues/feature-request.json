@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "number": 202,
+  "title": "Feature request: support another scanner format",
+  "body": "I would like MaintainerGuard to support a new scanner JSON format.",
+  "labels": []
+}

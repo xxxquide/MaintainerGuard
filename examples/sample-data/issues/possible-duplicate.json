@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "number": 205,
+  "title": "Analyze command crashes on empty files",
+  "body": "Version 0.1.0 on Linux. Reproduction steps: run analyze-pr with an empty file list. Expected a report, actual behavior is an error. Full error log attached.",
+  "labels": [],
+  "duplicate_candidates": [
+    {"number": 144, "title": "Analyze command crashes for empty pull request"},
+    {"number": 145, "title": "Add GitLab support"}
+  ]
+}

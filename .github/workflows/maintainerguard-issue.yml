@@ -1,0 +1,23 @@
+name: MaintainerGuard issue triage dry run
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Generate dry-run issue report
+        uses: ./
+        with:
+          mode: analyze-issue
+          dry-run: "true"

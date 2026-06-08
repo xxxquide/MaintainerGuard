@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "number": 101,
+  "title": "Clarify local setup instructions",
+  "body": "Clarifies the existing quick-start commands.",
+  "draft": false,
+  "author": {"login": "docs-contributor", "type": "User"},
+  "labels": ["documentation"],
+  "files": [
+    {
+      "path": "docs/getting-started.md",
+      "status": "modified",
+      "patch": "+Run the demo before configuring GitHub automation."
+    }
+  ]
+}

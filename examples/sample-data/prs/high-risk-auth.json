@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "number": 103,
+  "title": "Change session token validation",
+  "body": "Updates session validation behavior for protected routes.",
+  "draft": false,
+  "author": {"login": "auth-contributor", "type": "User"},
+  "labels": ["security-review"],
+  "files": [
+    {
+      "path": "src/auth/session.py",
+      "status": "modified",
+      "patch": "-validate(token)\n+validate_session(token, allow_refresh=True)"
+    },
+    {
+      "path": "src/middleware/auth.py",
+      "status": "modified",
+      "patch": "-reject_expired(token)\n+refresh_or_reject(token)"
+    }
+  ]
+}

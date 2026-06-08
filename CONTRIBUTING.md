@@ -5,7 +5,7 @@ maintainer usefulness, safety, documentation, or test coverage.
 
 ## Before opening a pull request
 
-1. Read `TASK.md`, `README.md`, and `docs/privacy-and-security.md`.
+1. Read `README.md`, `docs/architecture.md`, and `docs/privacy-and-security.md`.
 2. Keep deterministic analysis useful when AI is disabled.
 3. Link every important recommendation to evidence.
 4. Do not add vulnerability claims that exceed supplied scanner evidence.

@@ -47,6 +47,9 @@ inputs:
     description: concise or detailed.
     required: false
     default: concise
+  branding:
+    icon: shield
+    color: blue
 
 runs:
   using: composite

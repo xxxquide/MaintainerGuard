@@ -4,13 +4,13 @@
 
 # MaintainerGuard
 
+**Evidence-first AI maintainer assistant for merge, security, and release readiness.**
+
 [![CI](https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml)
 [![GitHub release](https://img.shields.io/github/v/release/xxxquide/MaintainerGuard?label=release)](https://github.com/xxxquide/MaintainerGuard/releases/tag/v0.1.1)
 [![GitHub Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-MaintainerGuard-blue?logo=github)](https://github.com/marketplace/actions/maintainerguard)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 [![License](https://img.shields.io/github/license/xxxquide/MaintainerGuard)](LICENSE)
-
-**Evidence-first AI maintainer assistant for merge, security, and release readiness.**
 
 MaintainerGuard helps open-source maintainers turn pull-request metadata,
 changed files, scanner outputs, repository policies, issue reports, and release
@@ -189,14 +189,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - uses: ./
+      - uses: xxxquide/MaintainerGuard@v0.1.1
         with:
           mode: analyze-pr
           dry-run: "true"
           fail-on-risk: none
 ```
 
-Use `uses: ./` while testing this repository. External repositories should use:
+External repositories should use the published Action:
 
 ```yaml
 uses: xxxquide/MaintainerGuard@v0.1.1
@@ -205,6 +205,13 @@ uses: xxxquide/MaintainerGuard@v0.1.1
 The Action imports its Python package from `$GITHUB_ACTION_PATH` while keeping
 the working directory as the caller repository, so `.maintainerguard.toml` and
 scanner paths resolve in the project being analyzed.
+
+Local development note: when testing changes inside this repository before a
+release, replace the Action step with:
+
+```yaml
+uses: ./
+```
 
 To publish one PR comment, all gates must be explicit:
 
@@ -219,7 +226,7 @@ steps:
   - uses: actions/setup-python@v5
     with:
       python-version: "3.11"
-  - uses: ./
+  - uses: xxxquide/MaintainerGuard@v0.1.1
     env:
       GITHUB_TOKEN: ${{ github.token }}
     with:

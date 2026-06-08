@@ -32,7 +32,7 @@ steps:
   - uses: actions/setup-python@v5
     with:
       python-version: "3.11"
-  - uses: ./
+  - uses: xxxquide/MaintainerGuard@v0.1.1
     with:
       mode: analyze-pr
       dry-run: "true"
@@ -56,19 +56,19 @@ python3 -m maintainerguard github-run "$GITHUB_EVENT_PATH"
 Use `action-run` through `action.yml` for GitHub Actions. Use `github-run` when
 you intentionally want the lower-level CLI helper.
 
-## Local and published Action usage
+## Published and local Action usage
 
-For local repository testing, use:
-
-```yaml
-- uses: ./
-```
-
-After publishing a release tag, users can reference the reusable Action from
-another repository:
+External repositories should use the published Action:
 
 ```yaml
 - uses: xxxquide/MaintainerGuard@v0.1.1
+```
+
+Local development note: when testing changes inside this repository before a
+release, use:
+
+```yaml
+- uses: ./
 ```
 
 The Action prepends `$GITHUB_ACTION_PATH` to `PYTHONPATH` so Python imports the

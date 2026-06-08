@@ -2,6 +2,10 @@ name: MaintainerGuard
 description: Evidence-first merge, issue, and release readiness reports for maintainers.
 author: MaintainerGuard contributors
 
+branding:
+  icon: shield
+  color: blue
+
 inputs:
   mode:
     description: analyze-pr, analyze-issue, analyze-release, validate-config, or demo.
@@ -47,9 +51,6 @@ inputs:
     description: concise or detailed.
     required: false
     default: concise
-  branding:
-    icon: shield
-    color: blue
 
 runs:
   using: composite

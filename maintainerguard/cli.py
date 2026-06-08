@@ -290,7 +290,7 @@ def _verify(config_path: Path | None) -> int:
 
 
 def _status(status: str, message: str) -> None:
-    print(f"{status:<4}{message}")
+    print(f"{status:<5}{message}")
 
 
 def _verify_demo(scenario: str, config) -> None:

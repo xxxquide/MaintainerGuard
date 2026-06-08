@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="MaintainerGuard-3png.png" alt="MaintainerGuard report preview" width="760">
+</p>
+
 # MaintainerGuard
 
 **Evidence-first AI maintainer assistant for merge, security, and release readiness.**

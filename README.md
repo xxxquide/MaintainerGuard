@@ -195,7 +195,7 @@ To publish one PR comment, all gates must be explicit:
 ```yaml
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
   issues: write
 
 steps:

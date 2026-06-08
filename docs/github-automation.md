@@ -84,7 +84,7 @@ Before enabling comments:
 1. Confirm local reports and policies.
 2. Set `core.dry_run = false`.
 3. Set `github.post_comments = true`.
-4. Add `issues: write` permission to the specific workflow job.
+4. Add `pull-requests: write` and `issues: write` permissions to the specific workflow job.
 5. Set the Action input `post-comment: "true"` or add `--post` to `github-run`.
 
 All gates are required. MaintainerGuard uses one hidden marker, updates the
@@ -96,12 +96,13 @@ Comment publishing requires intentionally broader permissions:
 ```yaml
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
   issues: write
 ```
 
-Do not enable `issues: write`, `dry-run: "false"`, and `post-comment: "true"`
-until dry-run reports are acceptable for the repository.
+Do not enable `pull-requests: write`, `issues: write`, `dry-run: "false"`,
+and `post-comment: "true"` until dry-run reports are acceptable for the
+repository.
 
 ## Issues and scheduled releases
 

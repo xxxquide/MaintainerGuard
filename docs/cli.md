@@ -28,7 +28,7 @@ From a local checkout:
 
 ```bash
 git clone https://github.com/xxxquide/MaintainerGuard.git
-cd maintainerguard
+cd MaintainerGuard
 python3 -m pip install -e .
 mg verify
 ```
@@ -193,8 +193,8 @@ mg validate-config
 
 If GitHub Action behavior differs from local CLI behavior, start with dry-run
 mode and read [GitHub automation](github-automation.md). Comment publishing
-requires explicit `dry-run: "false"`, `post-comment: "true"`, and `issues:
-write` permissions.
+requires explicit `dry-run: "false"`, `post-comment: "true"`,
+`pull-requests: write`, and `issues: write` permissions.
 
 MaintainerGuard does not prove code is secure, find every vulnerability, or
 replace maintainer review. It produces evidence-backed readiness reports and

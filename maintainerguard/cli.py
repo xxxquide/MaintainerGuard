@@ -205,7 +205,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.1.1
+      - uses: xxxquide/MaintainerGuard@v0.1.3
         with:
           mode: analyze-pr
           dry-run: "true"

@@ -4,6 +4,21 @@ All notable changes to MaintainerGuard are documented here.
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-06-09
+
+### Changed
+
+- Synced public GitHub Action examples, generated workflow templates, and package metadata to `v0.1.3`.
+- Kept local `uses: ./` examples limited to clearly labeled local-development notes.
+
+## [0.1.2] - 2026-06-08
+
+### Changed
+
+- Cleaned up README presentation for Marketplace rendering.
+- Moved the README hero image to `assets/maintainerguard-hero.png`.
+- Published a documentation-only Marketplace polish release without behavior changes.
+
 ## [0.1.1] - 2026-06-08
 
 ### Fixed

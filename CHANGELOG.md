@@ -4,6 +4,15 @@ All notable changes to MaintainerGuard are documented here.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-06-08
+
+### Fixed
+
+- Added top-level GitHub Action `branding` metadata for Marketplace readiness.
+- Updated reusable Action snippets to reference `xxxquide/MaintainerGuard@v0.1.1`.
+
+## [0.1.0] - 2026-06-08
+
 ### Added
 
 - Composite GitHub Action metadata and Action entrypoint with safe dry-run defaults
@@ -20,7 +29,3 @@ All notable changes to MaintainerGuard are documented here.
 - Optional validated AI enrichment with deterministic fallback
 - Guarded GitHub one-comment automation helpers
 - Issue triage, release readiness, schemas, samples, workflows, and documentation
-
-## [0.1.0] - 2026-06-04
-
-- Initial open-source MVP implementation.

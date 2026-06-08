@@ -68,7 +68,7 @@ After publishing a release tag, users can reference the reusable Action from
 another repository:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.1.0
+- uses: xxxquide/MaintainerGuard@v0.1.1
 ```
 
 The Action prepends `$GITHUB_ACTION_PATH` to `PYTHONPATH` so Python imports the

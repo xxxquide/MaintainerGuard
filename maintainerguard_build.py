@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 NAME = "maintainerguard"
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 DIST_INFO = f"{NAME}-{VERSION}.dist-info"
 ROOT = Path(__file__).resolve().parent
 

@@ -185,7 +185,7 @@ jobs:
 ```
 
 Use `uses: ./` while testing this repository. After publishing a release tag,
-external repositories can use `uses: xxxquide/MaintainerGuard@v0.1.0`. The Action
+external repositories can use `uses: xxxquide/MaintainerGuard@v0.1.1`. The Action
 imports its Python package from `$GITHUB_ACTION_PATH` while keeping the working
 directory as the caller repository, so `.maintainerguard.toml` and scanner paths
 resolve in the project being analyzed.

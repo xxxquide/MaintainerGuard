@@ -7,6 +7,9 @@ from pathlib import Path
 import maintainerguard_build
 
 
+DIST_INFO = f"maintainerguard-{maintainerguard_build.VERSION}.dist-info"
+
+
 class PackagingTests(unittest.TestCase):
     def test_standard_library_backend_builds_wheel_and_sdist(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -17,7 +20,7 @@ class PackagingTests(unittest.TestCase):
 
             with zipfile.ZipFile(Path(directory) / wheel) as archive:
                 names = set(archive.namelist())
-                entry_points = archive.read("maintainerguard-0.1.0.dist-info/entry_points.txt").decode("utf-8")
+                entry_points = archive.read(f"{DIST_INFO}/entry_points.txt").decode("utf-8")
             self.assertIn("examples/sample-data/prs/high-risk-auth.json", names)
             self.assertIn("examples/sample-data/scanners/dependency-advisory.json", names)
             self.assertIn("action.yml", names)
@@ -30,9 +33,9 @@ class PackagingTests(unittest.TestCase):
             with zipfile.ZipFile(Path(directory) / wheel) as archive:
                 names = set(archive.namelist())
                 pth = archive.read("maintainerguard-editable.pth").decode("utf-8")
-                entry_points = archive.read("maintainerguard-0.1.0.dist-info/entry_points.txt").decode("utf-8")
+                entry_points = archive.read(f"{DIST_INFO}/entry_points.txt").decode("utf-8")
             self.assertIn(str(Path(__file__).resolve().parents[1]), pth)
-            self.assertIn("maintainerguard-0.1.0.dist-info/METADATA", names)
+            self.assertIn(f"{DIST_INFO}/METADATA", names)
             self.assertIn("mg = maintainerguard.cli:main", entry_points)
 
     def test_pyproject_exposes_maintainerguard_and_mg_scripts(self):

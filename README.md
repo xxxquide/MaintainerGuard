@@ -1,8 +1,14 @@
 <p align="center">
-  <img src="MaintainerGuard-3png.png" alt="MaintainerGuard report preview" width="760">
+  <img src="assets/maintainerguard-hero.png" alt="MaintainerGuard hero banner" width="100%">
 </p>
 
 # MaintainerGuard
+
+[![CI](https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/xxxquide/MaintainerGuard?label=release)](https://github.com/xxxquide/MaintainerGuard/releases/tag/v0.1.1)
+[![GitHub Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-MaintainerGuard-blue?logo=github)](https://github.com/marketplace/actions/maintainerguard)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
+[![License](https://img.shields.io/github/license/xxxquide/MaintainerGuard)](LICENSE)
 
 **Evidence-first AI maintainer assistant for merge, security, and release readiness.**
 
@@ -102,6 +108,8 @@ python3 -m maintainerguard demo --scenario high-risk-auth
 
 See the [CLI guide](docs/cli.md) for command reference and troubleshooting.
 
+GitHub Marketplace: [MaintainerGuard](https://github.com/marketplace/actions/maintainerguard).
+
 ## Local demo scenarios
 
 Run the default high-risk authentication demo:
@@ -188,11 +196,15 @@ jobs:
           fail-on-risk: none
 ```
 
-Use `uses: ./` while testing this repository. After publishing a release tag,
-external repositories can use `uses: xxxquide/MaintainerGuard@v0.1.1`. The Action
-imports its Python package from `$GITHUB_ACTION_PATH` while keeping the working
-directory as the caller repository, so `.maintainerguard.toml` and scanner paths
-resolve in the project being analyzed.
+Use `uses: ./` while testing this repository. External repositories should use:
+
+```yaml
+uses: xxxquide/MaintainerGuard@v0.1.1
+```
+
+The Action imports its Python package from `$GITHUB_ACTION_PATH` while keeping
+the working directory as the caller repository, so `.maintainerguard.toml` and
+scanner paths resolve in the project being analyzed.
 
 To publish one PR comment, all gates must be explicit:
 
@@ -280,6 +292,8 @@ Contributor docs:
 
 - [Development guide](docs/development.md)
 - [Architecture notes](docs/architecture.md)
+- [Launch materials](docs/launch.md)
+- [Public launch checklist](docs/public-launch-checklist.md)
 - [Public release checklist](docs/public-release-checklist.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)

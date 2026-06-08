@@ -2,15 +2,19 @@
   <img src="assets/maintainerguard-hero.png" alt="MaintainerGuard hero banner" width="100%">
 </p>
 
-# MaintainerGuard
+<h1 align="center">MaintainerGuard</h1>
 
-**Evidence-first AI maintainer assistant for merge, security, and release readiness.**
+<p align="center">
+  Evidence-first AI maintainer assistant for merge, security, issue, and release readiness.
+</p>
 
-[![CI](https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml)
-[![GitHub release](https://img.shields.io/github/v/release/xxxquide/MaintainerGuard?label=release)](https://github.com/xxxquide/MaintainerGuard/releases/tag/v0.1.1)
-[![GitHub Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-MaintainerGuard-blue?logo=github)](https://github.com/marketplace/actions/maintainerguard)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
-[![License](https://img.shields.io/github/license/xxxquide/MaintainerGuard)](LICENSE)
+<p align="center">
+  <a href="https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/xxxquide/MaintainerGuard/releases/tag/v0.1.1"><img alt="Latest release" src="https://img.shields.io/github/v/release/xxxquide/MaintainerGuard?label=release"></a>
+  <a href="https://github.com/marketplace/actions/maintainerguard"><img alt="GitHub Marketplace" src="https://img.shields.io/badge/GitHub%20Marketplace-MaintainerGuard-blue?logo=github"></a>
+  <a href="pyproject.toml"><img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-blue"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/xxxquide/MaintainerGuard"></a>
+</p>
 
 MaintainerGuard helps open-source maintainers turn pull-request metadata,
 changed files, scanner outputs, repository policies, issue reports, and release

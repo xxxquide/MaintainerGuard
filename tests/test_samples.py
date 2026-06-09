@@ -43,6 +43,8 @@ class SampleTests(unittest.TestCase):
             "examples/reports/docs-only-low-risk.md",
             "examples/reports/high-risk-auth.md",
             "examples/reports/dependency-advisory.md",
+            "examples/reports/ci-workflow-risk.md",
+            "examples/reports/secret-finding.md",
             "examples/reports/issue-triage.md",
             "examples/reports/release-readiness.md",
             "examples/reports/release-v0.2.0.md",

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and usage help
+    url: https://github.com/xxxquide/MaintainerGuard/discussions
+    about: Ask setup questions, discuss workflows, or share maintainer feedback.
+  - name: Security report
+    url: https://github.com/xxxquide/MaintainerGuard/security/policy
+    about: Please report security concerns privately instead of opening a public issue.

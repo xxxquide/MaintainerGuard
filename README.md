@@ -352,7 +352,14 @@ Contributor docs:
 - [Public launch checklist](docs/public-launch-checklist.md)
 - [Public release checklist](docs/public-release-checklist.md)
 - [Contributing](CONTRIBUTING.md)
+- [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)
+
+Good first contributions are welcome when they are focused and evidence-backed:
+
+- [Good first issues](https://github.com/xxxquide/MaintainerGuard/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22)
+- [Maintainer feedback discussions](https://github.com/xxxquide/MaintainerGuard/discussions)
+- [Scanner adapter requests](https://github.com/xxxquide/MaintainerGuard/issues/new/choose)
 
 ## Project status and limitations
 

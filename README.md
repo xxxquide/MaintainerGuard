@@ -172,7 +172,10 @@ impact, policy checks, maintainer checklist, and limitations.
 ## GitHub Action usage
 
 The included [action.yml](action.yml) is safe by default. It runs in dry-run mode
-unless you explicitly disable dry-run and enable comment posting.
+unless you explicitly disable dry-run and enable comment posting. The examples
+below keep AI off and comments off unless comment publishing is explicitly shown.
+
+### Dry-run PR analysis
 
 ```yaml
 name: MaintainerGuard
@@ -197,6 +200,7 @@ jobs:
         with:
           mode: analyze-pr
           dry-run: "true"
+          post-comment: "false"
           fail-on-risk: none
 ```
 
@@ -217,7 +221,45 @@ release, replace the Action step with:
 uses: ./
 ```
 
-To publish one PR comment, all gates must be explicit:
+### Common Action variants
+
+Fail the workflow only for critical risk, while staying in dry-run mode:
+
+```yaml
+- uses: xxxquide/MaintainerGuard@v0.1.3
+  with:
+    mode: analyze-pr
+    dry-run: "true"
+    post-comment: "false"
+    fail-on-risk: critical
+```
+
+Validate `.maintainerguard.toml` without analyzing a PR or publishing anything:
+
+```yaml
+- uses: xxxquide/MaintainerGuard@v0.1.3
+  with:
+    mode: validate-config
+    dry-run: "true"
+    post-comment: "false"
+```
+
+Run the bundled demo with sample data and no PR comment publishing:
+
+```yaml
+- uses: xxxquide/MaintainerGuard@v0.1.3
+  with:
+    mode: demo
+    scenario-or-sample-input-path: high-risk-auth
+    dry-run: "true"
+    post-comment: "false"
+```
+
+### Publish one PR comment explicitly
+
+Comment publishing is opt-in only. Enable it after dry-run reports look useful,
+and grant only the permissions needed to read contents and write the PR/issue
+comment. `GITHUB_TOKEN` is passed through `env`; there is no `token` input.
 
 ```yaml
 permissions:
@@ -238,6 +280,7 @@ steps:
       dry-run: "false"
       post-comment: "true"
       update-existing-comment: "true"
+      fail-on-risk: none
 ```
 
 MaintainerGuard uses one hidden comment marker, updates the existing marked

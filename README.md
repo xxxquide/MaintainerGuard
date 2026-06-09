@@ -134,6 +134,8 @@ Sample reports:
 
 - [High-risk auth report](examples/reports/high-risk-auth.md)
 - [Dependency advisory report](examples/reports/dependency-advisory.md)
+- [CI workflow risk report](examples/reports/ci-workflow-risk.md)
+- [Secret finding report](examples/reports/secret-finding.md)
 - [Docs-only low-risk report](examples/reports/docs-only-low-risk.md)
 - [Release readiness report](examples/reports/release-readiness.md)
 - [Issue triage report](examples/reports/issue-triage.md)

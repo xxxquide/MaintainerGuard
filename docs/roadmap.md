@@ -37,4 +37,16 @@
 - Optional local web report viewer
 - Maintainer analytics that preserve privacy
 
+## Feedback
+
+Roadmap priorities should come from real maintainer workflows. Useful feedback
+includes noisy report sections, missing scanner formats, policy rules that would
+save review time, and examples of decisions maintainers still want to make
+manually.
+
+- Share feedback in GitHub Discussions:
+  https://github.com/xxxquide/MaintainerGuard/discussions
+- Pick up small scoped work:
+  https://github.com/xxxquide/MaintainerGuard/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22
+
 Roadmap items are intentions, not commitments or claims of current behavior.

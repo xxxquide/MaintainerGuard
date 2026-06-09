@@ -4,6 +4,15 @@ All notable changes to MaintainerGuard are documented here.
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-06-09
+
+### Changed
+
+- Synced public GitHub Action examples, generated workflow templates, and package metadata to `v0.1.4`.
+- Updated repository workflow examples to current official `actions/checkout@v6` and `actions/setup-python@v6` major versions.
+- Expanded CI smoke checks with `./mg verify`, secret-finding demo, JSON demo output, and PR analysis with scanner input.
+- Added documentation and examples indexes for easier project navigation.
+
 ## [0.1.3] - 2026-06-09
 
 ### Changed

@@ -28,11 +28,11 @@ permissions:
   pull-requests: read
 
 steps:
-  - uses: actions/checkout@v4
-  - uses: actions/setup-python@v5
+  - uses: actions/checkout@v6
+  - uses: actions/setup-python@v6
     with:
       python-version: "3.11"
-  - uses: xxxquide/MaintainerGuard@v0.1.3
+  - uses: xxxquide/MaintainerGuard@v0.1.4
     with:
       mode: analyze-pr
       dry-run: "true"
@@ -61,7 +61,7 @@ you intentionally want the lower-level CLI helper.
 External repositories should use the published Action:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.1.3
+- uses: xxxquide/MaintainerGuard@v0.1.4
 ```
 
 Local development note: when testing changes inside this repository before a

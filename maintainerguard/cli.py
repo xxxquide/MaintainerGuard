@@ -201,11 +201,11 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.1.3
+      - uses: xxxquide/MaintainerGuard@v0.1.4
         with:
           mode: analyze-pr
           dry-run: "true"

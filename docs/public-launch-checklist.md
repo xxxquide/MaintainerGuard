@@ -20,7 +20,7 @@ Recommended About settings:
 
 - Confirm the first screen explains what MaintainerGuard is.
 - Confirm badges render and link to real project resources.
-- Confirm the recommended Action usage is `xxxquide/MaintainerGuard@v0.1.3`.
+- Confirm the recommended Action usage is `xxxquide/MaintainerGuard@v0.1.4`.
 - Confirm Quick Start commands work.
 - Confirm README links to sample reports, Marketplace, Security policy, and contributing docs.
 - Confirm limitations are visible and honest.
@@ -28,13 +28,13 @@ Recommended About settings:
 ## Marketplace listing
 
 - Confirm the Marketplace page renders the Action name, icon, color, and description.
-- Confirm the latest version is `v0.1.3`.
+- Confirm the latest version is `v0.1.4`.
 - Confirm the usage snippet points to the expected version.
 - Confirm README rendering looks clean on Marketplace.
 
 ## Release and tag
 
-- Confirm `v0.1.3` exists and points to the intended Action metadata release.
+- Confirm `v0.1.4` exists and points to the intended Action metadata release.
 - Do not move public tags unless there is an explicit, documented reason.
 - Use patch releases for public tag corrections.
 
@@ -43,7 +43,7 @@ Recommended About settings:
 - Run or review an external repository workflow using:
 
   ```yaml
-  uses: xxxquide/MaintainerGuard@v0.1.3
+  uses: xxxquide/MaintainerGuard@v0.1.4
   ```
 
 - Confirm dry-run output works without comments.

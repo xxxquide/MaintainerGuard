@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://github.com/xxxquide/MaintainerGuard/releases/tag/v0.1.3"><img alt="Latest release" src="https://img.shields.io/github/v/release/xxxquide/MaintainerGuard?label=release"></a>
+  <a href="https://github.com/xxxquide/MaintainerGuard/releases/tag/v0.1.4"><img alt="Latest release" src="https://img.shields.io/github/v/release/xxxquide/MaintainerGuard?label=release"></a>
   <a href="https://github.com/marketplace/actions/maintainerguard"><img alt="GitHub Marketplace" src="https://img.shields.io/badge/GitHub%20Marketplace-MaintainerGuard-blue?logo=github"></a>
   <a href="pyproject.toml"><img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-blue"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/xxxquide/MaintainerGuard"></a>
@@ -194,11 +194,11 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.1.3
+      - uses: xxxquide/MaintainerGuard@v0.1.4
         with:
           mode: analyze-pr
           dry-run: "true"
@@ -209,7 +209,7 @@ jobs:
 External repositories should use the published Action:
 
 ```yaml
-uses: xxxquide/MaintainerGuard@v0.1.3
+uses: xxxquide/MaintainerGuard@v0.1.4
 ```
 
 The Action imports its Python package from `$GITHUB_ACTION_PATH` while keeping
@@ -228,7 +228,7 @@ uses: ./
 Fail the workflow only for critical risk, while staying in dry-run mode:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.1.3
+- uses: xxxquide/MaintainerGuard@v0.1.4
   with:
     mode: analyze-pr
     dry-run: "true"
@@ -239,7 +239,7 @@ Fail the workflow only for critical risk, while staying in dry-run mode:
 Validate `.maintainerguard.toml` without analyzing a PR or publishing anything:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.1.3
+- uses: xxxquide/MaintainerGuard@v0.1.4
   with:
     mode: validate-config
     dry-run: "true"
@@ -249,7 +249,7 @@ Validate `.maintainerguard.toml` without analyzing a PR or publishing anything:
 Run the bundled demo with sample data and no PR comment publishing:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.1.3
+- uses: xxxquide/MaintainerGuard@v0.1.4
   with:
     mode: demo
     scenario-or-sample-input-path: high-risk-auth
@@ -270,11 +270,11 @@ permissions:
   issues: write
 
 steps:
-  - uses: actions/checkout@v4
-  - uses: actions/setup-python@v5
+  - uses: actions/checkout@v6
+  - uses: actions/setup-python@v6
     with:
       python-version: "3.11"
-  - uses: xxxquide/MaintainerGuard@v0.1.3
+  - uses: xxxquide/MaintainerGuard@v0.1.4
     env:
       GITHUB_TOKEN: ${{ github.token }}
     with:
@@ -346,6 +346,8 @@ mg verify
 
 Contributor docs:
 
+- [Documentation index](docs/README.md)
+- [Examples guide](examples/README.md)
 - [Development guide](docs/development.md)
 - [Architecture notes](docs/architecture.md)
 - [Launch materials](docs/launch.md)

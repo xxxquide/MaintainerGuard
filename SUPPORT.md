@@ -17,8 +17,22 @@ misleading output:
 
 https://github.com/xxxquide/MaintainerGuard/issues/new/choose
 
-Please include the command you ran, Python version, operating system, and a
-small sanitized sample input when possible.
+Before opening an issue, run:
+
+```bash
+mg doctor
+mg verify
+```
+
+Please include:
+
+- the command you ran;
+- MaintainerGuard version or commit;
+- Python version and operating system;
+- a small sanitized sample input when possible;
+- the expected output and the actual output.
+
+Do not include real secrets, private repository contents, or active credentials.
 
 ## Security reports
 

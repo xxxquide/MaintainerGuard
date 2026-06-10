@@ -123,6 +123,39 @@ class ScannerTests(unittest.TestCase):
         )
         self.assertEqual("High", findings[0].severity)
 
+    def test_normalizes_trivy_vulnerability_results(self):
+        findings = normalize_scanner_input(
+            {
+                "SchemaVersion": 2,
+                "ArtifactName": "example-app:ci",
+                "Results": [
+                    {
+                        "Target": "example-app:ci (debian 12.5)",
+                        "Type": "debian",
+                        "Vulnerabilities": [
+                            {
+                                "VulnerabilityID": "CVE-2026-0001",
+                                "PkgName": "openssl",
+                                "InstalledVersion": "3.0.0",
+                                "FixedVersion": "3.0.8",
+                                "Severity": "HIGH",
+                                "Title": "openssl contains a sanitized advisory",
+                                "Description": "Example Trivy output only.",
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual(1, len(findings))
+        self.assertEqual("Trivy", findings[0].scanner)
+        self.assertEqual("High", findings[0].severity)
+        self.assertEqual("dependency", findings[0].category)
+        self.assertEqual("CVE-2026-0001", findings[0].advisory_id)
+        self.assertEqual("openssl@3.0.0", findings[0].affected_dependency)
+        self.assertIn("example-app:ci", findings[0].affected[0])
+        self.assertIn("3.0.8", findings[0].recommendation)
+
     def test_duplicate_generic_findings_are_removed_by_analysis(self):
         from maintainerguard.analysis import analyze_pull_request
         from maintainerguard.config import load_config

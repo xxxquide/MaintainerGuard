@@ -129,7 +129,6 @@ def _from_trivy(data: dict[str, Any]) -> list[ScannerFinding]:
         if not isinstance(result, dict):
             continue
         target = _text(result.get("Target"), "container image or artifact")
-        target_type = _text(result.get("Type"), "artifact")
         for index, vulnerability in enumerate(result.get("Vulnerabilities", [])):
             if not isinstance(vulnerability, dict):
                 continue
@@ -140,7 +139,7 @@ def _from_trivy(data: dict[str, Any]) -> list[ScannerFinding]:
             title = _text(vulnerability.get("Title"), advisory_id)
             description = _text(vulnerability.get("Description"), title)
             recommendation = (
-                f"Update {package} to {fixed_version} or rebuild the affected {target_type}."
+                f"Update {package} to {fixed_version} or rebuild the affected artifact/image."
                 if fixed_version
                 else _recommendation("dependency")
             )

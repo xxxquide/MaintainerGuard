@@ -154,7 +154,10 @@ class ScannerTests(unittest.TestCase):
         self.assertEqual("CVE-2026-0001", findings[0].advisory_id)
         self.assertEqual("openssl@3.0.0", findings[0].affected_dependency)
         self.assertIn("example-app:ci", findings[0].affected[0])
-        self.assertIn("3.0.8", findings[0].recommendation)
+        self.assertEqual(
+            "Update openssl to 3.0.8 or rebuild the affected artifact/image.",
+            findings[0].recommendation,
+        )
 
     def test_duplicate_generic_findings_are_removed_by_analysis(self):
         from maintainerguard.analysis import analyze_pull_request

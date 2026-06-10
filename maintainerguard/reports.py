@@ -26,8 +26,8 @@ def _render_merge(report: MergeReadinessReport, mode: str) -> str:
     lines = [
         "# MaintainerGuard Merge Readiness Report",
         "",
-        f"**Verdict:** {report.verdict}  ",
-        f"**Overall risk:** {report.risk_level}  ",
+        f"**Verdict:** {report.verdict}",
+        f"**Overall risk:** {report.risk_level}",
         f"**Confidence:** {report.confidence}",
         "",
         "## Executive summary",

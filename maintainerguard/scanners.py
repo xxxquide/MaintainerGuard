@@ -172,15 +172,25 @@ def _from_trivy(data: dict[str, Any]) -> list[ScannerFinding]:
 
 
 def _sarif_rules(run: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    driver = run.get("tool", {}).get("driver", {})
-    rules = driver.get("rules", [])
-    if not isinstance(rules, list):
-        return {}
-    return {
-        str(rule.get("id")): rule
-        for rule in rules
-        if isinstance(rule, dict) and rule.get("id")
-    }
+    tool = run.get("tool", {})
+    rule_sets = [tool.get("driver", {})]
+    extensions = tool.get("extensions", [])
+    if isinstance(extensions, list):
+        rule_sets.extend(extension for extension in extensions if isinstance(extension, dict))
+
+    rules_by_id = {}
+    for rule_set in rule_sets:
+        rules = rule_set.get("rules", [])
+        if not isinstance(rules, list):
+            continue
+        rules_by_id.update(
+            {
+                str(rule.get("id")): rule
+                for rule in rules
+                if isinstance(rule, dict) and rule.get("id")
+            }
+        )
+    return rules_by_id
 
 
 def _sarif_level(result: dict[str, Any], rule: dict[str, Any]) -> str:

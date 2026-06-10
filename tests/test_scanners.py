@@ -72,6 +72,48 @@ class ScannerTests(unittest.TestCase):
         self.assertEqual("Hard-coded token", findings[0].title)
         self.assertEqual("src/settings.py", findings[0].affected[0])
 
+    def test_sarif_uses_extension_rule_metadata(self):
+        findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {
+                            "driver": {"name": "MetaScanner"},
+                            "extensions": [
+                                {
+                                    "name": "custom-rules",
+                                    "rules": [
+                                        {
+                                            "id": "custom/sql-injection",
+                                            "fullDescription": {"text": "SQL injection risk"},
+                                            "defaultConfiguration": {"level": "error"},
+                                        }
+                                    ],
+                                }
+                            ],
+                        },
+                        "results": [
+                            {
+                                "ruleId": "custom/sql-injection",
+                                "locations": [
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "src/db.py"}
+                                        }
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual("custom/sql-injection", findings[0].id)
+        self.assertEqual("High", findings[0].severity)
+        self.assertEqual("SQL injection risk", findings[0].title)
+        self.assertEqual("src/db.py", findings[0].affected[0])
+
     def test_normalizes_osv_and_generic(self):
         osv = normalize_scanner_input(
             {

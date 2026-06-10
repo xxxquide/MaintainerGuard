@@ -89,13 +89,9 @@ def _from_sarif(data: dict[str, Any]) -> list[ScannerFinding]:
             text = message.get("text", "Static analysis finding") if isinstance(message, dict) else str(message)
             affected = []
             for location in result.get("locations", []):
-                uri = (
-                    location.get("physicalLocation", {})
-                    .get("artifactLocation", {})
-                    .get("uri")
-                )
-                if uri:
-                    affected.append(str(uri))
+                label = _sarif_location_label(location)
+                if label:
+                    affected.append(label)
             finding_id = str(result.get("ruleId", f"sarif-{run_index + 1}-{result_index + 1}"))
             normalized.append(
                 ScannerFinding(
@@ -163,6 +159,19 @@ def _from_trivy(data: dict[str, Any]) -> list[ScannerFinding]:
                 )
             )
     return normalized
+
+
+def _sarif_location_label(location: dict[str, Any]) -> str:
+    physical = location.get("physicalLocation", {}) if isinstance(location, dict) else {}
+    artifact = physical.get("artifactLocation", {}) if isinstance(physical, dict) else {}
+    uri = artifact.get("uri") if isinstance(artifact, dict) else None
+    if not uri:
+        return ""
+    region = physical.get("region", {}) if isinstance(physical, dict) else {}
+    start_line = region.get("startLine") if isinstance(region, dict) else None
+    if isinstance(start_line, int) and start_line > 0:
+        return f"{uri}:{start_line}"
+    return str(uri)
 
 
 def _looks_like_osv(data: dict[str, Any]) -> bool:

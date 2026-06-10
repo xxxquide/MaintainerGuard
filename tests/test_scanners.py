@@ -19,7 +19,8 @@ class ScannerTests(unittest.TestCase):
                                 "locations": [
                                     {
                                         "physicalLocation": {
-                                            "artifactLocation": {"uri": "src/view.js"}
+                                            "artifactLocation": {"uri": "src/view.js"},
+                                            "region": {"startLine": 42},
                                         }
                                     }
                                 ],
@@ -31,7 +32,7 @@ class ScannerTests(unittest.TestCase):
         )
         self.assertEqual("CodeQL", findings[0].scanner)
         self.assertEqual("Medium", findings[0].severity)
-        self.assertEqual("src/view.js", findings[0].affected[0])
+        self.assertEqual("src/view.js:42", findings[0].affected[0])
 
     def test_normalizes_osv_and_generic(self):
         osv = normalize_scanner_input(

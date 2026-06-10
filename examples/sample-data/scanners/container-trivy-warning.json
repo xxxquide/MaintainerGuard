@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "scanner": "trivy-container",
+  "findings": [
+    {
+      "id": "TRIVY-CVE-2026-0001",
+      "category": "dependency",
+      "severity": "high",
+      "title": "Container image includes a vulnerable openssl package",
+      "description": "A sanitized Trivy-like container scan reports that example-app:ci contains openssl 3.0.0 with a high-severity advisory. This fixture uses placeholder image, package, and advisory values only.",
+      "affected_files": ["Containerfile", "image:example-app:ci"],
+      "dependency": "openssl@3.0.0",
+      "advisory_id": "CVE-2026-0001",
+      "recommendation": "Confirm whether the image is built from a patched base image and update or rebuild the affected package before release.",
+      "blocking": true
+    }
+  ]
+}

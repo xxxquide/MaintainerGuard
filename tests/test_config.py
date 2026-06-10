@@ -33,6 +33,49 @@ class ConfigTests(unittest.TestCase):
             path.write_text(default_config_toml())
             self.assertTrue(load_config(path).dry_run)
 
+            path.write_text(default_config_toml("minimal"))
+            self.assertEqual([], load_config(path).policies)
+
+    def test_policy_presets_expand_when_no_custom_policies_are_set(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / ".maintainerguard.toml"
+
+            path.write_text("[core]\npolicy_preset = \"minimal\"\n")
+            self.assertEqual([], load_config(path).policies)
+
+            path.write_text("[core]\npolicy_preset = \"strict\"\n")
+            config = load_config(path)
+            self.assertTrue(any(policy.blocking for policy in config.policies))
+            self.assertTrue(
+                any(policy.require == "manual_review" for policy in config.policies)
+            )
+
+            path.write_text("[core]\npolicy_preset = \"docs\"\n")
+            docs_config = load_config(path)
+            self.assertEqual(1, len(docs_config.policies))
+            self.assertEqual("docs", docs_config.policies[0].require)
+
+    def test_custom_policies_override_policy_preset(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / ".maintainerguard.toml"
+            path.write_text(
+                "\n".join(
+                    [
+                        "[core]",
+                        'policy_preset = "strict"',
+                        "",
+                        "[[policy]]",
+                        'name = "Docs only"',
+                        'paths = ["docs/**"]',
+                        'require = "docs"',
+                    ]
+                )
+            )
+
+            config = load_config(path)
+            self.assertEqual(1, len(config.policies))
+            self.assertEqual("Docs only", config.policies[0].name)
+
     def test_rejects_invalid_types_and_threshold_order(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / ".maintainerguard.toml"
@@ -41,6 +84,10 @@ class ConfigTests(unittest.TestCase):
                 load_config(path)
 
             path.write_text("[risk_thresholds]\nmedium = 7\nhigh = 3\ncritical = 12\n")
+            with self.assertRaises(ConfigError):
+                load_config(path)
+
+            path.write_text("[core]\npolicy_preset = \"maximum\"\n")
             with self.assertRaises(ConfigError):
                 load_config(path)
 

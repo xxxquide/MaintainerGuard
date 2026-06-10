@@ -5,6 +5,8 @@ MaintainerGuard is easiest to use through the short `mg` command.
 ```bash
 mg demo
 mg init
+mg init --preset strict
+mg presets
 mg doctor
 mg verify
 mg pr <file>
@@ -73,12 +75,18 @@ Create a safe repository configuration.
 
 ```bash
 mg init
+mg init --preset minimal
+mg init --preset security
+mg init --preset strict
+mg init --preset docs
 mg init --github-action
 mg init --force
 ```
 
 `mg init` creates `.maintainerguard.toml` if it does not already exist. It does
-not overwrite files unless `--force` is supplied.
+not overwrite files unless `--force` is supplied. `--preset` selects the
+built-in policy profile written to `core.policy_preset`; the default is
+`security`.
 
 `mg init --github-action` also creates
 `.github/workflows/maintainerguard.yml` with safe defaults:
@@ -88,6 +96,14 @@ not overwrite files unless `--force` is supplied.
 - AI disabled by configuration;
 - read-only workflow permissions;
 - no auto-merge behavior.
+
+### `mg presets`
+
+List built-in policy presets.
+
+```bash
+mg presets
+```
 
 ### `mg doctor`
 

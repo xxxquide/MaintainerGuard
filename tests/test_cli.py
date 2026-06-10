@@ -168,6 +168,22 @@ class CLITests(unittest.TestCase):
             self.assertIn('post-comment: "false"', text)
             self.assertNotIn("issues: write", text)
 
+    def test_init_accepts_policy_preset(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            result = self.run_cli(["init", "--preset", "strict"], cwd=root)
+            self.assertEqual(0, result.returncode, result.stderr)
+            config = root / ".maintainerguard.toml"
+            self.assertIn('policy_preset = "strict"', config.read_text(encoding="utf-8"))
+
+    def test_presets_lists_builtin_policy_presets(self):
+        result = self.run_cli(["presets"])
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("minimal", result.stdout)
+        self.assertIn("security", result.stdout)
+        self.assertIn("strict", result.stdout)
+        self.assertIn("docs", result.stdout)
+
     def test_doctor_passes_with_valid_config(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

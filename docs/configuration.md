@@ -10,6 +10,7 @@ validation.
 - `dry_run`: disables publication unless explicitly set to `false`
 - `report_mode`: `concise` or `detailed`
 - `output_format`: `markdown` or `json`
+- `policy_preset`: built-in policy set, one of `minimal`, `security`, `strict`, or `docs`
 - `language`: metadata for future language support; current output is English
 - `log_level`: reserved for operational logging policy
 
@@ -47,6 +48,22 @@ reference. `python3 -m maintainerguard print-config` remains available for
 debugging and automation.
 
 ## Policy examples
+
+Use `policy_preset` when a repository only needs a standard policy profile:
+
+```toml
+[core]
+policy_preset = "strict"
+```
+
+Available presets:
+
+- `minimal`: no repository policy checks
+- `security`: the default auth, workflow, dependency, and public-interface checks
+- `strict`: security-style checks with blocking rules for auth, workflow, and dependency changes
+- `docs`: a documentation-focused profile for README, docs, examples, and changelog paths
+
+Custom `[[policy]]` entries replace the selected preset.
 
 ```toml
 [[policy]]

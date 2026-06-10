@@ -33,6 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
         epilog="""Common commands:
   mg demo
   mg init
+  mg presets
   mg doctor
   mg verify
   mg pr <file>
@@ -72,10 +73,17 @@ Long-form commands such as analyze-pr, analyze-issue, and analyze-release remain
     subparsers.add_parser("print-config", help="Print a documented example configuration")
     subparsers.add_parser("config", help="Print a documented example configuration")
     init = subparsers.add_parser("init", help="Create a safe local MaintainerGuard configuration")
+    init.add_argument(
+        "--preset",
+        choices=["minimal", "security", "strict", "docs"],
+        default="security",
+        help="Policy preset to write into the generated configuration",
+    )
     init.add_argument("--github-action", action="store_true", help="Also create a safe dry-run GitHub Actions workflow")
     init.add_argument("--force", action="store_true", help="Overwrite files that already exist")
     subparsers.add_parser("doctor", help="Check local MaintainerGuard setup")
     subparsers.add_parser("verify", help="Run deterministic sample smoke checks")
+    subparsers.add_parser("presets", help="List built-in policy presets")
     subparsers.add_parser("version", help="Print MaintainerGuard version")
     github_run = subparsers.add_parser("github-run", help="Analyze a GitHub event")
     github_run.add_argument("event", type=Path)
@@ -98,6 +106,8 @@ def main(argv: list[str] | None = None) -> int:
             return _doctor(args.config)
         if args.command == "verify":
             return _verify(args.config)
+        if args.command == "presets":
+            return _presets()
         config = load_config(args.config) if args.config else load_config()
         if args.command in {"print-config", "config"}:
             print(default_config_toml(), end="")
@@ -151,7 +161,7 @@ def _init(args: argparse.Namespace) -> int:
     config_path = args.config or Path(".maintainerguard.toml")
     created: list[Path] = []
     skipped: list[Path] = []
-    _write_setup_file(config_path, default_config_toml(), args.force, created, skipped)
+    _write_setup_file(config_path, default_config_toml(args.preset), args.force, created, skipped)
     if args.github_action:
         workflow = Path(".github") / "workflows" / "maintainerguard.yml"
         _write_setup_file(workflow, _safe_workflow_template(), args.force, created, skipped)
@@ -174,6 +184,15 @@ def _init(args: argparse.Namespace) -> int:
     print("2. Run: mg doctor")
     print("3. Run: mg demo")
     print("4. Commit the config file")
+    return 0
+
+
+def _presets() -> int:
+    print("Built-in policy presets:\n")
+    print("* minimal - no repository policy checks")
+    print("* security - default auth, workflow, dependency, and public-interface checks")
+    print("* strict - blocking auth, workflow, and dependency checks")
+    print("* docs - documentation-focused checks for docs, examples, README, and changelog paths")
     return 0
 
 

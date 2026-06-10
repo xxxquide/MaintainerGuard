@@ -8,11 +8,11 @@
 
 ## Executive summary
 
-"Clarify local setup instructions" affects Documentation. Verdict: Ready for maintainer review. Overall risk: Low. No elevated deterministic review signals were detected.
+"Add regression coverage for score rounding" affects Tests. Verdict: Ready for maintainer review. Overall risk: Low. No elevated deterministic review signals were detected.
 
 ## Key changes
 
-- Documentation
+- Tests
 
 ## Why this requires review
 
@@ -38,11 +38,11 @@
 
 ## Test impact
 
-**None:** No behavior change requiring additional test review was detected.
+**Low:** Related test files changed in this pull request.
 
 ## Documentation impact
 
-**Low:** Documentation or examples changed with the pull request.
+**None:** No documentation drift signal was detected.
 
 ## Release impact
 
@@ -64,7 +64,8 @@
 
 | ID | Claim | Evidence | Confidence |
 |---|---|---|---|
-| `ev-6efc8da2a5f4` | docs/getting-started.md changed | changed_file: docs/getting-started.md; modified file; supplied patch length 51 characters | High |
+| `ev-ed0845100997` | tests/test_score_rounding.py changed | changed_file: tests/test_score_rounding.py; added file; supplied patch length 88 characters | High |
+| `ev-b73d48505373` | tests/fixtures/score-cases.json changed | changed_file: tests/fixtures/score-cases.json; added file; supplied patch length 35 characters | High |
 
 ## Limitations
 

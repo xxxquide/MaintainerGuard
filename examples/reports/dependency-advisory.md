@@ -1,7 +1,9 @@
 # MaintainerGuard Merge Readiness Report
 
-**Verdict:** Blocked by scanner finding  
-**Overall risk:** Critical  
+**Verdict:** Blocked by scanner finding
+
+**Overall risk:** Critical
+
 **Confidence:** High
 
 ## Executive summary

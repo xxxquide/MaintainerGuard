@@ -127,6 +127,7 @@ mg demo
 - `ci-workflow-risk`: release workflow permission change with supply-chain scanner evidence
 - `secret-finding`: test fixture plus a supplied secret scanner finding
 - `docs-only`: low-risk documentation-only change
+- `test-only`: low-risk test-only change
 - `medium-risk-config`: configuration behavior change
 - `release-impact`: breaking CLI-style change with changelog/test files
 
@@ -137,6 +138,7 @@ Sample reports:
 - [CI workflow risk report](examples/reports/ci-workflow-risk.md)
 - [Secret finding report](examples/reports/secret-finding.md)
 - [Docs-only low-risk report](examples/reports/docs-only-low-risk.md)
+- [Test-only low-risk report](examples/reports/test-only-low-risk.md)
 - [Release readiness report](examples/reports/release-readiness.md)
 - [Issue triage report](examples/reports/issue-triage.md)
 

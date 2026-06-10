@@ -60,7 +60,7 @@ class SampleTests(unittest.TestCase):
         expected_counts = {
             "examples/sample-data/prs": 7,
             "examples/sample-data/issues": 6,
-            "examples/sample-data/scanners": 6,
+            "examples/sample-data/scanners": 7,
             "examples/sample-data/releases": 1,
             "schemas": 5,
         }
@@ -79,6 +79,7 @@ class SampleTests(unittest.TestCase):
             ["analyze-issue", "examples/sample-data/issues/bug-missing-reproduction.json"],
             ["analyze-release", "examples/sample-data/releases/v0.2.0.json"],
             ["parse-scanner", "examples/sample-data/scanners/mixed-severity.json"],
+            ["parse-scanner", "examples/sample-data/scanners/container-trivy-warning.json"],
             ["validate-config"],
             ["github-run", "examples/sample-data/github/pull-request-event.json"],
         ]

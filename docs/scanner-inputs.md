@@ -29,6 +29,12 @@ python3 -m maintainerguard analyze-pr examples/sample-data/prs/dependency-update
   --scanner examples/sample-data/scanners/dependency-advisory.json
 ```
 
+Try a sanitized Trivy-like container warning:
+
+```bash
+python3 -m maintainerguard parse-scanner examples/sample-data/scanners/container-trivy-warning.json
+```
+
 The explainer groups duplicate scanner IDs, normalizes severity, identifies
 affected files or dependencies, and suggests maintainer review. It never turns a
 scanner warning into a confirmed vulnerability claim.
@@ -50,3 +56,25 @@ scanner warning into a confirmed vulnerability claim.
   ]
 }
 ```
+
+## Mapping scanner output into generic JSON
+
+Use the generic format when MaintainerGuard does not yet have a dedicated
+adapter for a scanner. Keep examples sanitized: use placeholder image names,
+repository paths, package versions, and advisory IDs instead of real private
+scanner output.
+
+For a Trivy-like container or supply-chain warning, map scanner fields like this:
+
+- Scanner name -> `scanner`, for example `trivy-container`.
+- Vulnerability or rule ID -> finding `id`.
+- Scanner severity -> finding `severity`; MaintainerGuard normalizes common
+  values such as `LOW`, `MEDIUM`, `HIGH`, and `CRITICAL`.
+- Target image, manifest, lockfile, or Dockerfile -> `affected_files`.
+- Package name and installed version -> `dependency`.
+- CVE or vendor advisory -> `advisory_id`.
+- Fixed version or remediation note -> `recommendation`.
+
+MaintainerGuard explains and groups the supplied scanner evidence for maintainer
+review. It does not replace the scanner, rescan the image, or confirm that a
+reported vulnerability is exploitable.

@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Generate dry-run report
-        uses: xxxquide/MaintainerGuard@v0.1.4
+        uses: xxxquide/MaintainerGuard@v0.2.0
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:

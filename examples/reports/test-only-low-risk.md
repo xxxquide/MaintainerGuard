@@ -1,7 +1,9 @@
 # MaintainerGuard Merge Readiness Report
 
 **Verdict:** Ready for maintainer review
+
 **Overall risk:** Low
+
 **Confidence:** High
 
 ## Executive summary

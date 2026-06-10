@@ -141,6 +141,7 @@ class CLITests(unittest.TestCase):
             config = root / ".maintainerguard.toml"
             self.assertTrue(config.exists())
             self.assertIn("dry_run = true", config.read_text(encoding="utf-8"))
+            self.assertIn('policy_preset = "security"', config.read_text(encoding="utf-8"))
             self.assertIn("MaintainerGuard initialized.", first.stdout)
 
             config.write_text("custom = true\n", encoding="utf-8")
@@ -151,7 +152,30 @@ class CLITests(unittest.TestCase):
 
             forced = self.run_cli(["init", "--force"], cwd=root)
             self.assertEqual(0, forced.returncode, forced.stderr)
-            self.assertIn("dry_run = true", config.read_text(encoding="utf-8"))
+            forced_text = config.read_text(encoding="utf-8")
+            self.assertIn("dry_run = true", forced_text)
+            self.assertIn('policy_preset = "security"', forced_text)
+
+    def test_init_accepts_each_policy_preset(self):
+        for preset in ("minimal", "security", "strict", "docs"):
+            with self.subTest(preset=preset):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    result = self.run_cli(["init", "--preset", preset], cwd=root)
+                    self.assertEqual(0, result.returncode, result.stderr)
+                    config = root / ".maintainerguard.toml"
+                    self.assertIn(
+                        f'policy_preset = "{preset}"',
+                        config.read_text(encoding="utf-8"),
+                    )
+
+    def test_presets_lists_builtin_policy_presets(self):
+        result = self.run_cli(["presets"])
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("minimal", result.stdout)
+        self.assertIn("security", result.stdout)
+        self.assertIn("strict", result.stdout)
+        self.assertIn("docs", result.stdout)
 
     def test_init_can_create_safe_github_action_workflow(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -164,7 +188,7 @@ class CLITests(unittest.TestCase):
             self.assertIn("permissions:", text)
             self.assertIn("contents: read", text)
             self.assertIn("pull-requests: read", text)
-            self.assertIn("uses: xxxquide/MaintainerGuard@v0.1.4", text)
+            self.assertIn("uses: xxxquide/MaintainerGuard@v0.2.0", text)
             self.assertIn("mode: analyze-pr", text)
             self.assertIn('dry-run: "true"', text)
             self.assertIn('post-comment: "false"', text)

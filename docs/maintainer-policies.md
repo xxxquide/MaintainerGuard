@@ -1,6 +1,14 @@
 # Maintainer policies
 
 Policies connect repository-specific path patterns to review requirements.
+Use `core.policy_preset` for common profiles:
+
+- `minimal`: disables repository policy checks;
+- `security`: default checks for auth, workflows, dependency manifests, and public interfaces;
+- `strict`: blocking auth, workflow, and dependency checks for repositories that want merge gates;
+- `docs`: documentation-focused checks for README, docs, examples, and changelog paths.
+
+Custom `[[policy]]` entries replace the selected preset.
 
 ```toml
 [[policy]]

@@ -8,6 +8,8 @@ independently confirm their findings.
 - MaintainerGuard generic JSON from `schemas/scanner.schema.json`
 - SARIF result files with tool name, rule ID, level, message, and locations
 - OSV-style results containing packages and vulnerabilities
+- Trivy vulnerability results with targets, package versions, advisory IDs, and
+  fixed versions
 - Simple secret-scanner result arrays
 - Semgrep-like static-analysis findings through generic JSON
 - Workflow or supply-chain policy warnings through generic JSON
@@ -20,6 +22,12 @@ Normalize a sample:
 
 ```bash
 python3 -m maintainerguard parse-scanner examples/sample-data/scanners/static-analysis.sarif.json
+```
+
+Normalize a sanitized Trivy vulnerability result:
+
+```bash
+python3 -m maintainerguard parse-scanner examples/sample-data/scanners/trivy-vulnerability.json
 ```
 
 Attach scanner evidence to PR analysis:

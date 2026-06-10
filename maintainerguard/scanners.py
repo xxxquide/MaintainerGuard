@@ -31,6 +31,8 @@ def normalize_scanner_input(data: dict[str, Any]) -> list[ScannerFinding]:
         raise ValueError("Scanner input must be a JSON object")
     if "runs" in data:
         return _from_sarif(data)
+    if _looks_like_trivy(data):
+        return _from_trivy(data)
     if _looks_like_osv(data):
         return _from_osv(data)
     if "findings" in data:
@@ -106,6 +108,58 @@ def _from_sarif(data: dict[str, Any]) -> list[ScannerFinding]:
                     description=text,
                     affected=affected,
                     recommendation=_recommendation("code-scanning"),
+                )
+            )
+    return normalized
+
+
+def _looks_like_trivy(data: dict[str, Any]) -> bool:
+    results = data.get("Results")
+    if not isinstance(results, list):
+        return False
+    return any(
+        isinstance(result, dict) and isinstance(result.get("Vulnerabilities"), list)
+        for result in results
+    )
+
+
+def _from_trivy(data: dict[str, Any]) -> list[ScannerFinding]:
+    normalized = []
+    for result in data.get("Results", []):
+        if not isinstance(result, dict):
+            continue
+        target = _text(result.get("Target"), "container image or artifact")
+        for index, vulnerability in enumerate(result.get("Vulnerabilities", [])):
+            if not isinstance(vulnerability, dict):
+                continue
+            advisory_id = _text(vulnerability.get("VulnerabilityID"), f"trivy-{index + 1}")
+            package = _text(vulnerability.get("PkgName"), "unknown-package")
+            installed_version = _text(vulnerability.get("InstalledVersion"), "unknown-version")
+            fixed_version = _text(vulnerability.get("FixedVersion"), "")
+            title = _text(vulnerability.get("Title"), advisory_id)
+            description = _text(vulnerability.get("Description"), title)
+            recommendation = (
+                f"Update {package} to {fixed_version} or rebuild the affected artifact/image."
+                if fixed_version
+                else _recommendation("dependency")
+            )
+            normalized.append(
+                ScannerFinding(
+                    id=advisory_id,
+                    scanner="Trivy",
+                    severity=normalize_severity(vulnerability.get("Severity")),
+                    title=title,
+                    explanation=(
+                        f"Trivy reported {advisory_id} in {package} {installed_version} "
+                        f"for {target}. Review whether the vulnerable package is reachable "
+                        "and whether a rebuilt image or patched dependency is available."
+                    ),
+                    category="dependency",
+                    description=description,
+                    affected=[target, f"{package}@{installed_version}"],
+                    affected_dependency=f"{package}@{installed_version}",
+                    advisory_id=advisory_id,
+                    recommendation=recommendation,
                 )
             )
     return normalized
@@ -206,6 +260,13 @@ def _recommendation(category: str) -> str:
         "static-analysis": "Review the affected code path and confirm whether the scanner signal is reachable and actionable.",
         "code-scanning": "Review the affected code path and confirm whether the code-scanning alert is relevant to this change.",
     }.get(category, "Review the supplied scanner evidence and decide whether maintainer action is required.")
+
+
+def _text(value: Any, default: str) -> str:
+    if value is None:
+        return default
+    text = str(value).strip()
+    return text or default
 
 
 def _osv_severity(vulnerability: dict[str, Any]) -> str:

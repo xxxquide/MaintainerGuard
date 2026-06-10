@@ -1,0 +1,18 @@
+[core]
+dry_run = true
+policy_preset = "strict"
+
+[ai]
+enabled = false
+
+[github]
+post_comments = false
+
+[modules]
+security = true
+scanners = true
+dependencies = true
+tests = true
+documentation = true
+release = true
+policies = true

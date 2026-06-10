@@ -84,9 +84,16 @@ def _from_sarif(data: dict[str, Any]) -> list[ScannerFinding]:
             if isinstance(run, dict)
             else None
         ) or "SARIF scanner"
+        rules = _sarif_rules(run)
         for result_index, result in enumerate(run.get("results", [])):
+            rule_id = str(result.get("ruleId", f"sarif-{run_index + 1}-{result_index + 1}"))
+            rule = rules.get(rule_id, {})
             message = result.get("message", {})
-            text = message.get("text", "Static analysis finding") if isinstance(message, dict) else str(message)
+            text = (
+                message.get("text")
+                if isinstance(message, dict)
+                else str(message) if message else ""
+            ) or _sarif_rule_text(rule) or "Static analysis finding"
             affected = []
             for location in result.get("locations", []):
                 uri = (
@@ -96,12 +103,11 @@ def _from_sarif(data: dict[str, Any]) -> list[ScannerFinding]:
                 )
                 if uri:
                     affected.append(str(uri))
-            finding_id = str(result.get("ruleId", f"sarif-{run_index + 1}-{result_index + 1}"))
             normalized.append(
                 ScannerFinding(
-                    id=finding_id,
+                    id=rule_id,
                     scanner=str(scanner),
-                    severity=normalize_severity(str(result.get("level", "warning"))),
+                    severity=normalize_severity(_sarif_level(result, rule)),
                     title=text,
                     explanation=_maintainer_explanation(str(scanner), text, text, "code-scanning"),
                     category="code-scanning",
@@ -163,6 +169,36 @@ def _from_trivy(data: dict[str, Any]) -> list[ScannerFinding]:
                 )
             )
     return normalized
+
+
+def _sarif_rules(run: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    driver = run.get("tool", {}).get("driver", {})
+    rules = driver.get("rules", [])
+    if not isinstance(rules, list):
+        return {}
+    return {
+        str(rule.get("id")): rule
+        for rule in rules
+        if isinstance(rule, dict) and rule.get("id")
+    }
+
+
+def _sarif_level(result: dict[str, Any], rule: dict[str, Any]) -> str:
+    explicit = result.get("level")
+    if explicit:
+        return str(explicit)
+    default_configuration = rule.get("defaultConfiguration", {})
+    if isinstance(default_configuration, dict) and default_configuration.get("level"):
+        return str(default_configuration["level"])
+    return "warning"
+
+
+def _sarif_rule_text(rule: dict[str, Any]) -> str:
+    for key in ("shortDescription", "fullDescription"):
+        value = rule.get(key)
+        if isinstance(value, dict) and value.get("text"):
+            return str(value["text"])
+    return ""
 
 
 def _looks_like_osv(data: dict[str, Any]) -> bool:

@@ -33,6 +33,45 @@ class ScannerTests(unittest.TestCase):
         self.assertEqual("Medium", findings[0].severity)
         self.assertEqual("src/view.js", findings[0].affected[0])
 
+    def test_sarif_uses_rule_defaults_when_result_fields_are_sparse(self):
+        findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {
+                            "driver": {
+                                "name": "CodeQL",
+                                "rules": [
+                                    {
+                                        "id": "py/hardcoded-token",
+                                        "shortDescription": {"text": "Hard-coded token"},
+                                        "defaultConfiguration": {"level": "error"},
+                                    }
+                                ],
+                            }
+                        },
+                        "results": [
+                            {
+                                "ruleId": "py/hardcoded-token",
+                                "locations": [
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "src/settings.py"}
+                                        }
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual("py/hardcoded-token", findings[0].id)
+        self.assertEqual("High", findings[0].severity)
+        self.assertEqual("Hard-coded token", findings[0].title)
+        self.assertEqual("src/settings.py", findings[0].affected[0])
+
     def test_normalizes_osv_and_generic(self):
         osv = normalize_scanner_input(
             {

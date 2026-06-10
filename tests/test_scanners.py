@@ -114,6 +114,50 @@ class ScannerTests(unittest.TestCase):
         self.assertEqual("SQL injection risk", findings[0].title)
         self.assertEqual("src/db.py", findings[0].affected[0])
 
+    def test_sarif_accepts_markdown_message_and_rule_text(self):
+        message_findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {"driver": {"name": "CodeQL"}},
+                        "results": [
+                            {
+                                "ruleId": "py/path-injection",
+                                "message": {"markdown": "**Path injection** risk"},
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual("**Path injection** risk", message_findings[0].title)
+
+        rule_findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {
+                            "driver": {
+                                "name": "CodeQL",
+                                "rules": [
+                                    {
+                                        "id": "py/weak-crypto",
+                                        "shortDescription": {
+                                            "markdown": "**Weak crypto**"
+                                        },
+                                    }
+                                ],
+                            }
+                        },
+                        "results": [{"ruleId": "py/weak-crypto"}],
+                    }
+                ],
+            }
+        )
+        self.assertEqual("**Weak crypto**", rule_findings[0].title)
+
     def test_normalizes_osv_and_generic(self):
         osv = normalize_scanner_input(
             {

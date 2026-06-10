@@ -88,12 +88,11 @@ def _from_sarif(data: dict[str, Any]) -> list[ScannerFinding]:
         for result_index, result in enumerate(run.get("results", [])):
             rule_id = str(result.get("ruleId", f"sarif-{run_index + 1}-{result_index + 1}"))
             rule = rules.get(rule_id, {})
-            message = result.get("message", {})
             text = (
-                message.get("text")
-                if isinstance(message, dict)
-                else str(message) if message else ""
-            ) or _sarif_rule_text(rule) or "Static analysis finding"
+                _sarif_message_text(result.get("message", {}))
+                or _sarif_rule_text(rule)
+                or "Static analysis finding"
+            )
             affected = []
             for location in result.get("locations", []):
                 uri = (
@@ -203,11 +202,24 @@ def _sarif_level(result: dict[str, Any], rule: dict[str, Any]) -> str:
     return "warning"
 
 
+def _sarif_message_text(message: Any) -> str:
+    if isinstance(message, dict):
+        for key in ("text", "markdown"):
+            if message.get(key):
+                return str(message[key])
+        return ""
+    if message:
+        return str(message)
+    return ""
+
+
 def _sarif_rule_text(rule: dict[str, Any]) -> str:
     for key in ("shortDescription", "fullDescription"):
         value = rule.get(key)
-        if isinstance(value, dict) and value.get("text"):
-            return str(value["text"])
+        if isinstance(value, dict):
+            for text_key in ("text", "markdown"):
+                if value.get(text_key):
+                    return str(value[text_key])
     return ""
 
 

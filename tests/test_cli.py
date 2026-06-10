@@ -164,8 +164,13 @@ class CLITests(unittest.TestCase):
             self.assertIn("permissions:", text)
             self.assertIn("contents: read", text)
             self.assertIn("pull-requests: read", text)
+            self.assertIn("uses: xxxquide/MaintainerGuard@v0.1.4", text)
+            self.assertIn("mode: analyze-pr", text)
             self.assertIn('dry-run: "true"', text)
             self.assertIn('post-comment: "false"', text)
+            self.assertNotIn("ai-enabled", text)
+            self.assertNotIn('dry-run: "false"', text)
+            self.assertNotIn('post-comment: "true"', text)
             self.assertNotIn("issues: write", text)
 
     def test_doctor_passes_with_valid_config(self):

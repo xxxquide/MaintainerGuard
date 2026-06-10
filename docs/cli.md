@@ -89,6 +89,44 @@ not overwrite files unless `--force` is supplied.
 - read-only workflow permissions;
 - no auto-merge behavior.
 
+The generated workflow is copy-ready for pull-request analysis:
+
+```yaml
+name: MaintainerGuard
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - uses: xxxquide/MaintainerGuard@v0.1.4
+        with:
+          mode: analyze-pr
+          dry-run: "true"
+          post-comment: "false"
+          fail-on-risk: none
+```
+
+The workflow uses the published Action reference, leaves comment publishing
+off, and does not enable AI. `mg init --github-action` will not overwrite an
+existing `.maintainerguard.toml` or workflow file unless `--force` is also
+supplied:
+
+```bash
+mg init --github-action --force
+```
+
 ### `mg doctor`
 
 Check whether MaintainerGuard is ready to use in the current directory.

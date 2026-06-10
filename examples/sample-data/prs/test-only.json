@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "number": 108,
+  "title": "Add regression coverage for score rounding",
+  "body": "Adds tests for existing score rounding behavior without changing runtime code.",
+  "draft": false,
+  "author": {"login": "test-contributor", "type": "User"},
+  "labels": ["tests"],
+  "files": [
+    {
+      "path": "tests/test_score_rounding.py",
+      "status": "added",
+      "patch": "+def test_round_score_keeps_two_decimal_places():\n+    assert round_score(0.246) == 0.25"
+    },
+    {
+      "path": "tests/fixtures/score-cases.json",
+      "status": "added",
+      "patch": "+{\"input\": 0.246, \"expected\": 0.25}"
+    }
+  ]
+}

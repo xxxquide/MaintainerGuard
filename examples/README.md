@@ -22,6 +22,7 @@ mg demo --scenario dependency-advisory
 mg demo --scenario ci-workflow-risk
 mg demo --scenario secret-finding
 mg demo --scenario docs-only
+mg demo --scenario test-only
 mg demo --scenario high-risk-auth --format json
 ```
 
@@ -40,6 +41,7 @@ mg demo --scenario high-risk-auth --format json
 - [CI workflow risk](reports/ci-workflow-risk.md)
 - [Secret finding](reports/secret-finding.md)
 - [Docs-only low risk](reports/docs-only-low-risk.md)
+- [Test-only low risk](reports/test-only-low-risk.md)
 - [Issue triage](reports/issue-triage.md)
 - [Release readiness](reports/release-readiness.md)
 

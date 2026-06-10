@@ -43,6 +43,7 @@ class SampleTests(unittest.TestCase):
             "examples/README.md",
             "examples/reports/docs-only.md",
             "examples/reports/docs-only-low-risk.md",
+            "examples/reports/test-only-low-risk.md",
             "examples/reports/high-risk-auth.md",
             "examples/reports/dependency-advisory.md",
             "examples/reports/ci-workflow-risk.md",
@@ -76,6 +77,7 @@ class SampleTests(unittest.TestCase):
             ["demo", "--scenario", "dependency-advisory"],
             ["demo", "--scenario", "ci-workflow-risk"],
             ["demo", "--scenario", "secret-finding"],
+            ["demo", "--scenario", "test-only"],
             ["analyze-issue", "examples/sample-data/issues/bug-missing-reproduction.json"],
             ["analyze-release", "examples/sample-data/releases/v0.2.0.json"],
             ["parse-scanner", "examples/sample-data/scanners/mixed-severity.json"],
@@ -96,6 +98,10 @@ class SampleTests(unittest.TestCase):
             (
                 ["analyze-pr", "examples/sample-data/prs/docs-only.json"],
                 "examples/reports/docs-only.md",
+            ),
+            (
+                ["analyze-pr", "examples/sample-data/prs/test-only.json"],
+                "examples/reports/test-only-low-risk.md",
             ),
             (
                 ["analyze-pr", "examples/sample-data/prs/high-risk-auth.json"],

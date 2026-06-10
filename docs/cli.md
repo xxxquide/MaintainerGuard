@@ -176,25 +176,50 @@ GitHub comments.
 
 ## Troubleshooting
 
-If `mg` is not found, confirm the package is installed in the active
-environment:
+### `mg` command not found
+
+Confirm the package is installed in the active environment:
 
 ```bash
 python3 -m pip install -e .
 python3 -m maintainerguard demo --scenario high-risk-auth
 ```
 
-If configuration fails, print a clean example and compare it with your file:
+The module form is useful when a shell cannot find the short console script yet.
+
+### Config file missing
+
+Run `mg init` from the repository root to create `.maintainerguard.toml` with
+safe defaults:
+
+```bash
+mg init
+mg doctor
+```
+
+`mg doctor` can still inspect built-in defaults when the config file is missing,
+but repository-specific policy checks need a config file.
+
+### Invalid `.maintainerguard.toml`
+
+Print a clean example, compare it with your file, then validate again:
 
 ```bash
 mg config
 mg validate-config
 ```
 
-If GitHub Action behavior differs from local CLI behavior, start with dry-run
-mode and read [GitHub automation](github-automation.md). Comment publishing
-requires explicit `dry-run: "false"`, `post-comment: "true"`,
-`pull-requests: write`, and `issues: write` permissions.
+### GitHub Action dry-run logs but no PR comment
+
+This is expected when `post-comment: "false"` is configured. Dry-run mode is the
+safe default for checking the report in workflow logs without writing to the PR.
+
+If GitHub Action behavior differs from local CLI behavior, keep dry-run mode on
+while comparing inputs and read [GitHub automation](github-automation.md).
+Comment publishing requires explicit `dry-run: "false"`,
+`post-comment: "true"`, `pull-requests: write`, and `issues: write`
+permissions. Do not enable comments by default for every repository; turn them
+on only after the dry-run report is useful.
 
 MaintainerGuard does not prove code is secure, find every vulnerability, or
 replace maintainer review. It produces evidence-backed readiness reports and

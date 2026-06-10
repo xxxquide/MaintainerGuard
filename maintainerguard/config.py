@@ -134,6 +134,7 @@ class Config:
     dry_run: bool = True
     report_mode: str = "concise"
     output_format: str = "markdown"
+    policy_preset: str = "security"
     language: str = "en"
     log_level: str = "warning"
     ai: AIConfig = field(default_factory=AIConfig)
@@ -185,7 +186,7 @@ class Config:
 
 
 _ALLOWED: dict[str, set[str]] = {
-    "core": {"dry_run", "report_mode", "output_format", "language", "log_level"},
+    "core": {"dry_run", "report_mode", "output_format", "policy_preset", "language", "log_level"},
     "ai": {"enabled", "provider", "model", "api_key_env", "endpoint", "timeout_seconds"},
     "github": {
         "post_comments",
@@ -268,11 +269,113 @@ def load_config(path: str | Path | None = None) -> Config:
             ):
                 raise ConfigError(f"policy[{index}].paths must contain strings")
             config.policies.append(PolicyRule(**policy))
+    else:
+        config.policies = _preset_policy_rules(config.policy_preset)
     _validate_config(config)
     return config
 
 
+def _preset_policy_rules(name: str) -> list[PolicyRule]:
+    presets: dict[str, list[PolicyRule]] = {
+        "minimal": [],
+        "security": _security_policy_rules(),
+        "strict": [
+            PolicyRule(
+                "Authentication changes require tests",
+                ["**/auth/**", "**/session*", "**/middleware/**"],
+                "tests",
+                True,
+                "Add or confirm tests for the changed authentication behavior before merge.",
+            ),
+            PolicyRule(
+                "CI workflow changes require maintainer review",
+                [".github/workflows/**"],
+                "manual_review",
+                True,
+                "Review workflow permissions and third-party actions before merge.",
+            ),
+            PolicyRule(
+                "Dependency changes require scanner results",
+                [
+                    "requirements*.txt",
+                    "requirements*.lock",
+                    "package.json",
+                    "package-lock.json",
+                    "pyproject.toml",
+                    "Cargo.toml",
+                    "go.mod",
+                ],
+                "scanner",
+                True,
+                "Attach dependency scanner results before merge.",
+            ),
+            PolicyRule(
+                "Configuration or public interface changes should update docs",
+                ["**/config/**", "**/cli.*", "src/cli.py", "src/config/**"],
+                "docs",
+                False,
+                "Review README, docs, examples, and changelog for configuration or CLI changes.",
+            ),
+        ],
+        "docs": [
+            PolicyRule(
+                "Public docs and examples should stay current",
+                ["README*", "docs/**", "examples/**", "CHANGELOG*"],
+                "docs",
+                False,
+                "Confirm documentation, examples, or changelog updates are intentional and complete.",
+            ),
+        ],
+    }
+    if name not in presets:
+        raise ConfigError("core.policy_preset must be minimal, security, strict, or docs")
+    return copy.deepcopy(presets[name])
+
+
+def _security_policy_rules() -> list[PolicyRule]:
+    return [
+        PolicyRule(
+            "Authentication changes require tests",
+            ["**/auth/**", "**/session*", "**/middleware/**"],
+            "tests",
+            False,
+            "Add or confirm tests for the changed authentication behavior.",
+        ),
+        PolicyRule(
+            "CI workflow changes require maintainer review",
+            [".github/workflows/**"],
+            "manual_review",
+            False,
+            "Review workflow permissions and third-party actions.",
+        ),
+        PolicyRule(
+            "Dependency changes should include scanner results",
+            [
+                "requirements*.txt",
+                "requirements*.lock",
+                "package.json",
+                "package-lock.json",
+                "pyproject.toml",
+                "Cargo.toml",
+                "go.mod",
+            ],
+            "scanner",
+            False,
+            "Run or attach dependency scanner results for changed package inputs.",
+        ),
+        PolicyRule(
+            "Configuration or public interface changes should update docs",
+            ["**/config/**", "**/cli.*", "src/cli.py", "src/config/**"],
+            "docs",
+            False,
+            "Review README, docs, examples, and changelog for configuration or CLI changes.",
+        ),
+    ]
+
+
 def _validate_config(config: Config) -> None:
+    if config.policy_preset not in {"minimal", "security", "strict", "docs"}:
+        raise ConfigError("core.policy_preset must be minimal, security, strict, or docs")
     if config.report_mode not in {"concise", "detailed"}:
         raise ConfigError("core.report_mode must be concise or detailed")
     if config.output_format not in {"markdown", "json"}:
@@ -288,12 +391,15 @@ def _validate_config(config: Config) -> None:
             raise ConfigError(f"Unsupported policy requirement: {policy.require}")
 
 
-def default_config_toml() -> str:
-    return """# MaintainerGuard safe-by-default configuration
+def default_config_toml(policy_preset: str = "security") -> str:
+    if policy_preset not in {"minimal", "security", "strict", "docs"}:
+        raise ConfigError("policy_preset must be minimal, security, strict, or docs")
+    return f"""# MaintainerGuard safe-by-default configuration
 [core]
 dry_run = true
 report_mode = "concise"
 output_format = "markdown"
+policy_preset = "{policy_preset}"
 language = "en"
 log_level = "warning"
 
@@ -339,32 +445,4 @@ scanner_inputs = []
 medium = 3
 high = 7
 critical = 12
-
-[[policy]]
-name = "Authentication changes require tests"
-paths = ["**/auth/**", "**/session*", "**/middleware/**"]
-require = "tests"
-blocking = false
-message = "Add or confirm tests for the changed authentication behavior."
-
-[[policy]]
-name = "CI workflow changes require maintainer review"
-paths = [".github/workflows/**"]
-require = "manual_review"
-blocking = false
-message = "Review workflow permissions and third-party actions."
-
-[[policy]]
-name = "Dependency changes should include scanner results"
-paths = ["requirements*.txt", "requirements*.lock", "package.json", "package-lock.json", "pyproject.toml", "Cargo.toml", "go.mod"]
-require = "scanner"
-blocking = false
-message = "Run or attach dependency scanner results for changed package inputs."
-
-[[policy]]
-name = "Configuration or public interface changes should update docs"
-paths = ["**/config/**", "**/cli.*", "src/cli.py", "src/config/**"]
-require = "docs"
-blocking = false
-message = "Review README, docs, examples, and changelog for configuration or CLI changes."
 """

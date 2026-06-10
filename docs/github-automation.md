@@ -32,7 +32,7 @@ steps:
   - uses: actions/setup-python@v6
     with:
       python-version: "3.11"
-  - uses: xxxquide/MaintainerGuard@v0.1.4
+  - uses: xxxquide/MaintainerGuard@v0.2.0
     with:
       mode: analyze-pr
       dry-run: "true"
@@ -61,7 +61,7 @@ you intentionally want the lower-level CLI helper.
 External repositories should use the published Action:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.1.4
+- uses: xxxquide/MaintainerGuard@v0.2.0
 ```
 
 Local development note: when testing changes inside this repository before a

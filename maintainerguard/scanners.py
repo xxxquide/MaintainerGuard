@@ -84,24 +84,25 @@ def _from_sarif(data: dict[str, Any]) -> list[ScannerFinding]:
             if isinstance(run, dict)
             else None
         ) or "SARIF scanner"
+        rules = _sarif_rules(run) if isinstance(run, dict) else {}
         for result_index, result in enumerate(run.get("results", [])):
-            message = result.get("message", {})
-            text = message.get("text", "Static analysis finding") if isinstance(message, dict) else str(message)
+            rule_id = str(result.get("ruleId", f"sarif-{run_index + 1}-{result_index + 1}"))
+            rule = rules.get(rule_id, {})
+            text = (
+                _sarif_message_text(result.get("message", {}))
+                or _sarif_rule_text(rule)
+                or "Static analysis finding"
+            )
             affected = []
             for location in result.get("locations", []):
-                uri = (
-                    location.get("physicalLocation", {})
-                    .get("artifactLocation", {})
-                    .get("uri")
-                )
-                if uri:
-                    affected.append(str(uri))
-            finding_id = str(result.get("ruleId", f"sarif-{run_index + 1}-{result_index + 1}"))
+                label = _sarif_location_label(location)
+                if label:
+                    affected.append(label)
             normalized.append(
                 ScannerFinding(
-                    id=finding_id,
+                    id=rule_id,
                     scanner=str(scanner),
-                    severity=normalize_severity(str(result.get("level", "warning"))),
+                    severity=normalize_severity(_sarif_level(result, rule)),
                     title=text,
                     explanation=_maintainer_explanation(str(scanner), text, text, "code-scanning"),
                     category="code-scanning",
@@ -111,6 +112,76 @@ def _from_sarif(data: dict[str, Any]) -> list[ScannerFinding]:
                 )
             )
     return normalized
+
+
+def _sarif_rules(run: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    tool = run.get("tool", {})
+    rule_sets = []
+    if isinstance(tool, dict):
+        driver = tool.get("driver", {})
+        if isinstance(driver, dict):
+            rule_sets.append(driver)
+        extensions = tool.get("extensions", [])
+        if isinstance(extensions, list):
+            rule_sets.extend(extension for extension in extensions if isinstance(extension, dict))
+
+    rules_by_id = {}
+    for rule_set in rule_sets:
+        rules = rule_set.get("rules", [])
+        if not isinstance(rules, list):
+            continue
+        rules_by_id.update(
+            {
+                str(rule.get("id")): rule
+                for rule in rules
+                if isinstance(rule, dict) and rule.get("id")
+            }
+        )
+    return rules_by_id
+
+
+def _sarif_level(result: dict[str, Any], rule: dict[str, Any]) -> str:
+    explicit = result.get("level")
+    if explicit:
+        return str(explicit)
+    default_configuration = rule.get("defaultConfiguration", {})
+    if isinstance(default_configuration, dict) and default_configuration.get("level"):
+        return str(default_configuration["level"])
+    return "warning"
+
+
+def _sarif_message_text(message: Any) -> str:
+    if isinstance(message, dict):
+        for key in ("text", "markdown"):
+            if message.get(key):
+                return str(message[key])
+        return ""
+    if message:
+        return str(message)
+    return ""
+
+
+def _sarif_rule_text(rule: dict[str, Any]) -> str:
+    for key in ("shortDescription", "fullDescription"):
+        value = rule.get(key)
+        if isinstance(value, dict):
+            for text_key in ("text", "markdown"):
+                if value.get(text_key):
+                    return str(value[text_key])
+    return ""
+
+
+def _sarif_location_label(location: dict[str, Any]) -> str:
+    physical = location.get("physicalLocation", {}) if isinstance(location, dict) else {}
+    artifact = physical.get("artifactLocation", {}) if isinstance(physical, dict) else {}
+    uri = artifact.get("uri") if isinstance(artifact, dict) else None
+    if not uri:
+        return ""
+    region = physical.get("region", {}) if isinstance(physical, dict) else {}
+    start_line = region.get("startLine") if isinstance(region, dict) else None
+    if isinstance(start_line, int) and start_line > 0:
+        return f"{uri}:{start_line}"
+    return str(uri)
 
 
 def _looks_like_trivy(data: dict[str, Any]) -> bool:

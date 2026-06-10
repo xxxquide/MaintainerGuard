@@ -4,6 +4,21 @@ All notable changes to MaintainerGuard are documented here.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-10
+
+### Added
+
+- Added policy presets for `minimal`, `security`, `strict`, and `docs` repository profiles.
+- Added `mg presets` and `mg init --preset minimal|security|strict|docs`.
+- Added SARIF line evidence by preserving `startLine` as `path:line` while keeping path-only fallback.
+- Added SARIF rule metadata fallback for sparse results, including rule default severity and description text.
+
+### Changed
+
+- Kept Trivy vulnerability normalization from v0.1.4 while integrating SARIF scanner improvements.
+- Documented policy preset behavior and custom `[[policy]]` override semantics.
+- Expanded scanner, CLI, config, and smoke-test coverage for the v0.2.0 integration.
+
 ## [0.1.4] - 2026-06-09
 
 ### Changed

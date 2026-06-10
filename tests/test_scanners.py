@@ -19,7 +19,8 @@ class ScannerTests(unittest.TestCase):
                                 "locations": [
                                     {
                                         "physicalLocation": {
-                                            "artifactLocation": {"uri": "src/view.js"}
+                                            "artifactLocation": {"uri": "src/view.js"},
+                                            "region": {"startLine": 42},
                                         }
                                     }
                                 ],
@@ -31,7 +32,159 @@ class ScannerTests(unittest.TestCase):
         )
         self.assertEqual("CodeQL", findings[0].scanner)
         self.assertEqual("Medium", findings[0].severity)
+        self.assertEqual("src/view.js:42", findings[0].affected[0])
+
+    def test_sarif_location_falls_back_to_path_without_region_line(self):
+        findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {"driver": {"name": "CodeQL"}},
+                        "results": [
+                            {
+                                "ruleId": "js/xss",
+                                "level": "warning",
+                                "message": {"text": "Potential unsafe rendering"},
+                                "locations": [
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "src/view.js"}
+                                        }
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
         self.assertEqual("src/view.js", findings[0].affected[0])
+
+    def test_sarif_uses_rule_defaults_when_result_fields_are_sparse(self):
+        findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {
+                            "driver": {
+                                "name": "CodeQL",
+                                "rules": [
+                                    {
+                                        "id": "py/hardcoded-token",
+                                        "shortDescription": {"text": "Hard-coded token"},
+                                        "defaultConfiguration": {"level": "error"},
+                                    }
+                                ],
+                            }
+                        },
+                        "results": [
+                            {
+                                "ruleId": "py/hardcoded-token",
+                                "locations": [
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "src/settings.py"}
+                                        }
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual("py/hardcoded-token", findings[0].id)
+        self.assertEqual("High", findings[0].severity)
+        self.assertEqual("Hard-coded token", findings[0].title)
+        self.assertEqual("src/settings.py", findings[0].affected[0])
+
+    def test_sarif_uses_extension_rule_metadata(self):
+        findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {
+                            "driver": {"name": "MetaScanner"},
+                            "extensions": [
+                                {
+                                    "name": "custom-rules",
+                                    "rules": [
+                                        {
+                                            "id": "custom/sql-injection",
+                                            "fullDescription": {"text": "SQL injection risk"},
+                                            "defaultConfiguration": {"level": "error"},
+                                        }
+                                    ],
+                                }
+                            ],
+                        },
+                        "results": [
+                            {
+                                "ruleId": "custom/sql-injection",
+                                "locations": [
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "src/db.py"}
+                                        }
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual("custom/sql-injection", findings[0].id)
+        self.assertEqual("High", findings[0].severity)
+        self.assertEqual("SQL injection risk", findings[0].title)
+        self.assertEqual("src/db.py", findings[0].affected[0])
+
+    def test_sarif_accepts_markdown_message_and_rule_text(self):
+        message_findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {"driver": {"name": "CodeQL"}},
+                        "results": [
+                            {
+                                "ruleId": "py/path-injection",
+                                "message": {"markdown": "**Path injection** risk"},
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual("**Path injection** risk", message_findings[0].title)
+
+        rule_findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {
+                            "driver": {
+                                "name": "CodeQL",
+                                "rules": [
+                                    {
+                                        "id": "py/weak-crypto",
+                                        "shortDescription": {
+                                            "markdown": "**Weak crypto**"
+                                        },
+                                    }
+                                ],
+                            }
+                        },
+                        "results": [{"ruleId": "py/weak-crypto"}],
+                    }
+                ],
+            }
+        )
+        self.assertEqual("**Weak crypto**", rule_findings[0].title)
 
     def test_normalizes_osv_and_generic(self):
         osv = normalize_scanner_input(

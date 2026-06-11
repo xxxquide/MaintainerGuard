@@ -1,3 +1,5 @@
+# Documentation-focused preset for repositories where README, docs, examples,
+# and changelog updates are the main review signal.
 [core]
 dry_run = true
 policy_preset = "docs"
@@ -15,4 +17,4 @@ scanners = false
 dependencies = false
 tests = false
 release = false
-policies = false
+policies = true

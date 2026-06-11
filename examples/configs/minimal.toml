@@ -1,3 +1,4 @@
+# Low-noise preset for first-time local evaluation.
 [core]
 dry_run = true
 policy_preset = "minimal"

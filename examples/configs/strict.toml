@@ -1,3 +1,5 @@
+# Strict preset for repositories that want blocking policy checks around
+# high-risk auth, workflow, and dependency changes.
 [core]
 dry_run = true
 policy_preset = "strict"

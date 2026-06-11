@@ -4,6 +4,8 @@ import sys
 import unittest
 from pathlib import Path
 
+from maintainerguard.config import load_config
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -41,6 +43,10 @@ class SampleTests(unittest.TestCase):
             "docs/public-release-checklist.md",
             "docs/roadmap.md",
             "examples/README.md",
+            "examples/configs/docs.toml",
+            "examples/configs/minimal.toml",
+            "examples/configs/security.toml",
+            "examples/configs/strict.toml",
             "examples/reports/docs-only.md",
             "examples/reports/docs-only-low-risk.md",
             "examples/reports/test-only-low-risk.md",
@@ -130,6 +136,23 @@ class SampleTests(unittest.TestCase):
                 text=True,
             )
             self.assertEqual((ROOT / snapshot).read_text(), result.stdout, snapshot)
+
+    def test_policy_preset_example_configs_are_valid_and_safe(self):
+        expected_presets = {
+            "docs.toml": "docs",
+            "minimal.toml": "minimal",
+            "security.toml": "security",
+            "strict.toml": "strict",
+        }
+        for filename, preset in expected_presets.items():
+            path = ROOT / "examples/configs" / filename
+            config = load_config(path)
+            self.assertEqual(preset, config.policy_preset, filename)
+            self.assertTrue(config.dry_run, filename)
+            self.assertFalse(config.ai.enabled, filename)
+            self.assertFalse(config.github.post_comments, filename)
+            self.assertTrue(path.read_bytes().endswith(b"\n"), filename)
+        self.assertTrue(load_config(ROOT / "examples/configs/docs.toml").modules.policies)
 
 
 if __name__ == "__main__":

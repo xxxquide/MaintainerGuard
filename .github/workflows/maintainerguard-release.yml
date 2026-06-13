@@ -17,8 +17,8 @@ jobs:
         with:
           python-version: "3.11"
       - name: Generate release-readiness report from prepared feed
-        uses: xxxquide/MaintainerGuard@v0.2.0
+        uses: ./
         with:
           mode: analyze-release
-          scenario-or-sample-input-path: examples/sample-data/releases/v0.2.0.json
+          scenario-or-sample-input-path: examples/sample-data/releases/v0.3.0.json
           dry-run: "true"

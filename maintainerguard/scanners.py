@@ -78,6 +78,7 @@ def _from_generic(data: dict[str, Any]) -> list[ScannerFinding]:
 
 def _from_sarif(data: dict[str, Any]) -> list[ScannerFinding]:
     normalized = []
+    grouped: dict[tuple[str, str, str, str, str], int] = {}
     for run_index, run in enumerate(data.get("runs", [])):
         scanner = (
             run.get("tool", {}).get("driver", {}).get("name")
@@ -98,17 +99,27 @@ def _from_sarif(data: dict[str, Any]) -> list[ScannerFinding]:
                 label = _sarif_location_label(location)
                 if label:
                     affected.append(label)
+            severity = normalize_severity(_sarif_level(result, rule))
+            category = _sarif_category(result, rule, text)
+            key = (str(scanner), rule_id, text, severity, category)
+            if key in grouped:
+                existing = normalized[grouped[key]]
+                for label in affected:
+                    if label not in existing.affected:
+                        existing.affected.append(label)
+                continue
+            grouped[key] = len(normalized)
             normalized.append(
                 ScannerFinding(
                     id=rule_id,
                     scanner=str(scanner),
-                    severity=normalize_severity(_sarif_level(result, rule)),
+                    severity=severity,
                     title=text,
-                    explanation=_maintainer_explanation(str(scanner), text, text, "code-scanning"),
-                    category="code-scanning",
+                    explanation=_maintainer_explanation(str(scanner), text, text, category),
+                    category=category,
                     description=text,
-                    affected=affected,
-                    recommendation=_recommendation("code-scanning"),
+                    affected=_unique_text(affected),
+                    recommendation=_recommendation(category),
                 )
             )
     return normalized
@@ -147,7 +158,45 @@ def _sarif_level(result: dict[str, Any], rule: dict[str, Any]) -> str:
     default_configuration = rule.get("defaultConfiguration", {})
     if isinstance(default_configuration, dict) and default_configuration.get("level"):
         return str(default_configuration["level"])
+    properties = rule.get("properties", {})
+    if isinstance(properties, dict):
+        problem = properties.get("problem")
+        if isinstance(problem, dict) and problem.get("severity"):
+            return str(problem["severity"])
+        if properties.get("severity"):
+            return str(properties["severity"])
     return "warning"
+
+
+def _sarif_category(result: dict[str, Any], rule: dict[str, Any], text: str) -> str:
+    properties = rule.get("properties", {})
+    tags: list[str] = []
+    if isinstance(properties, dict):
+        raw_tags = properties.get("tags", [])
+        if isinstance(raw_tags, list):
+            tags.extend(str(tag).lower() for tag in raw_tags)
+        for key in ("security-severity", "precision"):
+            if properties.get(key):
+                tags.append(str(properties[key]).lower())
+    combined = " ".join(
+        [
+            str(result.get("ruleId", "")),
+            text,
+            " ".join(tags),
+        ]
+    ).lower()
+    if any(term in combined for term in ("secret", "credential", "token", "password")):
+        return "secret"
+    if any(term in combined for term in ("dependency", "cve", "osv", "advisory")):
+        return "dependency"
+    if any(term in combined for term in ("workflow", "supply-chain", "provenance", "build")):
+        return "supply-chain"
+    if any(
+        term in combined
+        for term in ("security", "cwe", "injection", "xss", "auth", "crypto", "codeql")
+    ):
+        return "code-scanning"
+    return "static-analysis"
 
 
 def _sarif_message_text(message: Any) -> str:
@@ -301,8 +350,9 @@ def _from_secret_results(data: dict[str, Any]) -> list[ScannerFinding]:
 
 
 def _maintainer_explanation(scanner: str, title: str, description: str, category: str) -> str:
+    clean_title = title.rstrip(".")
     return (
-        f"{scanner} reported a {category} finding: {title}. Review the supplied scanner "
+        f"{scanner} reported a {category} finding: {clean_title}. Review the supplied scanner "
         f"evidence before merge. Scanner detail: {description}"
     )
 
@@ -338,6 +388,18 @@ def _text(value: Any, default: str) -> str:
         return default
     text = str(value).strip()
     return text or default
+
+
+def _unique_text(values: list[str]) -> list[str]:
+    output = []
+    seen = set()
+    for value in values:
+        text = str(value)
+        if text in seen:
+            continue
+        seen.add(text)
+        output.append(text)
+    return output
 
 
 def _osv_severity(vulnerability: dict[str, Any]) -> str:

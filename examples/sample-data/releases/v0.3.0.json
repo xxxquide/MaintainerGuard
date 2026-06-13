@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "version": "0.3.0",
+  "pull_requests": [
+    {
+      "number": 201,
+      "title": "Group duplicate SARIF scanner findings",
+      "files": [
+        {"path": "maintainerguard/scanners.py", "status": "modified"},
+        {"path": "tests/test_scanners.py", "status": "modified"}
+      ]
+    },
+    {
+      "number": 202,
+      "title": "Add real-world scanner fixture coverage",
+      "files": [
+        {"path": "examples/sample-data/scanners/codeql-like.sarif.json", "status": "added"},
+        {"path": "examples/sample-data/scanners/semgrep-like.json", "status": "added"},
+        {"path": "docs/scanner-inputs.md", "status": "modified"}
+      ]
+    },
+    {
+      "number": 203,
+      "title": "Document v0.2 upgrade notes and scanner matrix",
+      "files": [
+        {"path": "docs/upgrading-to-v0.3.md", "status": "added"},
+        {"path": "examples/README.md", "status": "modified"},
+        {"path": "CHANGELOG.md", "status": "modified"}
+      ]
+    }
+  ],
+  "scanner_inputs": [
+    {
+      "scanner": "release-scan",
+      "findings": [
+        {
+          "id": "REL-030",
+          "severity": "low",
+          "title": "Documentation-only release validation note",
+          "description": "Review generated examples and upgrade notes before publishing."
+        }
+      ]
+    }
+  ],
+  "changelog": [
+    "Add scanner fixture coverage matrix and real-world scanner examples.",
+    "Group duplicate SARIF findings while preserving path and line evidence.",
+    "Use SARIF rule metadata as fallback for sparse scanner results.",
+    "Keep Trivy vulnerability support covered by regression tests.",
+    "Add v0.2.x to v0.3.0 upgrade notes."
+  ]
+}

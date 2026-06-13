@@ -1,0 +1,13 @@
+{
+  "scanner": "Gitleaks",
+  "results": [
+    {
+      "id": "gitleaks-1",
+      "severity": "high",
+      "title": "Possible test credential in fixture",
+      "description": "Sanitized sample secret-finding output. This is not a real credential.",
+      "file": "tests/fixtures/example.env",
+      "blocking": true
+    }
+  ]
+}

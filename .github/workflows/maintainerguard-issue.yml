@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Generate dry-run issue report
-        uses: xxxquide/MaintainerGuard@v0.2.0
+        uses: ./
         with:
           mode: analyze-issue
           dry-run: "true"

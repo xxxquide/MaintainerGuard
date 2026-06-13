@@ -117,7 +117,7 @@ class CLITests(unittest.TestCase):
         self.assertEqual(0, issue.returncode, issue.stderr)
         self.assertIn("MaintainerGuard Issue Triage Report", issue.stdout)
 
-        release = self.run_cli(["release", str(ROOT / "examples/sample-data/releases/v0.2.0.json")])
+        release = self.run_cli(["release", str(ROOT / "examples/sample-data/releases/v0.3.0.json")])
         self.assertEqual(0, release.returncode, release.stderr)
         self.assertIn("MaintainerGuard Release Readiness Report", release.stdout)
 
@@ -188,7 +188,7 @@ class CLITests(unittest.TestCase):
             self.assertIn("permissions:", text)
             self.assertIn("contents: read", text)
             self.assertIn("pull-requests: read", text)
-            self.assertIn("uses: xxxquide/MaintainerGuard@v0.2.0", text)
+            self.assertIn("uses: xxxquide/MaintainerGuard@v0.3.0", text)
             self.assertIn("mode: analyze-pr", text)
             self.assertIn('dry-run: "true"', text)
             self.assertIn('post-comment: "false"', text)

@@ -40,7 +40,7 @@ Repo:
 https://github.com/xxxquide/MaintainerGuard
 
 Usage:
-uses: xxxquide/MaintainerGuard@v0.2.0
+uses: xxxquide/MaintainerGuard@v0.3.0
 ```
 
 ## LinkedIn post
@@ -89,7 +89,7 @@ Evidence-first PR and release readiness reports for maintainers.
 ## Launch checklist
 
 - README hero and badges checked.
-- Latest recommended Action version is `v0.2.0`.
+- Latest recommended Action version is `v0.3.0`.
 - Marketplace page checked.
 - External test repository checked.
 - Roadmap issues created.

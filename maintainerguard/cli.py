@@ -224,7 +224,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.2.0
+      - uses: xxxquide/MaintainerGuard@v0.3.0
         with:
           mode: analyze-pr
           dry-run: "true"
@@ -340,7 +340,7 @@ def _verify_issue() -> None:
 
 
 def _verify_release(config) -> None:
-    report = analyze_release(_read_json(_package_root() / "examples/sample-data/releases/v0.2.0.json"), config=config)
+    report = analyze_release(_read_json(_package_root() / "examples/sample-data/releases/v0.3.0.json"), config=config)
     if not getattr(report, "version", ""):
         raise RuntimeError("missing release version")
 
@@ -484,7 +484,7 @@ def _action_run(config) -> int:
         else:
             raise ValueError("analyze-issue mode requires a sample input path or GITHUB_EVENT_PATH")
     elif mode == "analyze-release":
-        path = Path(input_path or "examples/sample-data/releases/v0.2.0.json")
+        path = Path(input_path or "examples/sample-data/releases/v0.3.0.json")
         report = analyze_release(_read_json(path), config=config)
     else:
         raise ValueError(f"Unsupported action mode: {mode}")

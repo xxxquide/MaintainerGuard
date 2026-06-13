@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://github.com/xxxquide/MaintainerGuard/releases/tag/v0.2.0"><img alt="Latest release" src="https://img.shields.io/github/v/release/xxxquide/MaintainerGuard?label=release"></a>
+  <a href="https://github.com/xxxquide/MaintainerGuard/releases/tag/v0.3.0"><img alt="Latest release" src="https://img.shields.io/github/v/release/xxxquide/MaintainerGuard?label=release"></a>
   <a href="https://github.com/marketplace/actions/maintainerguard"><img alt="GitHub Marketplace" src="https://img.shields.io/badge/GitHub%20Marketplace-MaintainerGuard-blue?logo=github"></a>
   <a href="pyproject.toml"><img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-blue"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/xxxquide/MaintainerGuard"></a>
@@ -201,7 +201,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.2.0
+      - uses: xxxquide/MaintainerGuard@v0.3.0
         with:
           mode: analyze-pr
           dry-run: "true"
@@ -212,7 +212,7 @@ jobs:
 External repositories should use the published Action:
 
 ```yaml
-uses: xxxquide/MaintainerGuard@v0.2.0
+uses: xxxquide/MaintainerGuard@v0.3.0
 ```
 
 The Action imports its Python package from `$GITHUB_ACTION_PATH` while keeping
@@ -231,7 +231,7 @@ uses: ./
 Fail the workflow only for critical risk, while staying in dry-run mode:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.2.0
+- uses: xxxquide/MaintainerGuard@v0.3.0
   with:
     mode: analyze-pr
     dry-run: "true"
@@ -242,7 +242,7 @@ Fail the workflow only for critical risk, while staying in dry-run mode:
 Validate `.maintainerguard.toml` without analyzing a PR or publishing anything:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.2.0
+- uses: xxxquide/MaintainerGuard@v0.3.0
   with:
     mode: validate-config
     dry-run: "true"
@@ -252,7 +252,7 @@ Validate `.maintainerguard.toml` without analyzing a PR or publishing anything:
 Run the bundled demo with sample data and no PR comment publishing:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.2.0
+- uses: xxxquide/MaintainerGuard@v0.3.0
   with:
     mode: demo
     scenario-or-sample-input-path: high-risk-auth
@@ -277,7 +277,7 @@ steps:
   - uses: actions/setup-python@v6
     with:
       python-version: "3.11"
-  - uses: xxxquide/MaintainerGuard@v0.2.0
+  - uses: xxxquide/MaintainerGuard@v0.3.0
     env:
       GITHUB_TOKEN: ${{ github.token }}
     with:
@@ -315,7 +315,7 @@ mg validate-config
 See [Configuration reference](docs/configuration.md) and
 [Maintainer policies](docs/maintainer-policies.md).
 
-For v0.2.0, `mg init --preset minimal|security|strict|docs` can write a
+For v0.3.0, `mg init --preset minimal|security|strict|docs` can write a
 standard policy profile into `.maintainerguard.toml`. Custom `[[policy]]`
 entries remain supported and replace the selected preset when present.
 

@@ -1,6 +1,6 @@
 # Roadmap
 
-## v0.1 - implemented MVP
+## v0.1 - implemented baseline
 
 - Local runner and sample scenarios
 - Merge-readiness reports and evidence table
@@ -14,27 +14,38 @@
 - Decision guidance and release verdicts
 - Supply-chain workflow and build-script signals
 
-## v0.2
+## v0.2 - implemented policy presets and SARIF evidence
 
-- More complete GitHub issue and release feed collection
-- Richer scanner adapters and fixture validation for additional tool-specific formats
-- Better path-to-test and path-to-doc relationship mapping
-- Policy diagnostics and configuration migration support
-- Reproducible release publishing and signed artifacts
+- Policy presets for `minimal`, `security`, `strict`, and `docs`
+- `mg presets` and `mg init --preset ...`
+- SARIF line evidence using `path:line` when `region.startLine` is present
+- SARIF rule default severity and description fallback
+- Preserved Trivy vulnerability normalization
+- Updated policy preset examples and docs
 
-## v0.3
+## v0.3 - scanner trust and fixture depth
 
-- Plugin interface for scanners and repository profiles
-- Multi-language reports
-- GitLab support
-- More sophisticated duplicate-finding reduction
-- Local-model adapter
+- Scanner fixture coverage matrix
+- CodeQL-like, Semgrep-like, Gitleaks-like, Dependabot-like, and Trivy variant fixtures
+- SARIF duplicate grouping for matching rule/title/severity/category results
+- Better SARIF severity/category normalization from rule metadata
+- v0.2.x to v0.3.0 upgrade notes
+- Better examples navigation for scanner fixtures and release samples
+
+## v0.4 - policy intelligence and repository fit
+
+- Better policy diagnostics explaining which rule fired and why
+- Stronger path-to-test and path-to-doc heuristics
+- More mature preset examples and custom override guidance
+- Optional policy debugging output if it stays concise
 
 ## Future research
 
 - SBOM and provenance integrations
+- Scanner adapter extension points when real contributor demand appears
+- GitLab support if maintainers ask for it
+- Local-model adapter if it can stay optional and safe
 - Organization-level reports
-- Optional local web report viewer
 - Maintainer analytics that preserve privacy
 
 ## Feedback

@@ -26,4 +26,4 @@ jobs:
       - run: python3 -m maintainerguard demo --scenario high-risk-auth --format json
       - run: python3 -m maintainerguard analyze-pr examples/sample-data/prs/dependency-update.json --scanner examples/sample-data/scanners/dependency-advisory.json
       - run: python3 -m maintainerguard analyze-issue examples/sample-data/issues/bug-missing-reproduction.json
-      - run: python3 -m maintainerguard analyze-release examples/sample-data/releases/v0.2.0.json
+      - run: python3 -m maintainerguard analyze-release examples/sample-data/releases/v0.3.0.json

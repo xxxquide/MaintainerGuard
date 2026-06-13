@@ -156,8 +156,10 @@ def _render_release(report: ReleaseReadinessReport) -> str:
     lines = [
         "# MaintainerGuard Release Readiness Report",
         "",
-        f"**Version:** {report.version}  ",
-        f"**Release verdict:** {report.verdict}  ",
+        f"**Version:** {report.version}",
+        "",
+        f"**Release verdict:** {report.verdict}",
+        "",
         f"**Overall risk:** {report.risk_level}",
         "",
         "## Executive summary",

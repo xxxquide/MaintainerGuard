@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "maintainerguard"
-version = "0.2.0"
+version = "0.3.0"
 description = "Evidence-first AI maintainer assistant for merge, security, and release readiness."
 readme = "README.md"
 requires-python = ">=3.11"

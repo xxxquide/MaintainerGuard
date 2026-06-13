@@ -40,6 +40,7 @@ class SampleTests(unittest.TestCase):
             "docs/maintainer-policies.md",
             "docs/development.md",
             "docs/architecture.md",
+            "docs/upgrading-to-v0.3.md",
             "docs/public-release-checklist.md",
             "docs/roadmap.md",
             "examples/README.md",
@@ -57,6 +58,7 @@ class SampleTests(unittest.TestCase):
             "examples/reports/issue-triage.md",
             "examples/reports/release-readiness.md",
             "examples/reports/release-v0.2.0.md",
+            "examples/reports/release-v0.3.0.md",
         ]
         for relative in required:
             path = ROOT / relative
@@ -67,8 +69,8 @@ class SampleTests(unittest.TestCase):
         expected_counts = {
             "examples/sample-data/prs": 7,
             "examples/sample-data/issues": 6,
-            "examples/sample-data/scanners": 7,
-            "examples/sample-data/releases": 1,
+            "examples/sample-data/scanners": 13,
+            "examples/sample-data/releases": 2,
             "schemas": 5,
         }
         for relative, minimum in expected_counts.items():
@@ -85,7 +87,7 @@ class SampleTests(unittest.TestCase):
             ["demo", "--scenario", "secret-finding"],
             ["demo", "--scenario", "test-only"],
             ["analyze-issue", "examples/sample-data/issues/bug-missing-reproduction.json"],
-            ["analyze-release", "examples/sample-data/releases/v0.2.0.json"],
+            ["analyze-release", "examples/sample-data/releases/v0.3.0.json"],
             ["parse-scanner", "examples/sample-data/scanners/mixed-severity.json"],
             ["parse-scanner", "examples/sample-data/scanners/container-trivy-warning.json"],
             ["validate-config"],
@@ -115,8 +117,8 @@ class SampleTests(unittest.TestCase):
                 "examples/reports/high-risk-auth.md",
             ),
             (
-                ["analyze-release", "examples/sample-data/releases/v0.2.0.json"],
-                "examples/reports/release-v0.2.0.md",
+                ["analyze-release", "examples/sample-data/releases/v0.3.0.json"],
+                "examples/reports/release-v0.3.0.md",
             ),
             (
                 ["analyze-pr", "examples/sample-data/prs/dependency-update.json", "--scanner", "examples/sample-data/scanners/dependency-advisory.json"],

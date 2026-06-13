@@ -100,6 +100,96 @@ class ScannerTests(unittest.TestCase):
         self.assertEqual("Hard-coded token", findings[0].title)
         self.assertEqual("src/settings.py", findings[0].affected[0])
 
+    def test_sarif_uses_rule_property_severity_when_result_level_is_missing(self):
+        findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {
+                            "driver": {
+                                "name": "Semgrep",
+                                "rules": [
+                                    {
+                                        "id": "python.django.security.audit.xss",
+                                        "shortDescription": {"text": "Potential template injection"},
+                                        "properties": {
+                                            "problem": {"severity": "high"},
+                                            "tags": ["security", "cwe-79"],
+                                        },
+                                    }
+                                ],
+                            }
+                        },
+                        "results": [
+                            {
+                                "ruleId": "python.django.security.audit.xss",
+                                "locations": [
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "src/views.py"},
+                                            "region": {"startLine": 88},
+                                        }
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual("High", findings[0].severity)
+        self.assertEqual("code-scanning", findings[0].category)
+        self.assertEqual("src/views.py:88", findings[0].affected[0])
+
+    def test_sarif_groups_duplicate_results_and_merges_unique_locations(self):
+        findings = normalize_scanner_input(
+            {
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {"driver": {"name": "CodeQL"}},
+                        "results": [
+                            {
+                                "ruleId": "js/xss",
+                                "level": "warning",
+                                "message": {"text": "Potential unsafe rendering"},
+                                "locations": [
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "src/view.js"},
+                                            "region": {"startLine": 42},
+                                        }
+                                    }
+                                ],
+                            },
+                            {
+                                "ruleId": "js/xss",
+                                "level": "warning",
+                                "message": {"text": "Potential unsafe rendering"},
+                                "locations": [
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "src/view.js"},
+                                            "region": {"startLine": 42},
+                                        }
+                                    },
+                                    {
+                                        "physicalLocation": {
+                                            "artifactLocation": {"uri": "src/render.js"},
+                                            "region": {"startLine": 19},
+                                        }
+                                    },
+                                ],
+                            },
+                        ],
+                    }
+                ],
+            }
+        )
+        self.assertEqual(1, len(findings))
+        self.assertEqual(["src/view.js:42", "src/render.js:19"], findings[0].affected)
+
     def test_sarif_uses_extension_rule_metadata(self):
         findings = normalize_scanner_input(
             {
@@ -311,6 +401,29 @@ class ScannerTests(unittest.TestCase):
             "Update openssl to 3.0.8 or rebuild the affected artifact/image.",
             findings[0].recommendation,
         )
+
+    def test_v03_scanner_fixture_families_normalize(self):
+        from pathlib import Path
+
+        root = Path(__file__).resolve().parents[1]
+        cases = {
+            "codeql-like.sarif.json": ("CodeQL", "code-scanning", "High"),
+            "semgrep-like.json": ("Semgrep", "static-analysis", "Medium"),
+            "gitleaks-like.json": ("Gitleaks", "secret", "High"),
+            "dependabot-advisory.json": ("Dependabot", "dependency", "High"),
+            "trivy-misconfiguration.json": ("trivy-config", "supply-chain", "Medium"),
+        }
+        for filename, expected in cases.items():
+            with self.subTest(filename=filename):
+                data = __import__("json").loads(
+                    (root / "examples/sample-data/scanners" / filename).read_text()
+                )
+                findings = normalize_scanner_input(data)
+                self.assertGreaterEqual(len(findings), 1)
+                self.assertEqual(expected[0], findings[0].scanner)
+                self.assertEqual(expected[1], findings[0].category)
+                self.assertEqual(expected[2], findings[0].severity)
+                self.assertTrue(findings[0].affected or findings[0].affected_dependency)
 
     def test_duplicate_generic_findings_are_removed_by_analysis(self):
         from maintainerguard.analysis import analyze_pull_request

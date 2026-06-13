@@ -15,6 +15,7 @@ Use this page as a map for MaintainerGuard's user and contributor docs.
 - [Maintainer policies](maintainer-policies.md) - repository-specific review rules.
 - [Scanner inputs](scanner-inputs.md) - normalized scanner categories and example formats.
 - [Privacy and security](privacy-and-security.md) - safety model, AI boundaries, and redaction.
+- [Upgrading to v0.3.0](upgrading-to-v0.3.md) - scanner-focused upgrade notes from `v0.2.x`.
 
 ## Project internals
 

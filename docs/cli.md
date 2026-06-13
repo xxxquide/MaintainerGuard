@@ -117,7 +117,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.2.0
+      - uses: xxxquide/MaintainerGuard@v0.3.0
         with:
           mode: analyze-pr
           dry-run: "true"
@@ -195,7 +195,7 @@ mg issue examples/sample-data/issues/bug-missing-reproduction.json
 Analyze release-readiness JSON.
 
 ```bash
-mg release examples/sample-data/releases/v0.2.0.json
+mg release examples/sample-data/releases/v0.3.0.json
 ```
 
 ### `mg config`

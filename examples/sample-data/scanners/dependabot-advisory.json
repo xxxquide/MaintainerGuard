@@ -1,0 +1,17 @@
+{
+  "scanner": "Dependabot",
+  "findings": [
+    {
+      "id": "GHSA-0000-1111-2222",
+      "category": "dependency",
+      "severity": "high",
+      "title": "Example dependency advisory for demo-package",
+      "description": "Sanitized Dependabot-like advisory showing a package update that should be reviewed before merge.",
+      "affected_files": ["package-lock.json"],
+      "dependency": "demo-package@1.2.3",
+      "advisory_id": "GHSA-0000-1111-2222",
+      "recommendation": "Update demo-package to a patched version and verify the lockfile change is expected.",
+      "blocking": true
+    }
+  ]
+}

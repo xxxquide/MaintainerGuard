@@ -36,6 +36,30 @@ mg demo --scenario high-risk-auth --format json
 - `sample-data/scanners/` - normalized scanner inputs and SARIF-like examples.
 - `sample-data/github/` - small GitHub event fixtures for local automation tests.
 
+## Scanner fixture coverage
+
+These fixtures are intentionally sanitized and covered by tests. They show the
+scanner shapes MaintainerGuard can explain today without claiming to replace the
+underlying scanner.
+
+| Fixture | What it demonstrates |
+|---|---|
+| `scanners/static-analysis.sarif.json` | SARIF `path:line` evidence and code-scanning normalization |
+| `scanners/codeql-like.sarif.json` | CodeQL-like rule defaults and security tags |
+| `scanners/dependency-advisory.json` | Blocking dependency advisory through generic JSON |
+| `scanners/dependabot-advisory.json` | Dependabot-like advisory mapping |
+| `scanners/trivy-vulnerability.json` | Native Trivy vulnerability normalization |
+| `scanners/trivy-misconfiguration.json` | Trivy config-style warning through generic JSON |
+| `scanners/secret-scan.json` | Generic secret scanner result |
+| `scanners/gitleaks-like.json` | Gitleaks-like secret finding |
+| `scanners/semgrep-like.json` | Semgrep-like static-analysis finding |
+| `scanners/supply-chain-workflow.json` | Workflow/supply-chain policy warning |
+| `scanners/mixed-severity.json` | Mixed generic severity normalization |
+| `scanners/container-trivy-warning.json` | Container supply-chain warning mapping |
+
+See [scanner input docs](../docs/scanner-inputs.md) for support levels and
+normalization details.
+
 ## Rendered reports
 
 - [High-risk auth](reports/high-risk-auth.md)
@@ -46,6 +70,7 @@ mg demo --scenario high-risk-auth --format json
 - [Test-only low risk](reports/test-only-low-risk.md)
 - [Issue triage](reports/issue-triage.md)
 - [Release readiness](reports/release-readiness.md)
+- [v0.3.0 release readiness](reports/release-v0.3.0.md)
 
 The rendered reports are snapshots of deterministic sample output. If report
 rendering changes intentionally, regenerate the relevant report and update tests.

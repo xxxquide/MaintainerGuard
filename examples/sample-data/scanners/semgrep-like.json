@@ -1,0 +1,14 @@
+{
+  "scanner": "Semgrep",
+  "findings": [
+    {
+      "id": "python.lang.security.audit.subprocess-shell-true",
+      "category": "static-analysis",
+      "severity": "medium",
+      "title": "subprocess called with shell=True",
+      "description": "A shell command is constructed in src/runner.py. This fixture is sanitized sample output.",
+      "affected_files": ["src/runner.py:31"],
+      "recommendation": "Confirm command arguments are trusted, quoted, or replaced with an argument list."
+    }
+  ]
+}

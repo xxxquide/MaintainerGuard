@@ -1,0 +1,14 @@
+{
+  "scanner": "trivy-config",
+  "findings": [
+    {
+      "id": "AVD-GHA-0001",
+      "category": "supply-chain",
+      "severity": "medium",
+      "title": "Release workflow grants broad write permissions",
+      "description": "Sanitized Trivy configuration-style warning for a GitHub Actions workflow.",
+      "affected_files": [".github/workflows/release.yml"],
+      "recommendation": "Review whether write permissions are required and scope them to the smallest practical set."
+    }
+  ]
+}

@@ -3,10 +3,32 @@
 MaintainerGuard consumes scanner output; it does not replace scanners or
 independently confirm their findings.
 
-## Supported MVP formats
+## Supported formats and fixtures
+
+MaintainerGuard supports a small set of normalized scanner shapes. The table
+below is intentionally conservative: it describes what is covered by fixtures
+and tests, not a promise that every vendor-specific variant is fully supported.
+
+| Fixture | Tool family | Support level | Preserved evidence |
+|---|---|---|---|
+| `static-analysis.sarif.json` | SARIF/code scanning | Native SARIF adapter | tool name, rule ID, severity, message, `path:line` |
+| `codeql-like.sarif.json` | CodeQL-like SARIF | Native SARIF adapter | rule default severity, security tags, `path:line` |
+| `dependency-advisory.json` | Generic dependency advisory | Generic JSON | advisory ID, dependency, affected files, blocking flag |
+| `dependabot-advisory.json` | Dependabot-like advisory | Generic JSON | GHSA-style ID, dependency, lockfile evidence |
+| `trivy-vulnerability.json` | Trivy vulnerability output | Native Trivy vulnerability adapter | target, package version, advisory ID, fixed version |
+| `trivy-misconfiguration.json` | Trivy config-style warning | Generic JSON | workflow path, category, maintainer recommendation |
+| `secret-scan.json` | Generic secret scanner | Simple result-array adapter | affected file, severity, blocking flag |
+| `gitleaks-like.json` | Gitleaks-like result | Simple result-array adapter | affected file, secret category, blocking flag |
+| `semgrep-like.json` | Semgrep-like static analysis | Generic JSON | rule ID, affected path, static-analysis category |
+| `supply-chain-workflow.json` | Workflow/supply-chain policy | Generic JSON | workflow path, supply-chain category |
+| `mixed-severity.json` | Mixed generic findings | Generic JSON | normalized severities and categories |
+| `container-trivy-warning.json` | Container/supply-chain warning | Generic JSON | image/build target and recommendation |
+
+Supported input families:
 
 - MaintainerGuard generic JSON from `schemas/scanner.schema.json`
-- SARIF result files with tool name, rule ID, level, message, and locations
+- SARIF result files with tool name, rule ID, level, message, rule metadata,
+  and locations
 - OSV-style results containing packages and vulnerabilities
 - Trivy vulnerability results with targets, package versions, advisory IDs, and
   fixed versions
@@ -46,6 +68,12 @@ python3 -m maintainerguard parse-scanner examples/sample-data/scanners/container
 The explainer groups duplicate scanner IDs, normalizes severity, identifies
 affected files or dependencies, and suggests maintainer review. It never turns a
 scanner warning into a confirmed vulnerability claim.
+
+For SARIF input, duplicate results with the same tool, rule, title, severity,
+and category are grouped into one MaintainerGuard finding with unique affected
+locations. This keeps reports readable while preserving `path:line` evidence
+when SARIF supplies `region.startLine`; path-only evidence is kept when no line
+is present.
 
 ## Generic JSON example
 

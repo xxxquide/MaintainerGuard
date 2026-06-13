@@ -1,7 +1,9 @@
 # MaintainerGuard Release Readiness Report
 
-**Version:** 0.2.0  
-**Release verdict:** Review before release  
+**Version:** 0.2.0
+
+**Release verdict:** Review before release
+
 **Overall risk:** High
 
 ## Executive summary

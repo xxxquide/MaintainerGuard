@@ -4,6 +4,21 @@ All notable changes to MaintainerGuard are documented here.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-13
+
+### Added
+
+- Added a scanner fixture coverage matrix documenting supported scanner shapes and support levels.
+- Added sanitized CodeQL-like, Semgrep-like, Gitleaks-like, Dependabot-like, and Trivy configuration scanner fixtures.
+- Added v0.2.x to v0.3.0 upgrade notes.
+
+### Changed
+
+- Grouped duplicate SARIF findings with the same scanner, rule, title, severity, and category while preserving unique affected locations.
+- Expanded SARIF severity/category normalization using rule metadata when result-level fields are sparse.
+- Synced package metadata, GitHub Action examples, workflows, CLI defaults, and release samples to `v0.3.0`.
+- Kept Trivy vulnerability support covered while adding scanner-depth fixtures and tests.
+
 ## [0.2.0] - 2026-06-10
 
 ### Added

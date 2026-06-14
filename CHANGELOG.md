@@ -4,6 +4,18 @@ All notable changes to MaintainerGuard are documented here.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-06-14
+
+### Added
+
+- Added `mg scanners` to list scanner input families covered by bundled fixtures.
+- Added scanner fixture normalization to `mg verify` so local smoke checks cover the documented scanner matrix.
+
+### Changed
+
+- Synced generated GitHub Action workflow examples and public Action references to `v0.3.1`.
+- Clarified CLI and scanner docs around fixture-backed scanner support without expanding security claims.
+
 ## [0.3.0] - 2026-06-13
 
 ### Added

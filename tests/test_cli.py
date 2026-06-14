@@ -177,6 +177,14 @@ class CLITests(unittest.TestCase):
         self.assertIn("strict", result.stdout)
         self.assertIn("docs", result.stdout)
 
+    def test_scanners_lists_fixture_backed_support(self):
+        result = self.run_cli(["scanners"])
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("Scanner input families covered by bundled fixtures", result.stdout)
+        self.assertIn("codeql-like.sarif.json", result.stdout)
+        self.assertIn("trivy-vulnerability.json", result.stdout)
+        self.assertIn("does not replace scanners", result.stdout)
+
     def test_init_can_create_safe_github_action_workflow(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -188,7 +196,7 @@ class CLITests(unittest.TestCase):
             self.assertIn("permissions:", text)
             self.assertIn("contents: read", text)
             self.assertIn("pull-requests: read", text)
-            self.assertIn("uses: xxxquide/MaintainerGuard@v0.3.0", text)
+            self.assertIn("uses: xxxquide/MaintainerGuard@v0.3.1", text)
             self.assertIn("mode: analyze-pr", text)
             self.assertIn('dry-run: "true"', text)
             self.assertIn('post-comment: "false"', text)
@@ -220,6 +228,7 @@ class CLITests(unittest.TestCase):
         self.assertIn("MaintainerGuard Verify", result.stdout)
         self.assertRegex(result.stdout, r"OK\s+demo: high-risk-auth")
         self.assertRegex(result.stdout, r"OK\s+sample release analysis")
+        self.assertRegex(result.stdout, r"OK\s+scanner fixture normalization")
         self.assertIn("All checks passed.", result.stdout)
 
 

@@ -6,6 +6,7 @@ MaintainerGuard is easiest to use through the short `mg` command.
 mg demo
 mg init
 mg presets
+mg scanners
 mg doctor
 mg verify
 mg pr <file>
@@ -117,7 +118,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.3.0
+      - uses: xxxquide/MaintainerGuard@v0.3.1
         with:
           mode: analyze-pr
           dry-run: "true"
@@ -142,6 +143,18 @@ List built-in policy presets.
 mg presets
 ```
 
+### `mg scanners`
+
+List scanner input families covered by bundled fixtures.
+
+```bash
+mg scanners
+```
+
+This is a quick way to see which scanner shapes MaintainerGuard currently
+normalizes with checked-in sample data. It is not a claim that every
+vendor-specific scanner output variant is fully supported.
+
 ### `mg doctor`
 
 Check whether MaintainerGuard is ready to use in the current directory.
@@ -163,8 +176,8 @@ mg verify
 ```
 
 The command checks configuration loading, bundled demo scenarios, sample PR
-analysis, sample issue analysis, sample release analysis, and JSON report
-rendering.
+analysis, sample issue analysis, sample release analysis, JSON report rendering,
+and scanner fixture normalization.
 
 ### `mg pr`
 

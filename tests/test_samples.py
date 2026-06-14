@@ -90,6 +90,7 @@ class SampleTests(unittest.TestCase):
             ["analyze-release", "examples/sample-data/releases/v0.3.0.json"],
             ["parse-scanner", "examples/sample-data/scanners/mixed-severity.json"],
             ["parse-scanner", "examples/sample-data/scanners/container-trivy-warning.json"],
+            ["scanners"],
             ["validate-config"],
             ["github-run", "examples/sample-data/github/pull-request-event.json"],
         ]

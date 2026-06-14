@@ -25,6 +25,23 @@ from .reports import render_report
 from .scanners import normalize_scanner_input
 
 
+SCANNER_FIXTURES = [
+    ("clean.json", "clean/no findings", "generic JSON", 0),
+    ("static-analysis.sarif.json", "SARIF/code scanning", "native SARIF adapter", 1),
+    ("codeql-like.sarif.json", "CodeQL-like SARIF", "native SARIF adapter", 1),
+    ("dependency-advisory.json", "dependency advisory", "generic JSON", 1),
+    ("dependabot-advisory.json", "Dependabot-like advisory", "generic JSON", 1),
+    ("trivy-vulnerability.json", "Trivy vulnerability", "native Trivy adapter", 1),
+    ("trivy-misconfiguration.json", "Trivy config warning", "generic JSON", 1),
+    ("secret-scan.json", "secret scanner", "simple result-array adapter", 1),
+    ("gitleaks-like.json", "Gitleaks-like result", "simple result-array adapter", 1),
+    ("semgrep-like.json", "Semgrep-like static analysis", "generic JSON", 1),
+    ("supply-chain-workflow.json", "workflow/supply-chain policy", "generic JSON", 1),
+    ("mixed-severity.json", "mixed severity findings", "generic JSON", 2),
+    ("container-trivy-warning.json", "container supply-chain warning", "generic JSON", 1),
+]
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog=_program_name(),
@@ -34,6 +51,7 @@ def build_parser() -> argparse.ArgumentParser:
   mg demo
   mg init
   mg presets
+  mg scanners
   mg doctor
   mg verify
   mg pr <file>
@@ -84,6 +102,7 @@ Long-form commands such as analyze-pr, analyze-issue, and analyze-release remain
     subparsers.add_parser("doctor", help="Check local MaintainerGuard setup")
     subparsers.add_parser("verify", help="Run deterministic sample smoke checks")
     subparsers.add_parser("presets", help="List built-in policy presets")
+    subparsers.add_parser("scanners", help="List scanner input families covered by bundled fixtures")
     subparsers.add_parser("version", help="Print MaintainerGuard version")
     github_run = subparsers.add_parser("github-run", help="Analyze a GitHub event")
     github_run.add_argument("event", type=Path)
@@ -108,6 +127,8 @@ def main(argv: list[str] | None = None) -> int:
             return _verify(args.config)
         if args.command == "presets":
             return _presets()
+        if args.command == "scanners":
+            return _scanners()
         config = load_config(args.config) if args.config else load_config()
         if args.command in {"print-config", "config"}:
             print(default_config_toml(), end="")
@@ -196,6 +217,17 @@ def _presets() -> int:
     return 0
 
 
+def _scanners() -> int:
+    print("Scanner input families covered by bundled fixtures:\n")
+    print("| Fixture | Family | Adapter | Expected findings |")
+    print("|---|---|---|---|")
+    for filename, family, adapter, minimum in SCANNER_FIXTURES:
+        print(f"| {filename} | {family} | {adapter} | {minimum}+ |")
+    print("\nMaintainerGuard explains supplied scanner output; it does not replace scanners or confirm exploitability.")
+    print("Run `mg verify` to normalize every bundled scanner fixture.")
+    return 0
+
+
 def _write_setup_file(path: Path, content: str, force: bool, created: list[Path], skipped: list[Path]) -> None:
     if path.exists() and not force:
         skipped.append(path)
@@ -224,7 +256,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.3.0
+      - uses: xxxquide/MaintainerGuard@v0.3.1
         with:
           mode: analyze-pr
           dry-run: "true"
@@ -291,6 +323,7 @@ def _verify(config_path: Path | None) -> int:
         ("sample issue analysis", _verify_issue),
         ("sample release analysis", lambda: _verify_release(config)),
         ("JSON output", lambda: _verify_json(config)),
+        ("scanner fixture normalization", _verify_scanner_fixtures),
     ]
     failures = 0
     for name, check in checks:
@@ -351,6 +384,24 @@ def _verify_json(config) -> None:
     data = json.loads(render_report(report, output_format="json", mode=config.report_mode))
     if data.get("report_type") != "merge_readiness_report":
         raise RuntimeError("unexpected JSON report type")
+
+
+def _verify_scanner_fixtures() -> None:
+    root = _package_root()
+    scanner_root = root / "examples/sample-data/scanners"
+    for filename, _family, _adapter, minimum in SCANNER_FIXTURES:
+        path = scanner_root / filename
+        findings = normalize_scanner_input(_read_json(path))
+        if len(findings) < minimum:
+            raise RuntimeError(f"{filename} produced {len(findings)} finding(s), expected at least {minimum}")
+        for finding in findings:
+            missing = [
+                field
+                for field in ("scanner", "severity", "title", "category")
+                if not getattr(finding, field, "")
+            ]
+            if missing:
+                raise RuntimeError(f"{filename} produced a finding missing {', '.join(missing)}")
 
 
 def _package_root() -> Path:

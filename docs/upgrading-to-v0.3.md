@@ -8,7 +8,7 @@ There are no breaking CLI or configuration changes from `v0.2.x`.
 Use the current published Action tag in public workflows:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.3.0
+- uses: xxxquide/MaintainerGuard@v0.3.1
 ```
 
 Local development can still use `uses: ./` when testing this repository before a

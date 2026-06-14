@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 
 import maintainerguard_build
+from maintainerguard import __version__
 
 
 DIST_INFO = f"maintainerguard-{maintainerguard_build.VERSION}.dist-info"
@@ -43,6 +44,11 @@ class PackagingTests(unittest.TestCase):
         scripts = pyproject["project"]["scripts"]
         self.assertEqual("maintainerguard.cli:main", scripts["maintainerguard"])
         self.assertEqual("maintainerguard.cli:main", scripts["mg"])
+
+    def test_package_versions_stay_synchronized(self):
+        pyproject = tomllib.loads((Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8"))
+        self.assertEqual(pyproject["project"]["version"], __version__)
+        self.assertEqual(pyproject["project"]["version"], maintainerguard_build.VERSION)
 
 
 if __name__ == "__main__":

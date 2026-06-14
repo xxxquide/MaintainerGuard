@@ -46,6 +46,18 @@ Normalize a sample:
 python3 -m maintainerguard parse-scanner examples/sample-data/scanners/static-analysis.sarif.json
 ```
 
+List the fixture-backed scanner families:
+
+```bash
+mg scanners
+```
+
+Run a local smoke check across every bundled scanner fixture:
+
+```bash
+mg verify
+```
+
 Normalize a sanitized Trivy vulnerability result:
 
 ```bash

@@ -42,6 +42,12 @@ These fixtures are intentionally sanitized and covered by tests. They show the
 scanner shapes MaintainerGuard can explain today without claiming to replace the
 underlying scanner.
 
+Print the same support list from the CLI:
+
+```bash
+mg scanners
+```
+
 | Fixture | What it demonstrates |
 |---|---|
 | `scanners/static-analysis.sarif.json` | SARIF `path:line` evidence and code-scanning normalization |

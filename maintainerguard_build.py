@@ -7,14 +7,15 @@ import csv
 import hashlib
 import io
 import tarfile
+import tomllib
 import zipfile
 from pathlib import Path
 
 
 NAME = "maintainerguard"
-VERSION = "0.3.0"
-DIST_INFO = f"{NAME}-{VERSION}.dist-info"
 ROOT = Path(__file__).resolve().parent
+VERSION = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+DIST_INFO = f"{NAME}-{VERSION}.dist-info"
 
 
 def get_requires_for_build_wheel(config_settings=None):

@@ -29,6 +29,8 @@ MaintainerGuard is useful without AI. The deterministic evidence engine is the
 source of truth. Optional AI can improve wording only after every retained claim
 links to known evidence.
 
+![MaintainerGuard demo](assets/demo.gif)
+
 ## Why evidence-first?
 
 Maintainers already juggle diffs, CI, CodeQL, dependency scanners, secret

@@ -6,3 +6,6 @@ contact_links:
   - name: Security report
     url: https://github.com/xxxquide/MaintainerGuard/security/policy
     about: Please report security concerns privately instead of opening a public issue.
+  - name: 💬 Feature request or feedback
+    url: https://github.com/xxxquide/MaintainerGuard/discussions
+    about: Share ideas or tell us how MaintainerGuard fits your workflow

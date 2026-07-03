@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If MaintainerGuard helped your project, please cite it."
+title: "MaintainerGuard"
+abstract: "Evidence-first AI maintainer assistant for merge, security, issue, and release readiness."
+authors:
+  - family-names: Slobodianyk
+    given-names: Roman
+    country: UA
+repository-code: https://github.com/xxxquide/MaintainerGuard
+url: https://github.com/marketplace/actions/maintainerguard
+license: Apache-2.0
+type: software
+keywords:
+  - code-review
+  - devsecops
+  - github-actions
+  - merge-readiness
+  - supply-chain-security

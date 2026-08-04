@@ -29,7 +29,7 @@ and tests, not a promise that every vendor-specific variant is fully supported.
 
 The table above describes bundled fixtures. The table below records what was
 checked against real scanner binaries, with the exact versions used. Regenerate
-these fixtures with `tests/fixtures/real-scanners/regenerate.sh` and re-run
+these fixtures with `bash tests/fixtures/real-scanners/regenerate.sh` and re-run
 `python3 -m unittest tests.test_real_scanner_fidelity`.
 
 | Command | Version verified | Result |

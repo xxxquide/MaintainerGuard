@@ -12,7 +12,7 @@ python3 -m unittest discover -s tests -v
 python3 -m compileall -q veracity
 python3 -m veracity validate-config
 python3 -m veracity demo --scenario high-risk-auth
-./mg verify
+./vera verify
 python3 -m pip wheel . --no-deps
 ```
 
@@ -20,7 +20,7 @@ Tests use sample data and mocks; they must not require network access, API keys,
 or a real GitHub repository.
 
 After `python3 -m pip install -e .`, both `veracity` and `vera` point to
-the same CLI entrypoint. The local `./mg` wrapper is available for source-tree
+the same CLI entrypoint. The local `./vera` wrapper is available for source-tree
 smoke checks before installation.
 
 ## Design rules

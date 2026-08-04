@@ -38,9 +38,9 @@ vera verify
 You can also run from source without installing:
 
 ```bash
-./mg demo
-./mg doctor
-./mg verify
+./vera demo
+./vera doctor
+./vera verify
 ```
 
 ## Quick start

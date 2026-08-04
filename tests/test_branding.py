@@ -22,7 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 OLD_BRAND = re.compile(r"maintainerguard", re.IGNORECASE)
 # The bare short command that was replaced by `vera`.
-OLD_COMMAND = re.compile(r"(?<![A-Za-z0-9_/.\-])mg(?![A-Za-z0-9_\-])")
+# A leading "/" must NOT be excluded, or "./mg" slips through — it did.
+OLD_COMMAND = re.compile(r"(?<![A-Za-z0-9_.\-])mg(?![A-Za-z0-9_\-])")
 
 ALLOWED_BRAND_FILES = {
     "CHANGELOG.md",

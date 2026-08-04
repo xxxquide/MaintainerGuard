@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://maintainerguard.dev/schemas/v1/scanner.schema.json",
-  "title": "MaintainerGuard generic scanner input",
+  "$id": "https://veracity.dev/schemas/v1/scanner.schema.json",
+  "title": "Veracity generic scanner input",
   "type": "object",
   "required": ["scanner", "findings"],
   "properties": {

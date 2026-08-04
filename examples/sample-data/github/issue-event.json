@@ -1,7 +1,7 @@
 {
   "action": "opened",
   "number": 201,
-  "repository": {"full_name": "example/maintainerguard-demo"},
+  "repository": {"full_name": "example/veracity-demo"},
   "issue": {
     "number": 201,
     "title": "The command crashes",

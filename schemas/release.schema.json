@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://maintainerguard.dev/schemas/v1/release.schema.json",
-  "title": "MaintainerGuard release input",
+  "$id": "https://veracity.dev/schemas/v1/release.schema.json",
+  "title": "Veracity release input",
   "type": "object",
   "required": ["schema_version", "version", "pull_requests"],
   "properties": {

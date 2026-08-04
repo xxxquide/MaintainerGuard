@@ -43,7 +43,7 @@ import json
 import unittest
 from pathlib import Path
 
-from maintainerguard.scanners import normalize_scanner_input
+from veracity.scanners import normalize_scanner_input
 
 FIXTURES = Path(__file__).parent / "fixtures" / "real-scanners"
 
@@ -277,8 +277,8 @@ class DiffScoping(unittest.TestCase):
 
     @staticmethod
     def analyze(changed_path: str):
-        from maintainerguard.analysis import analyze_pull_request
-        from maintainerguard.config import load_config
+        from veracity.analysis import analyze_pull_request
+        from veracity.config import load_config
 
         return analyze_pull_request(
             {

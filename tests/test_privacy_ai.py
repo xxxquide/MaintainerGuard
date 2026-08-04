@@ -2,10 +2,10 @@ import unittest
 import json
 from unittest.mock import patch
 
-from maintainerguard.ai import enrich_with_openai, safe_enrich_report, validate_ai_enrichment
-from maintainerguard.analysis import analyze_pull_request
-from maintainerguard.config import AIConfig, load_config
-from maintainerguard.privacy import redact_text
+from veracity.ai import enrich_with_openai, safe_enrich_report, validate_ai_enrichment
+from veracity.analysis import analyze_pull_request
+from veracity.config import AIConfig, load_config
+from veracity.privacy import redact_text
 
 
 class PrivacyAndAITests(unittest.TestCase):
@@ -53,7 +53,7 @@ class PrivacyAndAITests(unittest.TestCase):
         )
         evidence_id = report.evidence[0].id
         with patch(
-            "maintainerguard.ai.enrich_with_openai",
+            "veracity.ai.enrich_with_openai",
             return_value={
                 "summary": "The documentation change is low risk.",
                 "claims": [{"text": "README changed.", "evidence_ids": [evidence_id], "confidence": "High"}],

@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from maintainerguard.config import ConfigError, default_config_toml, load_config
+from veracity.config import ConfigError, default_config_toml, load_config
 
 
 class ConfigTests(unittest.TestCase):
@@ -19,7 +19,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_loads_valid_toml_and_rejects_unknown_keys(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / ".maintainerguard.toml"
+            path = Path(directory) / ".veracity.toml"
             path.write_text("[core]\ndry_run = false\nreport_mode = \"detailed\"\n")
             config = load_config(path)
             self.assertFalse(config.dry_run)
@@ -31,7 +31,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_example_config_is_valid(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / ".maintainerguard.toml"
+            path = Path(directory) / ".veracity.toml"
             path.write_text(default_config_toml())
             config = load_config(path)
             self.assertTrue(config.dry_run)
@@ -44,7 +44,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_policy_presets_expand_when_no_custom_policies_are_set(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / ".maintainerguard.toml"
+            path = Path(directory) / ".veracity.toml"
 
             path.write_text("[core]\npolicy_preset = \"minimal\"\n")
             self.assertEqual([], load_config(path).policies)
@@ -66,7 +66,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_custom_policies_override_policy_preset(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / ".maintainerguard.toml"
+            path = Path(directory) / ".veracity.toml"
             path.write_text(
                 "\n".join(
                     [
@@ -87,7 +87,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_rejects_invalid_types_and_threshold_order(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / ".maintainerguard.toml"
+            path = Path(directory) / ".veracity.toml"
             path.write_text("[core]\ndry_run = \"yes\"\n")
             with self.assertRaises(ConfigError):
                 load_config(path)

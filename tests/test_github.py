@@ -1,8 +1,8 @@
 import unittest
 from pathlib import Path
 
-from maintainerguard.config import load_config
-from maintainerguard.github import (
+from veracity.config import load_config
+from veracity.github import (
     COMMENT_MARKER,
     GitHubClient,
     analysis_hash,
@@ -35,7 +35,7 @@ class GitHubTests(unittest.TestCase):
         self.assertIn("ai-enabled:\n    description:", action)
         self.assertIn("GITHUB_ACTION_PATH", action)
         self.assertIn("PYTHONPATH", action)
-        self.assertIn("python3 -m maintainerguard action-run", action)
+        self.assertIn("python3 -m veracity action-run", action)
         self.assertNotIn("cd \"$GITHUB_ACTION_PATH\"", action)
 
     def test_publication_requires_all_safety_gates(self):

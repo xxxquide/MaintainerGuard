@@ -1,4 +1,4 @@
-# MaintainerGuard Release Readiness Report
+# Veracity Release Readiness Report
 
 **Version:** 0.2.0
 

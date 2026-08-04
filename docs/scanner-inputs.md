@@ -1,11 +1,11 @@
 # Scanner input formats
 
-MaintainerGuard consumes scanner output; it does not replace scanners or
+Veracity consumes scanner output; it does not replace scanners or
 independently confirm their findings.
 
 ## Supported formats and fixtures
 
-MaintainerGuard supports a small set of normalized scanner shapes. The table
+Veracity supports a small set of normalized scanner shapes. The table
 below is intentionally conservative: it describes what is covered by fixtures
 and tests, not a promise that every vendor-specific variant is fully supported.
 
@@ -71,7 +71,7 @@ scan) still returns no findings without an error.
 
 Supported input families:
 
-- MaintainerGuard generic JSON from `schemas/scanner.schema.json`
+- Veracity generic JSON from `schemas/scanner.schema.json`
 - SARIF result files with tool name, rule ID, level, message, rule metadata,
   locations, suppressions, baseline state, fingerprints, and CWE tags
 - OSV-style results containing packages and vulnerabilities
@@ -100,38 +100,38 @@ and evidence references after PR analysis attaches them.
 Normalize a sample:
 
 ```bash
-python3 -m maintainerguard parse-scanner examples/sample-data/scanners/static-analysis.sarif.json
+python3 -m veracity parse-scanner examples/sample-data/scanners/static-analysis.sarif.json
 ```
 
 List the fixture-backed scanner families:
 
 ```bash
-mg scanners
+vera scanners
 ```
 
 Run a local smoke check across every bundled scanner fixture:
 
 ```bash
-mg verify
+vera verify
 ```
 
 Normalize a sanitized Trivy vulnerability result:
 
 ```bash
-python3 -m maintainerguard parse-scanner examples/sample-data/scanners/trivy-vulnerability.json
+python3 -m veracity parse-scanner examples/sample-data/scanners/trivy-vulnerability.json
 ```
 
 Attach scanner evidence to PR analysis:
 
 ```bash
-python3 -m maintainerguard analyze-pr examples/sample-data/prs/dependency-update.json \
+python3 -m veracity analyze-pr examples/sample-data/prs/dependency-update.json \
   --scanner examples/sample-data/scanners/dependency-advisory.json
 ```
 
 Try a sanitized Trivy-like container warning:
 
 ```bash
-python3 -m maintainerguard parse-scanner examples/sample-data/scanners/container-trivy-warning.json
+python3 -m veracity parse-scanner examples/sample-data/scanners/container-trivy-warning.json
 ```
 
 The explainer groups duplicate scanner IDs, normalizes severity, identifies
@@ -139,7 +139,7 @@ affected files or dependencies, and suggests maintainer review. It never turns a
 scanner warning into a confirmed vulnerability claim.
 
 For SARIF input, duplicate results with the same tool, rule, title, severity,
-and category are grouped into one MaintainerGuard finding with unique affected
+and category are grouped into one Veracity finding with unique affected
 locations. This keeps reports readable while preserving `path:line` evidence
 when SARIF supplies `region.startLine`; path-only evidence is kept when no line
 is present.
@@ -164,7 +164,7 @@ is present.
 
 ## Mapping scanner output into generic JSON
 
-Use the generic format when MaintainerGuard does not yet have a dedicated
+Use the generic format when Veracity does not yet have a dedicated
 adapter for a scanner. Keep examples sanitized: use placeholder image names,
 repository paths, package versions, and advisory IDs instead of real private
 scanner output.
@@ -173,13 +173,13 @@ For a Trivy-like container or supply-chain warning, map scanner fields like this
 
 - Scanner name -> `scanner`, for example `trivy-container`.
 - Vulnerability or rule ID -> finding `id`.
-- Scanner severity -> finding `severity`; MaintainerGuard normalizes common
+- Scanner severity -> finding `severity`; Veracity normalizes common
   values such as `LOW`, `MEDIUM`, `HIGH`, and `CRITICAL`.
 - Target image, manifest, lockfile, or Dockerfile -> `affected_files`.
 - Package name and installed version -> `dependency`.
 - CVE or vendor advisory -> `advisory_id`.
 - Fixed version or remediation note -> `recommendation`.
 
-MaintainerGuard explains and groups the supplied scanner evidence for maintainer
+Veracity explains and groups the supplied scanner evidence for maintainer
 review. It does not replace the scanner, rescan the image, or confirm that a
 reported vulnerability is exploitable.

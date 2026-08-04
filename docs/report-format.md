@@ -1,6 +1,6 @@
 # Report format reference
 
-MaintainerGuard emits Markdown by default because the primary output is intended
+Veracity emits Markdown by default because the primary output is intended
 for maintainer review and GitHub comments. Pass `--format json` for structured
 output.
 

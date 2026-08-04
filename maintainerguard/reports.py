@@ -120,7 +120,10 @@ def _render_merge(report: MergeReadinessReport, mode: str) -> str:
     if report.ai_summary:
         # Rendered after the deterministic sections: optional AI wording must
         # never precede the evidence a maintainer is meant to check it against.
-        lines.extend(["", "## Optional AI enrichment", "", report.ai_summary])
+        # Quoted so model output is visually attributable and cannot be mistaken
+        # for a deterministic section of the report.
+        lines.extend(["", "## Optional AI enrichment", ""])
+        lines.extend(_quote(report.ai_summary))
         lines.extend(_bullets([item.text for item in report.ai_claims]))
     return "\n".join(lines) + "\n"
 
@@ -246,6 +249,10 @@ def _render_release(report: ReleaseReadinessReport) -> str:
         *_bullets(report.limitations),
     ]
     return "\n".join(lines) + "\n"
+
+
+def _quote(text: str) -> list[str]:
+    return [f"> {line}" if line else ">" for line in text.splitlines()] or [">"]
 
 
 def _bullets(items: list[str]) -> list[str]:

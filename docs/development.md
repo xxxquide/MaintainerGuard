@@ -52,3 +52,36 @@ The Action must remain portable when used as `uses: xxxquide/MaintainerGuard@tag
 Keep `$GITHUB_ACTION_PATH` on `PYTHONPATH` and do not `cd` into the Action
 directory; config, scanner, and event paths should resolve from the caller
 workspace.
+
+## Packaging
+
+The package is built with [hatchling](https://hatch.pypa.io/latest/), declared in
+`[build-system]`. It is a build-time dependency only: MaintainerGuard still has
+no third-party runtime dependencies.
+
+Earlier versions used a hand-written standard-library PEP 517 backend. It
+generated `METADATA` by hand and had already drifted from `[project]`: keywords
+and classifiers disagreed, `Author` was never emitted, and `readme` was dropped
+entirely, which left an empty long description on PyPI.
+
+Two things to know when changing packaging:
+
+- **Version.** `maintainerguard/__init__.py` is the single source. `[project]`
+  declares `dynamic = ["version"]` and `[tool.hatch.version]` reads it from
+  there, so the two cannot drift.
+- **Bundled data.** The CLI resolves `examples/sample-data`, `schemas`,
+  `action.yml`, and `.maintainerguard.toml` relative to the directory containing
+  the installed package, so the wheel keeps them at the top level via
+  `[tool.hatch.build.targets.wheel.force-include]`. If you move them, update
+  `_package_root()` in `maintainerguard/cli.py` in the same change.
+
+`assets/` is excluded from the sdist: the demo GIF and banner total about 16 MB,
+are not needed to install or run the package, and PyPI renders the readme from
+metadata rather than from the archive.
+
+Verify a build locally with:
+
+```bash
+python3 -m pip wheel . --no-deps
+python3 -m unittest tests.test_packaging -v
+```

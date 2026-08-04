@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 from typing import Any
@@ -18,12 +19,45 @@ class AIError(RuntimeError):
     pass
 
 
+# The AI summary is free text. Everything else in the report is bounded by the
+# evidence model, so this is the only field an adversary can steer, and the
+# pull-request title, body, and patch all reach the prompt.
+AI_SUMMARY_LIMIT = 1500
+AI_CLAIM_LIMIT = 300
+
+_HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+_COMMENT_FRAGMENT = re.compile(r"<!--|-->")
+_ATX_HEADING = re.compile(r"(?m)^[ \t]*#{1,6}[ \t]*")
+_SETEXT_UNDERLINE = re.compile(r"(?m)^[ \t]*(?:=|-){3,}[ \t]*$")
+_CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+_BLANK_RUN = re.compile(r"\n{3,}")
+
+
+def sanitize_ai_text(value: Any, limit: int) -> str:
+    """Strip anything that lets model output impersonate the report itself.
+
+    HTML comments are removed because the published-comment marker is an HTML
+    comment: injecting it can orphan or hijack the maintainer's existing comment.
+    Markdown headings are flattened so AI text cannot fabricate a section such as
+    `## Evidence` next to the deterministic one.
+    """
+    if not isinstance(value, str):
+        return ""
+    cleaned = _HTML_COMMENT.sub(" ", value)
+    cleaned = _COMMENT_FRAGMENT.sub(" ", cleaned)
+    cleaned = _ATX_HEADING.sub("", cleaned)
+    cleaned = _SETEXT_UNDERLINE.sub("", cleaned)
+    cleaned = _CONTROL.sub("", cleaned)
+    cleaned = _BLANK_RUN.sub("\n\n", cleaned).strip()
+    if len(cleaned) > limit:
+        cleaned = cleaned[:limit].rstrip() + " [truncated by MaintainerGuard]"
+    return cleaned
+
+
 def validate_ai_enrichment(payload: Any, valid_evidence_ids: set[str]) -> dict[str, Any]:
     if not isinstance(payload, dict):
         return {"summary": "", "claims": []}
-    summary = payload.get("summary", "")
-    if not isinstance(summary, str):
-        summary = ""
+    summary = sanitize_ai_text(payload.get("summary", ""), AI_SUMMARY_LIMIT)
     claims = []
     for item in payload.get("claims", []):
         if not isinstance(item, dict):
@@ -39,8 +73,14 @@ def validate_ai_enrichment(payload: Any, valid_evidence_ids: set[str]) -> dict[s
             and all(isinstance(ref, str) and ref in valid_evidence_ids for ref in refs)
             and confidence in {"Low", "Medium", "High"}
         ):
-            claims.append({"text": text.strip(), "evidence_ids": refs, "confidence": confidence})
-    return {"summary": summary.strip(), "claims": claims}
+            claims.append(
+                {
+                    "text": sanitize_ai_text(text, AI_CLAIM_LIMIT),
+                    "evidence_ids": refs,
+                    "confidence": confidence,
+                }
+            )
+    return {"summary": summary, "claims": [item for item in claims if item["text"]]}
 
 
 def enrich_with_openai(
@@ -103,16 +143,19 @@ def safe_enrich_report(report: MergeReadinessReport, config: Config) -> MergeRea
     except AIError as exc:
         report.limitations.append(f"AI enrichment was unavailable: {exc}")
         return report
-    report.ai_summary = enrichment["summary"]
+    # Sanitized again here on purpose: safe_enrich_report is the boundary that
+    # writes into the report, and it must not depend on its caller having done it.
+    report.ai_summary = sanitize_ai_text(enrichment.get("summary", ""), AI_SUMMARY_LIMIT)
     report.ai_claims = [
         Reason(
-            text=item["text"],
+            text=sanitize_ai_text(item["text"], AI_CLAIM_LIMIT),
             evidence_ids=item["evidence_ids"],
             confidence=item["confidence"],
             severity="Low",
             category="ai_enrichment",
         )
-        for item in enrichment["claims"]
+        for item in enrichment.get("claims", [])
+        if sanitize_ai_text(item.get("text", ""), AI_CLAIM_LIMIT)
     ]
     return report
 

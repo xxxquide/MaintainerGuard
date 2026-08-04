@@ -157,6 +157,18 @@ def analyze_pull_request(
     confidence = "High" if files and evidence else "Low"
     if any(item.confidence == "Medium" for item in reasons):
         confidence = "Medium"
+    # A file dropped by the input cap may be the one that mattered. The report
+    # must not claim High confidence about a change it only partly examined.
+    # Paths excluded by `paths.ignore` are a deliberate choice and do not count.
+    dropped_files = max(0, len(raw_files) - config.privacy.max_files_analyzed)
+    if dropped_files and confidence == "High":
+        confidence = "Medium"
+    if dropped_files:
+        summary = (
+            f"{summary} Note: {dropped_files} of {len(raw_files)} changed files were "
+            f"not analyzed because the configured limit is "
+            f"{config.privacy.max_files_analyzed}, so this conclusion is partial."
+        )
     limitations = [
         "MaintainerGuard identifies review signals; it does not prove the presence or absence of vulnerabilities.",
         "Absence-based test and documentation signals are inferred from supplied changed-file data.",

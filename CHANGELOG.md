@@ -35,6 +35,56 @@ osv-scanner 2.4.0, Semgrep OSS) rather than hand-written fixtures.
   also read, alongside the previously supported nested form.
 - `partialFingerprints` and CWE tags are preserved on normalized findings.
 
+Second pass over the defects recorded during the scanner-fidelity audit. Each
+one has a regression test in `tests/test_audit_followups.py` that fails without
+the fix.
+
+- A security-sensitive file dropped by `privacy.max_files_analyzed` left the
+  report claiming `confidence: High` with verdict `Ready for maintainer review`.
+  Confidence is now capped at Medium when the cap drops files, and the executive
+  summary states how many files went unanalyzed instead of leaving it to a
+  limitations footnote. Paths excluded by `paths.ignore` are a deliberate choice
+  and do not lower confidence.
+- The optional AI `summary` and claim texts were stored verbatim. A crafted or
+  prompt-injected response could embed the published-comment marker
+  (`<!-- maintainerguard:merge-readiness -->`), which is how comments are
+  deduplicated, and could open a second `## Evidence` heading beside the
+  deterministic one. AI text is now sanitized in `safe_enrich_report` as well as
+  in `validate_ai_enrichment`: HTML comments and comment fragments are removed,
+  Markdown headings are flattened, control characters are stripped, and the
+  summary and each claim are length-bounded. The rendered block is quoted so
+  model output is visually attributable.
+- The system instruction now states that the pull-request title, body, and patch
+  are untrusted contributor-controlled data to be described rather than obeyed,
+  and asks for plain prose with no markup.
+- Security categorization matched keywords as substrings. `terraform/main.tf` was
+  reported as a rendering change because `orm` occurs inside `terraform`,
+  `src/formatters.py` for the same reason, and `src/authors.py` as an
+  authentication change because `auth` occurs inside `author`. Keywords are now
+  matched as whole words against separator-normalized text, with plural forms
+  allowed. Keywords that are themselves path fragments (`.github/workflows`,
+  `package.json`, `api_key`) keep substring semantics. The same fix applies to
+  `changed_areas`, the documentation-impact terms, and the behavior hints.
+- Test and documentation paths are no longer reported as security-sensitive
+  changes. `tests/fixtures/auth_token.json` was categorized as authentication and
+  `docs/security/threat-model.md` matched the default `**/security/**` pattern.
+  Documentation and test classification now takes precedence over
+  `paths.security_sensitive`; a maintainer who wants otherwise removes the path
+  from `paths.docs` or `paths.tests`.
+- Breaking-change detection searched whole patches for words like `remove` and
+  `deprecated`, so a diff whose only content was `# remove trailing whitespace`
+  was reported as a breaking change and escalated release impact to High. It now
+  requires a structural signal: a removed declaration, a deleted or renamed file,
+  or an explicit breaking-change marker. Findings say which signal fired.
+- File `status` was never read. A change that only deleted `src/auth/session.py`
+  demanded new tests for code that no longer exists, and a pure rename with no
+  diff content was treated as a behavior change. Deletions and content-free
+  renames no longer count as behavior needing test coverage.
+- `[[policy]]` validated only that `name`, `paths`, and `require` were present.
+  `blocking = "yes"` is truthy, so a soft policy silently became one that
+  escalates risk to Critical. `blocking` must now be a boolean, and `name`,
+  `require`, and `message` must be strings.
+
 ### Added
 
 - Scanner findings are attributed to the change under review. `ScannerFinding`
@@ -56,6 +106,20 @@ osv-scanner 2.4.0, Semgrep OSS) rather than hand-written fixtures.
 - Optional AI enrichment renders after the deterministic sections.
 - Concise mode previews the first 10 pre-existing findings; set
   `report_mode = "detailed"` for the full list.
+
+- The build backend is now hatchling instead of the hand-written standard-library
+  PEP 517 backend, which generated `METADATA` by hand and had drifted from
+  `[project]`: keywords and classifiers disagreed, `Author` was never emitted,
+  and `readme` was dropped, leaving an empty long description on PyPI. Metadata
+  now comes from `[project]`. hatchling is a build-time dependency only;
+  MaintainerGuard still has no third-party runtime dependencies.
+- `maintainerguard/__init__.py` is the single source for the version.
+  `[project]` declares `dynamic = ["version"]`, so the duplicate that caused the
+  drift is gone.
+- `assets/` is excluded from the sdist, which drops it from 15.9 MB to about
+  150 KB. The demo GIF and banner are not needed to install or run the package.
+  A stray `.coverage` file is no longer packaged.
+- `[project.urls]` now publishes homepage, source, changelog, and issue links.
 
 ### Behaviour change
 

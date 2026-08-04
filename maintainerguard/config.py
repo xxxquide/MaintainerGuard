@@ -268,6 +268,18 @@ def load_config(path: str | Path | None = None) -> Config:
                 isinstance(item, str) for item in policy["paths"]
             ):
                 raise ConfigError(f"policy[{index}].paths must contain strings")
+            for key in ("name", "require", "message"):
+                if key in policy and not isinstance(policy[key], str):
+                    raise ConfigError(f"policy[{index}].{key} must be a string")
+            if not policy["name"].strip():
+                raise ConfigError(f"policy[{index}].name must not be empty")
+            # A truthy non-bool such as blocking = "yes" silently turned a soft
+            # policy into one that escalates risk to Critical.
+            if "blocking" in policy and not isinstance(policy["blocking"], bool):
+                raise ConfigError(
+                    f"policy[{index}].blocking must be true or false, "
+                    f"got {type(policy['blocking']).__name__}"
+                )
             config.policies.append(PolicyRule(**policy))
     else:
         config.policies = _preset_policy_rules(config.policy_preset)

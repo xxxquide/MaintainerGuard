@@ -57,6 +57,65 @@ BEHAVIOR_HINTS = (
 )
 
 
+_WORD_SPLIT = re.compile(r"[^a-z0-9]+")
+
+# Statuses that carry no new behavior to review.
+_REMOVED_STATUSES = {"removed", "deleted"}
+_RENAMED_STATUSES = {"renamed", "moved"}
+
+# A removed line that looks like a declaration, not prose. Used instead of
+# searching whole patches for words like "remove", which fire on comments and
+# documentation text.
+_DECLARATION = re.compile(
+    r"""^\s*
+    (?:@\w+|export|public|private|protected|static|async|pub|final|abstract)?\s*
+    (?:
+        (?:def|class|func|fn|function|interface|type|struct|enum|impl|trait|module|namespace)\b
+        | [A-Za-z_][\w.]*\s*[:=]\s*(?:function\b|async\b|lambda\b|\()
+        | [A-Z][A-Z0-9_]{2,}\s*[:=]
+    )
+    """,
+    re.VERBOSE,
+)
+_EXPLICIT_BREAKING = re.compile(r"breaking[ _-]?change|^\s*[-+]?\s*breaking\s*:", re.IGNORECASE)
+
+
+def _terms(text: str) -> str:
+    """Lowercase text with separators collapsed, space-padded for word tests."""
+    return f" {_WORD_SPLIT.sub(' ', text.lower()).strip()} "
+
+
+def keyword_matches(keyword: str, *texts: str) -> bool:
+    """Match a keyword as a whole word, not as a substring.
+
+    Substring matching reported `terraform/main.tf` as a rendering change because
+    `orm` occurs inside `terraform`, and `src/authors.py` as authentication
+    because `auth` occurs inside `author`. Keywords that are themselves path or
+    file fragments (`.github/workflows`, `package.json`, `api_key`) keep
+    substring semantics, because word splitting would destroy them.
+    """
+    lowered = keyword.lower()
+    if not lowered.isalnum():
+        return any(lowered in text.lower() for text in texts)
+    variants = (f" {lowered} ", f" {lowered}s ", f" {lowered}es ")
+    return any(variant in _terms(text) for text in texts for variant in variants)
+
+
+def _is_generated_or_supporting(path: str, config: Config) -> bool:
+    """Tests and documentation are not security-sensitive behavior changes."""
+    return path_matches(path, config.paths.tests) or path_matches(path, config.paths.docs)
+
+
+def _carries_behavior(item: dict) -> bool:
+    """False for deletions and for pure renames with no diff content."""
+    status = str(item.get("status", "modified")).strip().lower()
+    if status in _REMOVED_STATUSES:
+        return False
+    if status in _RENAMED_STATUSES and not str(item.get("patch", "")).strip():
+        return False
+    return True
+
+
 def path_matches(path: str, patterns: Iterable[str]) -> bool:
     lowered = path.lower()
     return any(fnmatch.fnmatch(path, pattern) or fnmatch.fnmatch(lowered, pattern.lower()) for pattern in patterns)
@@ -72,15 +131,21 @@ def changed_areas(files: list[dict]) -> list[str]:
         lower = path.lower()
         if lower.startswith("docs/") or lower.startswith("readme"):
             areas.add("Documentation")
-        elif lower.startswith("tests/") or "test" in lower or ".spec." in lower:
+        elif lower.startswith("tests/") or keyword_matches("test", path) or ".spec." in lower:
             areas.add("Tests")
         elif lower.startswith(".github/workflows/"):
             areas.add("CI/CD")
-        elif any(term in lower for term in ("auth", "session", "permission", "security")):
+        elif any(
+            keyword_matches(term, path)
+            for term in ("auth", "session", "permission", "security")
+        ):
             areas.add("Security-sensitive code")
-        elif any(term in lower for term in ("requirements", "package.json", "lock", "pyproject.toml", "go.mod", "cargo.")):
+        elif any(
+            keyword_matches(term, path)
+            for term in ("requirements", "package.json", "lock", "pyproject.toml", "go.mod", "cargo.")
+        ):
             areas.add("Dependencies")
-        elif any(term in lower for term in ("config", ".env", "settings")):
+        elif any(keyword_matches(term, path) for term in ("config", ".env", "settings")):
             areas.add("Configuration")
         else:
             root = path.split("/", 1)[0]
@@ -100,18 +165,26 @@ def detect_security_files(files: list[dict], config: Config) -> list[tuple[str, 
                 category == "CI, release, and supply chain"
                 or not _is_supply_chain_review_path(path, config)
             )
+            if not _is_generated_or_supporting(path, config)
             if any(
-                keyword in f"{path}\n{str(item.get('patch', ''))}".lower()
+                keyword_matches(keyword, path, str(item.get("patch", "")))
                 for keyword in keywords
             )
         ]
         if affected:
             categorized.update(affected)
             matches.append((category, sorted(set(affected)), explanation, guidance))
+    # Documentation and test classification takes precedence over the
+    # security-sensitive path list, so the default `**/security/**` pattern does
+    # not report `docs/security/threat-model.md` as a security-sensitive code
+    # change. A maintainer who wants otherwise removes the path from
+    # `paths.docs` or `paths.tests`.
     configured = [
         path
         for path in paths
-        if path_matches(path, config.paths.security_sensitive) and path not in categorized
+        if path_matches(path, config.paths.security_sensitive)
+        and path not in categorized
+        and not _is_generated_or_supporting(path, config)
     ]
     if configured:
         matches.append(
@@ -129,11 +202,13 @@ def detect_test_impact(files: list[dict], config: Config, security_touched: bool
     paths = file_paths(files)
     tests = [path for path in paths if path_matches(path, config.paths.tests)]
     behavior = [
-        path
-        for path in paths
-        if not path_matches(path, config.paths.docs)
-        and not path_matches(path, config.paths.tests)
-        and any(hint in path.lower() for hint in BEHAVIOR_HINTS)
+        str(item["path"])
+        for item in files
+        if item.get("path")
+        and not path_matches(str(item["path"]), config.paths.docs)
+        and not path_matches(str(item["path"]), config.paths.tests)
+        and _carries_behavior(item)
+        and _matches_behavior_hint(str(item["path"]))
     ]
     if tests:
         return Impact("Low", "Related test files changed in this pull request.", tests, confidence="High")
@@ -161,6 +236,17 @@ def detect_test_impact(files: list[dict], config: Config, security_touched: bool
     return Impact("None", "No behavior change requiring additional test review was detected.", confidence="High")
 
 
+def _matches_behavior_hint(path: str) -> bool:
+    lowered = path.lower()
+    for hint in BEHAVIOR_HINTS:
+        if hint.endswith("/"):
+            if lowered.startswith(hint) or f"/{hint}" in lowered:
+                return True
+        elif keyword_matches(hint, path):
+            return True
+    return False
+
+
 def _is_supply_chain_review_path(path: str, config: Config) -> bool:
     lower = path.lower()
     return (
@@ -177,10 +263,12 @@ def detect_documentation_impact(files: list[dict], config: Config, security_touc
         path
         for path in paths
         if not path_matches(path, config.paths.docs)
-        and any(term in path.lower() for term in ("api", "cli", "config", "auth", "permission", "public", "feature"))
+        and any(
+            keyword_matches(term, path)
+            for term in ("api", "cli", "config", "auth", "permission", "public", "feature")
+        )
     ]
-    patch_text = "\n".join(str(item.get("patch", "")) for item in files).lower()
-    breaking = bool(re.search(r"\b(remove|rename|deprecated|breaking|no longer)\b", patch_text))
+    breaking = bool(breaking_change_signals(files))
     if docs:
         return Impact("Low", "Documentation or examples changed with the pull request.", docs, confidence="High")
     if behavior or security_touched or breaking:
@@ -235,7 +323,7 @@ def detect_dependency_impact(files: list[dict], config: Config) -> Impact:
 def detect_release_impact(files: list[dict], config: Config) -> Impact:
     affected = [path for path in file_paths(files) if path_matches(path, config.paths.release)]
     patch = "\n".join(str(item.get("patch", "")) for item in files).lower()
-    breaking = any(term in patch for term in ("breaking", "deprecated", "remove", "migration"))
+    breaking = bool(breaking_change_signals(files))
     if affected or breaking:
         actions = ["Confirm changelog and release notes describe the change."]
         if any(path.startswith(".github/workflows/") for path in affected):
@@ -258,13 +346,39 @@ def detect_release_impact(files: list[dict], config: Config) -> Impact:
     return Impact("None", "No release-impact signal was detected.", confidence="High")
 
 
-def possible_breaking_changes(files: list[dict]) -> list[str]:
-    output = []
+def breaking_change_signals(files: list[dict]) -> list[tuple[str, str]]:
+    """Structural breaking-change signals.
+
+    Searching a whole patch for words like `remove` or `deprecated` fired on
+    comments and prose: a diff whose only content was `# remove trailing
+    whitespace` was reported as a breaking change and escalated release impact to
+    High. Only removed declarations, deleted files, and explicit markers count.
+    """
+    signals: list[tuple[str, str]] = []
     for item in files:
-        patch = str(item.get("patch", "")).lower()
-        if any(term in patch for term in ("breaking", "deprecated", "remove", "rename", "no longer")):
-            output.append(f"Review possible behavior or interface change in {item.get('path', 'unknown file')}.")
-    return output
+        path = str(item.get("path", "unknown file"))
+        status = str(item.get("status", "modified")).strip().lower()
+        if status in _REMOVED_STATUSES:
+            signals.append((path, "the file was deleted"))
+            continue
+        if status in _RENAMED_STATUSES:
+            signals.append((path, "the file was renamed"))
+            continue
+        for line in str(item.get("patch", "")).splitlines():
+            if _EXPLICIT_BREAKING.search(line):
+                signals.append((path, "the diff declares a breaking change"))
+                break
+            if line.startswith("-") and not line.startswith("---") and _DECLARATION.search(line[1:]):
+                signals.append((path, "a declaration was removed or changed"))
+                break
+    return signals
+
+
+def possible_breaking_changes(files: list[dict]) -> list[str]:
+    return [
+        f"Review possible behavior or interface change in {path}: {reason}."
+        for path, reason in breaking_change_signals(files)
+    ]
 
 
 def _dependency_signals(files: list[dict], affected: list[str]) -> list[str]:

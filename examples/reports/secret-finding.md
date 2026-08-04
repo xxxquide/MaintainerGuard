@@ -8,17 +8,16 @@
 
 ## Executive summary
 
-"Add test fixture for external service configuration" affects Tests. Verdict: Blocked by scanner finding. Overall risk: High. Security-sensitive area touched: Authentication and sessions.
+"Add test fixture for external service configuration" affects Tests. Verdict: Blocked by scanner finding. Overall risk: High. example-secret-scan reported Possible credential reported in test fixture.
 
 ## Decision guidance
 
 **Recommended maintainer action:** Block until scanner finding is resolved
 
-**Reason:** A maintainer should act on this recommendation because scanner evidence includes high example-secret-scan finding SECRET-1; security-sensitive areas were touched: Authentication and sessions; documentation may need review because no related docs changed.
+**Reason:** A maintainer should act on this recommendation because scanner evidence includes high example-secret-scan finding SECRET-1.
 
 ## Maintainer checklist
 
-- Verify authentication success and rejection paths, token/session handling, and protected routes.
 - Review example-secret-scan finding SECRET-1 before merge.
 
 ## Evidence
@@ -40,12 +39,11 @@
 
 ## Why this requires review
 
-- Security-sensitive area touched: Authentication and sessions.
 - example-secret-scan reported Possible credential reported in test fixture.
 
 ## Security-sensitive areas
 
-- Authentication and sessions: tests/fixtures/example.env. Verify authentication success and rejection paths, token/session handling, and protected routes.
+- None detected.
 
 ## Scanner findings
 
@@ -65,7 +63,7 @@
 
 ## Documentation impact
 
-**Medium:** The change may affect user-visible or security-related behavior, but documentation files did not change.
+**None:** No documentation drift signal was detected.
 
 ## Release impact
 

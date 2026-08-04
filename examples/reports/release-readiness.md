@@ -18,7 +18,7 @@ Release 0.2.0 contains 3 merged change(s), 1 security-sensitive change(s), and 1
 
 ## Breaking changes
 
-- Review possible behavior or interface change in src/cli.py.
+- Review possible behavior or interface change in src/cli.py: the diff declares a breaking change.
 
 ## Security-sensitive changes
 

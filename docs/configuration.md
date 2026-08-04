@@ -1,6 +1,6 @@
 # Configuration reference
 
-MaintainerGuard reads `.maintainerguard.toml` from the current directory or an
+Veracity reads `.veracity.toml` from the current directory or an
 explicit path passed through `--config`. Unknown sections, unknown keys,
 incorrect types, unsupported policy requirements, and invalid thresholds fail
 validation.
@@ -43,8 +43,8 @@ patterns. `paths.scanner_inputs` can provide scanner JSON files that
 must be increasing positive integers. Critical risk is reserved for explicit
 critical blocking scanner findings or failed blocking policies.
 
-Use `.maintainerguard.toml` and `mg config` as the complete executable
-reference. `python3 -m maintainerguard print-config` remains available for
+Use `.veracity.toml` and `vera config` as the complete executable
+reference. `python3 -m veracity print-config` remains available for
 debugging and automation.
 
 ## Policy examples

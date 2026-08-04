@@ -1,6 +1,6 @@
 # GitHub automation
 
-The included workflows and `action.yml` run MaintainerGuard in dry-run mode by
+The included workflows and `action.yml` run Veracity in dry-run mode by
 default. They intentionally use read-only permissions unless you explicitly
 choose comment publishing.
 
@@ -32,7 +32,7 @@ steps:
   - uses: actions/setup-python@v6
     with:
       python-version: "3.11"
-  - uses: xxxquide/MaintainerGuard@v0.3.1
+  - uses: xxxquide/veracity@v0.4.0
     with:
       mode: analyze-pr
       dry-run: "true"
@@ -41,16 +41,16 @@ steps:
 
 ## Pull requests
 
-`.github/workflows/maintainerguard-pr.yml` uses the composite Action. The
+`.github/workflows/veracity-pr.yml` uses the composite Action. The
 Action entrypoint is `action-run`; it reads `GITHUB_EVENT_PATH` from the caller
 workspace and, with a read token, retrieves a bounded list of PR files through
 the GitHub REST API.
 
 `github-run` remains available as a direct CLI helper for manually running
-MaintainerGuard against a GitHub event JSON file:
+Veracity against a GitHub event JSON file:
 
 ```bash
-python3 -m maintainerguard github-run "$GITHUB_EVENT_PATH"
+python3 -m veracity github-run "$GITHUB_EVENT_PATH"
 ```
 
 Use `action-run` through `action.yml` for GitHub Actions. Use `github-run` when
@@ -61,7 +61,7 @@ you intentionally want the lower-level CLI helper.
 External repositories should use the published Action:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.3.1
+- uses: xxxquide/veracity@v0.4.0
 ```
 
 The workflows checked into this repository use `uses: ./` intentionally so pull
@@ -77,8 +77,8 @@ release, use:
 ```
 
 The Action prepends `$GITHUB_ACTION_PATH` to `PYTHONPATH` so Python imports the
-MaintainerGuard package from the published Action checkout. It keeps the working
-directory as the caller repository, so `.maintainerguard.toml`, scanner paths,
+Veracity package from the published Action checkout. It keeps the working
+directory as the caller repository, so `.veracity.toml`, scanner paths,
 sample input paths, and `GITHUB_EVENT_PATH` still resolve relative to the caller
 workspace.
 
@@ -92,7 +92,7 @@ Before enabling comments:
 4. Add `pull-requests: write` and `issues: write` permissions to the specific workflow job.
 5. Set the Action input `post-comment: "true"` or add `--post` to `github-run`.
 
-All gates are required. MaintainerGuard uses one hidden marker, updates the
+All gates are required. Veracity uses one hidden marker, updates the
 existing marked comment, and skips publication when the analysis hash is
 unchanged. It respects configured skip labels and draft/bot settings.
 

@@ -1,6 +1,6 @@
 # Privacy and security
 
-MaintainerGuard is designed for authorized defensive review assistance.
+Veracity is designed for authorized defensive review assistance.
 
 ## Data processed locally
 
@@ -10,7 +10,7 @@ configuration. It does not require a backend or database.
 
 ## Optional AI data
 
-AI is disabled by default. When explicitly enabled, MaintainerGuard sends a
+AI is disabled by default. When explicitly enabled, Veracity sends a
 bounded, redacted structured representation of the deterministic report to the
 configured OpenAI Responses API endpoint. It does not enumerate or send
 environment variables, it requests `store: false`, and it does not send entire
@@ -25,7 +25,7 @@ terms before use.
 
 - Dry-run is enabled by default.
 - GitHub comment posting is disabled and requires three explicit gates.
-- MaintainerGuard never automatically merges changes.
+- Veracity never automatically merges changes.
 - Input file count and diff size are bounded.
 - API keys are read from named environment variables and never logged.
 - AI output cannot change deterministic risk or verdict.
@@ -33,7 +33,7 @@ terms before use.
 
 ## Limitations
 
-MaintainerGuard does not prove code is secure, find every bug, confirm every
+Veracity does not prove code is secure, find every bug, confirm every
 scanner result, or replace human review. It does not execute untrusted code or
 perform offensive security actions. Only analyze repositories and data you are
 authorized to review.

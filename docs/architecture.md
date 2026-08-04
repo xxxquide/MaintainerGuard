@@ -1,6 +1,6 @@
 # Architecture
 
-MaintainerGuard is intentionally a small local-first Python CLI and library. It
+Veracity is intentionally a small local-first Python CLI and library. It
 does not require a backend, database, dashboard, or runtime dependency.
 
 ## Modules

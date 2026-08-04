@@ -1,20 +1,20 @@
 # CLI guide
 
-MaintainerGuard is easiest to use through the short `mg` command.
+Veracity is easiest to use through the short `vera` command.
 
 ```bash
-mg demo
-mg init
-mg presets
-mg scanners
-mg doctor
-mg verify
-mg pr <file>
-mg issue <file>
-mg release <file>
+vera demo
+vera init
+vera presets
+vera scanners
+vera doctor
+vera verify
+vera pr <file>
+vera issue <file>
+vera release <file>
 ```
 
-The longer `maintainerguard` command and `python3 -m maintainerguard ...`
+The longer `veracity` command and `python3 -m veracity ...`
 module form remain supported for automation and debugging.
 
 ## Installation
@@ -22,17 +22,17 @@ module form remain supported for automation and debugging.
 After the repository is published, install with `pipx`:
 
 ```bash
-pipx install git+https://github.com/xxxquide/MaintainerGuard.git
-mg demo
+pipx install git+https://github.com/xxxquide/veracity.git
+vera demo
 ```
 
 From a local checkout:
 
 ```bash
-git clone https://github.com/xxxquide/MaintainerGuard.git
-cd MaintainerGuard
+git clone https://github.com/xxxquide/veracity.git
+cd Veracity
 python3 -m pip install -e .
-mg verify
+vera verify
 ```
 
 You can also run from source without installing:
@@ -46,50 +46,50 @@ You can also run from source without installing:
 ## Quick start
 
 ```bash
-mg demo
-mg init
-mg doctor
-mg verify
+vera demo
+vera init
+vera doctor
+vera verify
 ```
 
-`mg demo` runs the high-risk authentication sample by default. It does not
+`vera demo` runs the high-risk authentication sample by default. It does not
 require API keys, a GitHub token, or network access.
 
 ## Command reference
 
-### `mg demo`
+### `vera demo`
 
 Run a bundled sample pull request scenario.
 
 ```bash
-mg demo
-mg demo --scenario dependency-advisory
-mg demo --scenario ci-workflow-risk
-mg demo --scenario secret-finding
-mg demo --scenario high-risk-auth --format json
+vera demo
+vera demo --scenario dependency-advisory
+vera demo --scenario ci-workflow-risk
+vera demo --scenario secret-finding
+vera demo --scenario high-risk-auth --format json
 ```
 
-### `mg init`
+### `vera init`
 
 Create a safe repository configuration.
 
 ```bash
-mg init
-mg init --preset minimal
-mg init --preset security
-mg init --preset strict
-mg init --preset docs
-mg init --github-action
-mg init --force
+vera init
+vera init --preset minimal
+vera init --preset security
+vera init --preset strict
+vera init --preset docs
+vera init --github-action
+vera init --force
 ```
 
-`mg init` creates `.maintainerguard.toml` if it does not already exist. It does
+`vera init` creates `.veracity.toml` if it does not already exist. It does
 not overwrite files unless `--force` is supplied. `--preset` selects the
 built-in policy profile written to `core.policy_preset`; the default is
 `security`.
 
-`mg init --github-action` also creates
-`.github/workflows/maintainerguard.yml` with safe defaults:
+`vera init --github-action` also creates
+`.github/workflows/veracity.yml` with safe defaults:
 
 - dry-run enabled;
 - comment posting disabled;
@@ -100,7 +100,7 @@ built-in policy profile written to `core.policy_preset`; the default is
 The generated workflow is copy-ready for pull-request analysis:
 
 ```yaml
-name: MaintainerGuard
+name: Veracity
 
 on:
   pull_request:
@@ -118,7 +118,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.3.1
+      - uses: xxxquide/veracity@v0.4.0
         with:
           mode: analyze-pr
           dry-run: "true"
@@ -127,105 +127,105 @@ jobs:
 ```
 
 The workflow uses the published Action reference, leaves comment publishing
-off, and does not enable AI. `mg init --github-action` will not overwrite an
-existing `.maintainerguard.toml` or workflow file unless `--force` is also
+off, and does not enable AI. `vera init --github-action` will not overwrite an
+existing `.veracity.toml` or workflow file unless `--force` is also
 supplied:
 
 ```bash
-mg init --github-action --force
+vera init --github-action --force
 ```
 
-### `mg presets`
+### `vera presets`
 
 List built-in policy presets.
 
 ```bash
-mg presets
+vera presets
 ```
 
-### `mg scanners`
+### `vera scanners`
 
 List scanner input families covered by bundled fixtures.
 
 ```bash
-mg scanners
+vera scanners
 ```
 
-This is a quick way to see which scanner shapes MaintainerGuard currently
+This is a quick way to see which scanner shapes Veracity currently
 normalizes with checked-in sample data. It is not a claim that every
 vendor-specific scanner output variant is fully supported.
 
-### `mg doctor`
+### `vera doctor`
 
-Check whether MaintainerGuard is ready to use in the current directory.
+Check whether Veracity is ready to use in the current directory.
 
 ```bash
-mg doctor
-mg --config path/to/.maintainerguard.toml doctor
+vera doctor
+vera --config path/to/.veracity.toml doctor
 ```
 
-Missing config is not a hard failure. The command suggests `mg init` and still
+Missing config is not a hard failure. The command suggests `vera init` and still
 checks built-in defaults and bundled sample data.
 
-### `mg verify`
+### `vera verify`
 
 Run deterministic smoke checks without API keys.
 
 ```bash
-mg verify
+vera verify
 ```
 
 The command checks configuration loading, bundled demo scenarios, sample PR
 analysis, sample issue analysis, sample release analysis, JSON report rendering,
 and scanner fixture normalization.
 
-### `mg pr`
+### `vera pr`
 
 Analyze pull-request JSON.
 
 ```bash
-mg pr examples/sample-data/prs/dependency-update.json \
+vera pr examples/sample-data/prs/dependency-update.json \
   --scanner examples/sample-data/scanners/dependency-advisory.json
 ```
 
 Equivalent long command:
 
 ```bash
-maintainerguard analyze-pr examples/sample-data/prs/dependency-update.json \
+veracity analyze-pr examples/sample-data/prs/dependency-update.json \
   --scanner examples/sample-data/scanners/dependency-advisory.json
 ```
 
-### `mg issue`
+### `vera issue`
 
 Analyze issue JSON.
 
 ```bash
-mg issue examples/sample-data/issues/bug-missing-reproduction.json
+vera issue examples/sample-data/issues/bug-missing-reproduction.json
 ```
 
-### `mg release`
+### `vera release`
 
 Analyze release-readiness JSON.
 
 ```bash
-mg release examples/sample-data/releases/v0.3.0.json
+vera release examples/sample-data/releases/v0.3.0.json
 ```
 
-### `mg config`
+### `vera config`
 
 Print the documented example configuration.
 
 ```bash
-mg config
-mg validate-config
+vera config
+vera validate-config
 ```
 
-### `mg version`
+### `vera version`
 
-Print the installed MaintainerGuard version.
+Print the installed Veracity version.
 
 ```bash
-mg version
+vera version
 ```
 
 ## JSON output
@@ -233,8 +233,8 @@ mg version
 Most report commands accept `--format json`.
 
 ```bash
-mg demo --scenario high-risk-auth --format json
-mg pr examples/sample-data/prs/dependency-update.json --format json
+vera demo --scenario high-risk-auth --format json
+vera pr examples/sample-data/prs/dependency-update.json --format json
 ```
 
 JSON is intended for automation. Markdown remains the default for terminals and
@@ -242,37 +242,37 @@ GitHub comments.
 
 ## Troubleshooting
 
-### `mg` command not found
+### `vera` command not found
 
 Confirm the package is installed in the active environment:
 
 ```bash
 python3 -m pip install -e .
-python3 -m maintainerguard demo --scenario high-risk-auth
+python3 -m veracity demo --scenario high-risk-auth
 ```
 
 The module form is useful when a shell cannot find the short console script yet.
 
 ### Config file missing
 
-Run `mg init` from the repository root to create `.maintainerguard.toml` with
+Run `vera init` from the repository root to create `.veracity.toml` with
 safe defaults:
 
 ```bash
-mg init
-mg doctor
+vera init
+vera doctor
 ```
 
-`mg doctor` can still inspect built-in defaults when the config file is missing,
+`vera doctor` can still inspect built-in defaults when the config file is missing,
 but repository-specific policy checks need a config file.
 
-### Invalid `.maintainerguard.toml`
+### Invalid `.veracity.toml`
 
 Print a clean example, compare it with your file, then validate again:
 
 ```bash
-mg config
-mg validate-config
+vera config
+vera validate-config
 ```
 
 ### GitHub Action dry-run logs but no PR comment
@@ -287,6 +287,6 @@ Comment publishing requires explicit `dry-run: "false"`,
 permissions. Do not enable comments by default for every repository; turn them
 on only after the dry-run report is useful.
 
-MaintainerGuard does not prove code is secure, find every vulnerability, or
+Veracity does not prove code is secure, find every vulnerability, or
 replace maintainer review. It produces evidence-backed readiness reports and
 checklists for human maintainers.

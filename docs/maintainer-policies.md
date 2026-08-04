@@ -39,7 +39,7 @@ Common policy patterns:
 - release workflows require manual review;
 - high-risk release paths can be blocking in mature repositories;
 - docs-only changes usually stay low risk because no elevated detector fires;
-- skip labels such as `skip-maintainerguard` disable analysis.
+- skip labels such as `skip-veracity` disable analysis.
 
 Policies should not accuse contributors of intent. Use messages that describe
 what maintainers should verify.

@@ -4,6 +4,69 @@ All notable changes to MaintainerGuard are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+Verified against real scanner binaries (Trivy 0.73.0, Gitleaks 8.30.1,
+osv-scanner 2.4.0, Semgrep OSS) rather than hand-written fixtures.
+
+- Trivy native JSON now reads `Secrets`, `Misconfigurations`, and `Licenses` in
+  addition to `Vulnerabilities`. A real `trivy fs` report of 65 findings
+  normalized to 61; the four dropped findings included a CRITICAL leaked GitHub
+  Personal Access Token and a HIGH Dockerfile misconfiguration.
+- `gitleaks --report-format json` writes a top-level JSON array and previously
+  raised `ValueError: Scanner input must be a JSON object`. Arrays are now a
+  first-class scanner input, in the normalizer and in the CLI.
+- Real `semgrep --json` output was routed to the secret-scanner adapter, because
+  that branch matched any `{"results": [...]}` payload. Every SAST finding became
+  a High, blocking "Possible secret reported by scanner" and the report verdict
+  became `Blocked by scanner finding`. Semgrep native output now has its own
+  adapter that preserves `check_id`, severity, CWE metadata, and autofix hints.
+- Scanner findings are no longer marked blocking unless the input says so. The
+  secret-result adapter defaulted `blocking` to `True`.
+- Format detection is now explicit and positive. An unrecognised payload raises
+  `UnsupportedScannerInput` instead of normalizing to an empty list, which was
+  indistinguishable from a clean scan.
+- SARIF results carrying an accepted `suppressions` entry or a
+  `baselineState` of `unchanged`/`absent` are excluded. Maintainer-dismissed and
+  pre-existing findings previously reappeared as active evidence.
+- SARIF severity now honours CodeQL's `security-severity` score using GitHub's
+  documented bands (>= 9.0 Critical, >= 7.0 High, >= 4.0 Medium). A 9.8 finding
+  was reported as High. The flat `problem.severity` key that real CodeQL emits is
+  also read, alongside the previously supported nested form.
+- `partialFingerprints` and CWE tags are preserved on normalized findings.
+
+### Added
+
+- Scanner findings are attributed to the change under review. `ScannerFinding`
+  gains `in_changed_scope` and `scope_reason`, and only in-scope findings affect
+  the verdict, risk level, reasons, and checklist. A finding with no reported
+  path stays in scope, so nothing is silently dismissed.
+- A `Pre-existing repository findings` report section lists findings that point
+  at untouched files, with the reason they were separated.
+- `tests/test_real_scanner_fidelity.py` plus byte-for-byte real scanner output
+  under `tests/fixtures/real-scanners/` and a `regenerate.sh` to refresh them.
+
+### Changed
+
+- Report section order now puts decision guidance, the maintainer checklist, the
+  evidence table, and limitations first. A published comment truncated at
+  `github.max_comment_characters` dropped 41% of a real report, and the
+  `## Evidence` section was the first thing lost because it rendered last.
+- Truncated comments end with an explicit notice instead of stopping mid-word.
+- Optional AI enrichment renders after the deterministic sections.
+- Concise mode previews the first 10 pre-existing findings; set
+  `report_mode = "detailed"` for the full list.
+
+### Behaviour change
+
+A repository-wide scanner report no longer inflates an unrelated change. A
+documentation-only pull request supplied with a real `trivy fs` report of the
+whole repository previously produced `Review required`, risk `High`, a 61-item
+checklist, and a 50,639-character report. It now produces `Ready for maintainer
+review`, risk `Low`, no scanner checklist items, and lists the 65 findings as
+pre-existing. Findings inside changed files, and findings without a reported
+path, keep their previous weight.
+
 ## [0.3.1] - 2026-06-14
 
 ### Added

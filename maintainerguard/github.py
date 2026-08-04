@@ -15,8 +15,25 @@ from .models import CommentAction
 COMMENT_MARKER = "<!-- maintainerguard:merge-readiness -->"
 
 
+TRUNCATION_NOTICE = (
+    "\n\n---\n"
+    "_Report truncated at the configured `github.max_comment_characters` limit. "
+    "Run the CLI locally for the full report._\n"
+)
+
+
 def analysis_hash(body: str) -> str:
     return hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
+
+
+def _truncate_body(body: str, max_characters: int) -> str:
+    """Cut the body to the cap, but say so instead of stopping mid-sentence."""
+    if len(body) <= max_characters:
+        return body
+    if len(TRUNCATION_NOTICE) >= max_characters:
+        return body[:max_characters]
+    kept = body[: max_characters - len(TRUNCATION_NOTICE)]
+    return (kept + TRUNCATION_NOTICE)[:max_characters]
 
 
 def choose_comment_action(
@@ -29,7 +46,7 @@ def choose_comment_action(
     digest = analysis_hash(body)
     complete_body = f"{COMMENT_MARKER}\n<!-- hash:{digest} -->\n{body}"
     if max_characters is not None:
-        complete_body = complete_body[:max_characters]
+        complete_body = _truncate_body(complete_body, max_characters)
     for comment in existing_comments:
         existing_body = str(comment.get("body", ""))
         if COMMENT_MARKER not in existing_body:

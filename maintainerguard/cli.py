@@ -137,7 +137,7 @@ def main(argv: list[str] | None = None) -> int:
             print("Configuration is valid.")
             return 0
         if args.command == "parse-scanner":
-            print(json.dumps([item.to_dict() for item in normalize_scanner_input(_read_json(args.input))], indent=2, sort_keys=True))
+            print(json.dumps([item.to_dict() for item in normalize_scanner_input(_read_scanner_json(args.input))], indent=2, sort_keys=True))
             return 0
         if args.command == "demo":
             pr, scanners = _demo(args.scenario)
@@ -391,7 +391,7 @@ def _verify_scanner_fixtures() -> None:
     scanner_root = root / "examples/sample-data/scanners"
     for filename, _family, _adapter, minimum in SCANNER_FIXTURES:
         path = scanner_root / filename
-        findings = normalize_scanner_input(_read_json(path))
+        findings = normalize_scanner_input(_read_scanner_json(path))
         if len(findings) < minimum:
             raise RuntimeError(f"{filename} produced {len(findings)} finding(s), expected at least {minimum}")
         for finding in findings:
@@ -552,8 +552,16 @@ def _read_json(path: Path) -> dict[str, Any]:
     return data
 
 
-def _load_scanners(paths: list[Path]) -> list[dict[str, Any]]:
-    return [_read_json(path) for path in paths]
+def _read_scanner_json(path: Path) -> Any:
+    """Scanner reports may be objects or arrays (gitleaks writes an array)."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, (dict, list)):
+        raise ValueError(f"{path} must contain a JSON object or array")
+    return data
+
+
+def _load_scanners(paths: list[Path]) -> list[Any]:
+    return [_read_scanner_json(path) for path in paths]
 
 
 def _split_paths(raw: str) -> list[Path]:

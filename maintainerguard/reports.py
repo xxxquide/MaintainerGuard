@@ -8,6 +8,11 @@ from typing import Any
 from .models import IssueTriageReport, MergeReadinessReport, ReleaseReadinessReport
 
 
+# Pre-existing findings are reported for transparency, not as review tasks.
+# Concise mode previews them so a repository-wide scan cannot flood a comment.
+PRE_EXISTING_PREVIEW = 10
+
+
 def render_report(report: Any, *, output_format: str = "markdown", mode: str = "concise") -> str:
     if output_format == "json":
         return json.dumps(report.to_dict(), indent=2, sort_keys=True)
@@ -39,11 +44,9 @@ def _render_merge(report: MergeReadinessReport, mode: str) -> str:
     if report.skipped:
         lines.extend(["", "## Limitations", "", *[f"- {item}" for item in report.limitations]])
         return "\n".join(lines) + "\n"
-    lines.extend(["", "## Key changes", "", *(_bullets(report.changed_areas) or ["- No changed areas identified."])])
-    if report.ai_summary:
-        lines.extend(["", "## Optional AI enrichment", "", report.ai_summary])
-        lines.extend(_bullets([item.text for item in report.ai_claims]))
-    lines.extend(["", "## Why this requires review", "", *(_bullets([item.text for item in report.reasons]) or ["- No elevated review signals detected."])])
+    # Decision-critical sections are rendered first. A published comment can be
+    # truncated at the configured character cap, and the checklist and evidence
+    # table are the parts a maintainer cannot afford to lose.
     lines.extend(
         [
             "",
@@ -54,6 +57,13 @@ def _render_merge(report: MergeReadinessReport, mode: str) -> str:
             f"**Reason:** {report.decision_reason}",
         ]
     )
+    lines.extend(["", "## Maintainer checklist", "", *(_bullets([item.text for item in report.checklist]) or ["- Complete normal maintainer review."])])
+    lines.extend(["", "## Evidence", "", "| ID | Claim | Evidence | Confidence |", "|---|---|---|---|"])
+    for item in report.evidence:
+        lines.append(f"| `{item.id}` | {_cell(item.claim)} | {_cell(f'{item.source_type}: {item.source}; {item.detail}')} | {item.confidence} |")
+    lines.extend(["", "## Limitations", "", *_bullets(report.limitations)])
+    lines.extend(["", "## Key changes", "", *(_bullets(report.changed_areas) or ["- No changed areas identified."])])
+    lines.extend(["", "## Why this requires review", "", *(_bullets([item.text for item in report.reasons]) or ["- No elevated review signals detected."])])
     lines.extend(["", "## Security-sensitive areas", ""])
     lines.extend(
         _bullets(
@@ -64,19 +74,26 @@ def _render_merge(report: MergeReadinessReport, mode: str) -> str:
         )
         or ["- None detected."]
     )
+    in_scope = [item for item in report.scanner_findings if item.in_changed_scope]
+    pre_existing = [item for item in report.scanner_findings if not item.in_changed_scope]
     lines.extend(["", "## Scanner findings", ""])
-    lines.extend(
-        _bullets(
-            [
-                (
-                    f"{item.severity} - {item.scanner} ({item.category}) - {item.title}: "
-                    f"{item.explanation} Recommendation: {item.recommendation or 'Review the supplied scanner evidence before merge.'}"
-                )
-                for item in report.scanner_findings
-            ]
+    lines.extend(_bullets([_finding_line(item) for item in in_scope]) or ["- No supplied scanner findings."])
+    lines.extend(["", "## Pre-existing repository findings", ""])
+    if pre_existing:
+        shown = pre_existing if mode == "detailed" else pre_existing[:PRE_EXISTING_PREVIEW]
+        lines.append(
+            f"These {len(pre_existing)} finding(s) point at files this change does not touch. "
+            "They did not affect the verdict, risk level, or checklist."
         )
-        or ["- No supplied scanner findings."]
-    )
+        lines.append("")
+        lines.extend(_bullets([_finding_line(item) for item in shown]))
+        if len(shown) < len(pre_existing):
+            lines.append(
+                f"- ...and {len(pre_existing) - len(shown)} more. "
+                "Set `report_mode = \"detailed\"` in .maintainerguard.toml for the full list."
+            )
+    else:
+        lines.append("- None. Every supplied finding is attributable to this change.")
     for title, impact in (
         ("Dependency and supply-chain impact", report.dependency_impact),
         ("Test impact", report.test_impact),
@@ -100,12 +117,21 @@ def _render_merge(report: MergeReadinessReport, mode: str) -> str:
         )
         or ["- No configured policy matched the changed files."]
     )
-    lines.extend(["", "## Maintainer checklist", "", *(_bullets([item.text for item in report.checklist]) or ["- Complete normal maintainer review."])])
-    lines.extend(["", "## Evidence", "", "| ID | Claim | Evidence | Confidence |", "|---|---|---|---|"])
-    for item in report.evidence:
-        lines.append(f"| `{item.id}` | {_cell(item.claim)} | {_cell(f'{item.source_type}: {item.source}; {item.detail}')} | {item.confidence} |")
-    lines.extend(["", "## Limitations", "", *_bullets(report.limitations)])
+    if report.ai_summary:
+        # Rendered after the deterministic sections: optional AI wording must
+        # never precede the evidence a maintainer is meant to check it against.
+        lines.extend(["", "## Optional AI enrichment", "", report.ai_summary])
+        lines.extend(_bullets([item.text for item in report.ai_claims]))
     return "\n".join(lines) + "\n"
+
+
+def _finding_line(item: Any) -> str:
+    scope = "" if item.in_changed_scope else f" Scope: {item.scope_reason}"
+    return (
+        f"{item.severity} - {item.scanner} ({item.category}) - {item.title}: "
+        f"{item.explanation} Recommendation: "
+        f"{item.recommendation or 'Review the supplied scanner evidence before merge.'}{scope}"
+    )
 
 
 def _render_issue(report: IssueTriageReport) -> str:

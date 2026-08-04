@@ -73,6 +73,13 @@ class ScannerFinding(Serializable):
     recommendation: str = ""
     blocking: bool = False
     evidence_ids: list[str] = field(default_factory=list)
+    cwe: str = ""
+    fingerprint: str = ""
+    # Whether this finding is attributable to the change under review.
+    # True also covers "cannot be attributed to a path", which is deliberately
+    # conservative: an unattributable finding is never silently demoted.
+    in_changed_scope: bool = True
+    scope_reason: str = ""
 
 
 @dataclass(frozen=True)

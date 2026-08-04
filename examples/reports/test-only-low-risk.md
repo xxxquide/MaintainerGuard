@@ -10,6 +10,29 @@
 
 "Add regression coverage for score rounding" affects Tests. Verdict: Ready for maintainer review. Overall risk: Low. No elevated deterministic review signals were detected.
 
+## Decision guidance
+
+**Recommended maintainer action:** Looks safe for normal review
+
+**Reason:** A maintainer should act on this recommendation because no elevated deterministic review signals were detected.
+
+## Maintainer checklist
+
+- Complete normal maintainer review.
+
+## Evidence
+
+| ID | Claim | Evidence | Confidence |
+|---|---|---|---|
+| `ev-ed0845100997` | tests/test_score_rounding.py changed | changed_file: tests/test_score_rounding.py; added file; supplied patch length 88 characters | High |
+| `ev-b73d48505373` | tests/fixtures/score-cases.json changed | changed_file: tests/fixtures/score-cases.json; added file; supplied patch length 35 characters | High |
+
+## Limitations
+
+- MaintainerGuard identifies review signals; it does not prove the presence or absence of vulnerabilities.
+- Absence-based test and documentation signals are inferred from supplied changed-file data.
+- This report supports, but does not replace, human maintainer review.
+
 ## Key changes
 
 - Tests
@@ -18,12 +41,6 @@
 
 - No elevated review signals detected.
 
-## Decision guidance
-
-**Recommended maintainer action:** Looks safe for normal review
-
-**Reason:** A maintainer should act on this recommendation because no elevated deterministic review signals were detected.
-
 ## Security-sensitive areas
 
 - None detected.
@@ -31,6 +48,10 @@
 ## Scanner findings
 
 - No supplied scanner findings.
+
+## Pre-existing repository findings
+
+- None. Every supplied finding is attributable to this change.
 
 ## Dependency and supply-chain impact
 
@@ -55,20 +76,3 @@
 ## Policy checks
 
 - No configured policy matched the changed files.
-
-## Maintainer checklist
-
-- Complete normal maintainer review.
-
-## Evidence
-
-| ID | Claim | Evidence | Confidence |
-|---|---|---|---|
-| `ev-ed0845100997` | tests/test_score_rounding.py changed | changed_file: tests/test_score_rounding.py; added file; supplied patch length 88 characters | High |
-| `ev-b73d48505373` | tests/fixtures/score-cases.json changed | changed_file: tests/fixtures/score-cases.json; added file; supplied patch length 35 characters | High |
-
-## Limitations
-
-- MaintainerGuard identifies review signals; it does not prove the presence or absence of vulnerabilities.
-- Absence-based test and documentation signals are inferred from supplied changed-file data.
-- This report supports, but does not replace, human maintainer review.

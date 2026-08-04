@@ -1,36 +1,36 @@
 # MaintainerGuard Release Readiness Report
 
-**Version:** 0.3.0
+**Version:** 0.2.0
 
-**Release verdict:** Looks ready for release review
+**Release verdict:** Review before release
 
-**Overall risk:** Low
+**Overall risk:** High
 
 ## Executive summary
 
-Release 0.3.0 contains 3 merged change(s), 0 security-sensitive change(s), and 0 dependency change(s).
+Release 0.2.0 contains 3 merged change(s), 1 security-sensitive change(s), and 1 dependency change(s).
 
 ## Notable changes
 
-- Group duplicate SARIF scanner findings
-- Add real-world scanner fixture coverage
-- Document v0.2 upgrade notes and scanner matrix
+- Change session token validation
+- Update HTTP dependency
+- Remove deprecated CLI flag
 
 ## Breaking changes
 
-- None detected.
+- Review possible behavior or interface change in src/cli.py: the diff declares a breaking change.
 
 ## Security-sensitive changes
 
-- None detected.
+- Change session token validation
 
 ## Dependency changes
 
-- None detected.
+- Update HTTP dependency
 
 ## Scanner findings
 
-- Low - release-scan: Documentation-only release validation note
+- Medium - release-scan: Review dependency update
 
 ## Documentation status
 
@@ -48,23 +48,24 @@ Test changes detected.
 
 - Confirm the full test suite passes.
 - Review and finalize release notes.
+- Confirm security-sensitive changes received maintainer review.
+- Confirm migration guidance covers possible breaking changes.
+- Confirm dependency scanner results and upgrade rationale are documented.
 
 ## Generated release notes draft
 
-- Add scanner fixture coverage matrix and real-world scanner examples.
-- Group duplicate SARIF findings while preserving path and line evidence.
-- Use SARIF rule metadata as fallback for sparse scanner results.
-- Keep Trivy vulnerability support covered by regression tests.
-- Add v0.2.x to v0.3.0 upgrade notes.
+- Change session token validation
+- Update HTTP dependency
+- Remove deprecated CLI flag
 
 ## Evidence
 
 | ID | Claim | Evidence | Confidence |
 |---|---|---|---|
-| `ev-66c40e63a757` | Merged change: Group duplicate SARIF scanner findings | release_pr: 201; maintainerguard/scanners.py, tests/test_scanners.py | High |
-| `ev-37668917c7ce` | Merged change: Add real-world scanner fixture coverage | release_pr: 202; examples/sample-data/scanners/codeql-like.sarif.json, examples/sample-data/scanners/semgrep-like.json, docs/scanner-inputs.md | High |
-| `ev-c58448de961a` | Merged change: Document v0.2 upgrade notes and scanner matrix | release_pr: 203; docs/upgrading-to-v0.3.md, examples/README.md, CHANGELOG.md | High |
-| `ev-b68cd96cde18` | release-scan reported REL-030 | scanner_finding: REL-030; release-scan reported a generic finding: Documentation-only release validation note. Review the supplied scanner evidence before merge. Scanner detail: Review generated examples and upgrade notes before publishing. | High |
+| `ev-88795050cde3` | Merged change: Change session token validation | release_pr: 103; src/auth/session.py, tests/test_session.py | High |
+| `ev-a0dfbb2a409d` | Merged change: Update HTTP dependency | release_pr: 104; requirements.txt | High |
+| `ev-c1d871873353` | Merged change: Remove deprecated CLI flag | release_pr: 106; src/cli.py, CHANGELOG.md | High |
+| `ev-c672f8de7145` | release-scan reported REL-1 | scanner_finding: REL-1; release-scan reported a generic finding: Review dependency update. Review the supplied scanner evidence before merge. Scanner detail: Manual review recommended. | High |
 
 ## Limitations
 

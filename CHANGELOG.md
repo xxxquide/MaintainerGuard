@@ -4,6 +4,133 @@ All notable changes to MaintainerGuard are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+Verified against real scanner binaries (Trivy 0.73.0, Gitleaks 8.30.1,
+osv-scanner 2.4.0, Semgrep OSS) rather than hand-written fixtures.
+
+- Trivy native JSON now reads `Secrets`, `Misconfigurations`, and `Licenses` in
+  addition to `Vulnerabilities`. A real `trivy fs` report of 65 findings
+  normalized to 61; the four dropped findings included a CRITICAL leaked GitHub
+  Personal Access Token and a HIGH Dockerfile misconfiguration.
+- `gitleaks --report-format json` writes a top-level JSON array and previously
+  raised `ValueError: Scanner input must be a JSON object`. Arrays are now a
+  first-class scanner input, in the normalizer and in the CLI.
+- Real `semgrep --json` output was routed to the secret-scanner adapter, because
+  that branch matched any `{"results": [...]}` payload. Every SAST finding became
+  a High, blocking "Possible secret reported by scanner" and the report verdict
+  became `Blocked by scanner finding`. Semgrep native output now has its own
+  adapter that preserves `check_id`, severity, CWE metadata, and autofix hints.
+- Scanner findings are no longer marked blocking unless the input says so. The
+  secret-result adapter defaulted `blocking` to `True`.
+- Format detection is now explicit and positive. An unrecognised payload raises
+  `UnsupportedScannerInput` instead of normalizing to an empty list, which was
+  indistinguishable from a clean scan.
+- SARIF results carrying an accepted `suppressions` entry or a
+  `baselineState` of `unchanged`/`absent` are excluded. Maintainer-dismissed and
+  pre-existing findings previously reappeared as active evidence.
+- SARIF severity now honours CodeQL's `security-severity` score using GitHub's
+  documented bands (>= 9.0 Critical, >= 7.0 High, >= 4.0 Medium). A 9.8 finding
+  was reported as High. The flat `problem.severity` key that real CodeQL emits is
+  also read, alongside the previously supported nested form.
+- `partialFingerprints` and CWE tags are preserved on normalized findings.
+
+Second pass over the defects recorded during the scanner-fidelity audit. Each
+one has a regression test in `tests/test_audit_followups.py` that fails without
+the fix.
+
+- A security-sensitive file dropped by `privacy.max_files_analyzed` left the
+  report claiming `confidence: High` with verdict `Ready for maintainer review`.
+  Confidence is now capped at Medium when the cap drops files, and the executive
+  summary states how many files went unanalyzed instead of leaving it to a
+  limitations footnote. Paths excluded by `paths.ignore` are a deliberate choice
+  and do not lower confidence.
+- The optional AI `summary` and claim texts were stored verbatim. A crafted or
+  prompt-injected response could embed the published-comment marker
+  (`<!-- maintainerguard:merge-readiness -->`), which is how comments are
+  deduplicated, and could open a second `## Evidence` heading beside the
+  deterministic one. AI text is now sanitized in `safe_enrich_report` as well as
+  in `validate_ai_enrichment`: HTML comments and comment fragments are removed,
+  Markdown headings are flattened, control characters are stripped, and the
+  summary and each claim are length-bounded. The rendered block is quoted so
+  model output is visually attributable.
+- The system instruction now states that the pull-request title, body, and patch
+  are untrusted contributor-controlled data to be described rather than obeyed,
+  and asks for plain prose with no markup.
+- Security categorization matched keywords as substrings. `terraform/main.tf` was
+  reported as a rendering change because `orm` occurs inside `terraform`,
+  `src/formatters.py` for the same reason, and `src/authors.py` as an
+  authentication change because `auth` occurs inside `author`. Keywords are now
+  matched as whole words against separator-normalized text, with plural forms
+  allowed. Keywords that are themselves path fragments (`.github/workflows`,
+  `package.json`, `api_key`) keep substring semantics. The same fix applies to
+  `changed_areas`, the documentation-impact terms, and the behavior hints.
+- Test and documentation paths are no longer reported as security-sensitive
+  changes. `tests/fixtures/auth_token.json` was categorized as authentication and
+  `docs/security/threat-model.md` matched the default `**/security/**` pattern.
+  Documentation and test classification now takes precedence over
+  `paths.security_sensitive`; a maintainer who wants otherwise removes the path
+  from `paths.docs` or `paths.tests`.
+- Breaking-change detection searched whole patches for words like `remove` and
+  `deprecated`, so a diff whose only content was `# remove trailing whitespace`
+  was reported as a breaking change and escalated release impact to High. It now
+  requires a structural signal: a removed declaration, a deleted or renamed file,
+  or an explicit breaking-change marker. Findings say which signal fired.
+- File `status` was never read. A change that only deleted `src/auth/session.py`
+  demanded new tests for code that no longer exists, and a pure rename with no
+  diff content was treated as a behavior change. Deletions and content-free
+  renames no longer count as behavior needing test coverage.
+- `[[policy]]` validated only that `name`, `paths`, and `require` were present.
+  `blocking = "yes"` is truthy, so a soft policy silently became one that
+  escalates risk to Critical. `blocking` must now be a boolean, and `name`,
+  `require`, and `message` must be strings.
+
+### Added
+
+- Scanner findings are attributed to the change under review. `ScannerFinding`
+  gains `in_changed_scope` and `scope_reason`, and only in-scope findings affect
+  the verdict, risk level, reasons, and checklist. A finding with no reported
+  path stays in scope, so nothing is silently dismissed.
+- A `Pre-existing repository findings` report section lists findings that point
+  at untouched files, with the reason they were separated.
+- `tests/test_real_scanner_fidelity.py` plus byte-for-byte real scanner output
+  under `tests/fixtures/real-scanners/` and a `regenerate.sh` to refresh them.
+
+### Changed
+
+- Report section order now puts decision guidance, the maintainer checklist, the
+  evidence table, and limitations first. A published comment truncated at
+  `github.max_comment_characters` dropped 41% of a real report, and the
+  `## Evidence` section was the first thing lost because it rendered last.
+- Truncated comments end with an explicit notice instead of stopping mid-word.
+- Optional AI enrichment renders after the deterministic sections.
+- Concise mode previews the first 10 pre-existing findings; set
+  `report_mode = "detailed"` for the full list.
+
+- The build backend is now hatchling instead of the hand-written standard-library
+  PEP 517 backend, which generated `METADATA` by hand and had drifted from
+  `[project]`: keywords and classifiers disagreed, `Author` was never emitted,
+  and `readme` was dropped, leaving an empty long description on PyPI. Metadata
+  now comes from `[project]`. hatchling is a build-time dependency only;
+  MaintainerGuard still has no third-party runtime dependencies.
+- `maintainerguard/__init__.py` is the single source for the version.
+  `[project]` declares `dynamic = ["version"]`, so the duplicate that caused the
+  drift is gone.
+- `assets/` is excluded from the sdist, which drops it from 15.9 MB to about
+  150 KB. The demo GIF and banner are not needed to install or run the package.
+  A stray `.coverage` file is no longer packaged.
+- `[project.urls]` now publishes homepage, source, changelog, and issue links.
+
+### Behaviour change
+
+A repository-wide scanner report no longer inflates an unrelated change. A
+documentation-only pull request supplied with a real `trivy fs` report of the
+whole repository previously produced `Review required`, risk `High`, a 61-item
+checklist, and a 50,639-character report. It now produces `Ready for maintainer
+review`, risk `Low`, no scanner checklist items, and lists the 65 findings as
+pre-existing. Findings inside changed files, and findings without a reported
+path, keep their previous weight.
+
 ## [0.3.1] - 2026-06-14
 
 ### Added

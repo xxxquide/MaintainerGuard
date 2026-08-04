@@ -1,11 +1,10 @@
 [build-system]
-requires = []
-build-backend = "maintainerguard_build"
-backend-path = ["."]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
 
 [project]
 name = "maintainerguard"
-version = "0.3.1"
+dynamic = ["version"]
 description = "Evidence-first AI maintainer assistant for merge, security, and release readiness."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,6 +23,62 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
 ]
 
+[project.urls]
+Homepage = "https://github.com/xxxquide/MaintainerGuard"
+Source = "https://github.com/xxxquide/MaintainerGuard"
+Changelog = "https://github.com/xxxquide/MaintainerGuard/blob/main/CHANGELOG.md"
+Issues = "https://github.com/xxxquide/MaintainerGuard/issues"
+
 [project.scripts]
 maintainerguard = "maintainerguard.cli:main"
 mg = "maintainerguard.cli:main"
+
+# Single source of truth for the version. The previous hand-written build
+# backend duplicated it, and the duplicate had already drifted from [project].
+[tool.hatch.version]
+path = "maintainerguard/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["maintainerguard"]
+
+# The CLI resolves bundled data relative to the directory that contains the
+# installed package, so these keep their existing top-level layout in the wheel.
+[tool.hatch.build.targets.wheel.force-include]
+"action.yml" = "action.yml"
+".maintainerguard.toml" = ".maintainerguard.toml"
+"examples/sample-data" = "examples/sample-data"
+"schemas" = "schemas"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "maintainerguard",
+  "tests",
+  "examples",
+  "schemas",
+  "docs",
+  "action.yml",
+  ".maintainerguard.toml",
+  ".editorconfig",
+  ".env.example",
+  "mg",
+  "pyproject.toml",
+  "README.md",
+  "CHANGELOG.md",
+  "LICENSE",
+  "CITATION.cff",
+  "CODE_OF_CONDUCT.md",
+  "CONTRIBUTING.md",
+  "SECURITY.md",
+  "SUPPORT.md",
+]
+# assets/ holds a 13.9 MB demo GIF and a 1.9 MB banner. Neither is needed to
+# install or run the package, and PyPI renders the README from metadata rather
+# than from the archive, so shipping them only inflated the sdist.
+exclude = [
+  "assets",
+  "**/__pycache__",
+  "**/*.pyc",
+  ".coverage",
+  "dist",
+  "build",
+]

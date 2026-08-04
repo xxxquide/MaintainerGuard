@@ -38,3 +38,23 @@ readiness, tests readiness, scanner findings, unresolved high-risk items,
 release notes draft, release checklist, evidence, and limitations.
 
 The versioned output shape is summarized by `schemas/report.schema.json`.
+
+## Section order and truncation
+
+Decision guidance, the maintainer checklist, the evidence table, and limitations
+render before the detail sections. A published GitHub comment is capped at
+`github.max_comment_characters` (30000 by default), and these are the parts a
+maintainer cannot afford to lose to truncation. A truncated comment ends with an
+explicit notice rather than stopping mid-sentence.
+
+Optional AI enrichment renders last, after the deterministic sections it is meant
+to be checked against.
+
+## Pre-existing repository findings
+
+Scanner findings that point at files the change does not touch appear under
+`Pre-existing repository findings` with the reason they were separated. They do
+not affect the verdict, risk level, reasons, or checklist. Concise mode previews
+the first 10; set `report_mode = "detailed"` for the full list.
+
+Each finding in the JSON output carries `in_changed_scope` and `scope_reason`.

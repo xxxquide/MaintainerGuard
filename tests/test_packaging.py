@@ -1,54 +1,131 @@
+import tarfile
 import tempfile
-import unittest
 import tomllib
+import unittest
 import zipfile
 from pathlib import Path
 
-import maintainerguard_build
 from maintainerguard import __version__
 
 
-DIST_INFO = f"maintainerguard-{maintainerguard_build.VERSION}.dist-info"
+ROOT = Path(__file__).resolve().parents[1]
 
 
-class PackagingTests(unittest.TestCase):
-    def test_standard_library_backend_builds_wheel_and_sdist(self):
-        with tempfile.TemporaryDirectory() as directory:
-            wheel = maintainerguard_build.build_wheel(directory)
-            sdist = maintainerguard_build.build_sdist(directory)
-            self.assertTrue((Path(directory) / wheel).is_file())
-            self.assertTrue((Path(directory) / sdist).is_file())
+def pyproject() -> dict:
+    return tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 
-            with zipfile.ZipFile(Path(directory) / wheel) as archive:
-                names = set(archive.namelist())
-                entry_points = archive.read(f"{DIST_INFO}/entry_points.txt").decode("utf-8")
-            self.assertIn("examples/sample-data/prs/high-risk-auth.json", names)
-            self.assertIn("examples/sample-data/scanners/dependency-advisory.json", names)
-            self.assertIn("action.yml", names)
-            self.assertIn("maintainerguard = maintainerguard.cli:main", entry_points)
-            self.assertIn("mg = maintainerguard.cli:main", entry_points)
 
-    def test_standard_library_backend_builds_editable_wheel(self):
-        with tempfile.TemporaryDirectory() as directory:
-            wheel = maintainerguard_build.build_editable(directory)
-            with zipfile.ZipFile(Path(directory) / wheel) as archive:
-                names = set(archive.namelist())
-                pth = archive.read("maintainerguard-editable.pth").decode("utf-8")
-                entry_points = archive.read(f"{DIST_INFO}/entry_points.txt").decode("utf-8")
-            self.assertIn(str(Path(__file__).resolve().parents[1]), pth)
-            self.assertIn(f"{DIST_INFO}/METADATA", names)
-            self.assertIn("mg = maintainerguard.cli:main", entry_points)
+def hatchling_or_skip(test) -> None:
+    try:
+        import hatchling  # noqa: F401
+    except ImportError:  # pragma: no cover - hatchling is a build-time dependency
+        test.skipTest("hatchling is not installed in this environment")
 
+
+class PyprojectContractTests(unittest.TestCase):
     def test_pyproject_exposes_maintainerguard_and_mg_scripts(self):
-        pyproject = tomllib.loads((Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8"))
-        scripts = pyproject["project"]["scripts"]
+        scripts = pyproject()["project"]["scripts"]
         self.assertEqual("maintainerguard.cli:main", scripts["maintainerguard"])
         self.assertEqual("maintainerguard.cli:main", scripts["mg"])
 
-    def test_package_versions_stay_synchronized(self):
-        pyproject = tomllib.loads((Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8"))
-        self.assertEqual(pyproject["project"]["version"], __version__)
-        self.assertEqual(pyproject["project"]["version"], maintainerguard_build.VERSION)
+    def test_version_has_a_single_source(self):
+        data = pyproject()
+        self.assertIn("version", data["project"]["dynamic"])
+        self.assertNotIn(
+            "version",
+            data["project"],
+            "A static version in [project] can drift from maintainerguard.__version__.",
+        )
+        self.assertEqual(
+            "maintainerguard/__init__.py",
+            data["tool"]["hatch"]["version"]["path"],
+        )
+        self.assertRegex(__version__, r"^\d+\.\d+\.\d+")
+
+    def test_readme_and_authors_are_declared(self):
+        project = pyproject()["project"]
+        self.assertEqual("README.md", project["readme"])
+        self.assertTrue(project["authors"])
+
+    def test_bundled_data_paths_are_declared_for_the_wheel(self):
+        force_include = pyproject()["tool"]["hatch"]["build"]["targets"]["wheel"]["force-include"]
+        for relative in ("action.yml", ".maintainerguard.toml", "examples/sample-data", "schemas"):
+            self.assertIn(relative, force_include)
+
+
+class BuiltDistributionTests(unittest.TestCase):
+    """The wheel and sdist must match what the CLI and PyPI actually need."""
+
+    def build(self, directory: str) -> tuple[Path, Path]:
+        from hatchling.builders.sdist import SdistBuilder
+        from hatchling.builders.wheel import WheelBuilder
+
+        wheel = next(
+            iter(WheelBuilder(str(ROOT)).build(directory=directory, versions=["standard"]))
+        )
+        sdist = next(
+            iter(SdistBuilder(str(ROOT)).build(directory=directory, versions=["standard"]))
+        )
+        return Path(wheel), Path(sdist)
+
+    def test_wheel_ships_the_data_the_cli_reads_and_correct_metadata(self):
+        hatchling_or_skip(self)
+        with tempfile.TemporaryDirectory() as directory:
+            wheel, _sdist = self.build(directory)
+            with zipfile.ZipFile(wheel) as archive:
+                names = set(archive.namelist())
+                metadata = archive.read(
+                    next(name for name in names if name.endswith(".dist-info/METADATA"))
+                ).decode("utf-8")
+                entry_points = archive.read(
+                    next(name for name in names if name.endswith(".dist-info/entry_points.txt"))
+                ).decode("utf-8")
+
+        for required in (
+            "maintainerguard/cli.py",
+            "maintainerguard/scanners.py",
+            "action.yml",
+            ".maintainerguard.toml",
+            "examples/sample-data/prs/high-risk-auth.json",
+            "examples/sample-data/scanners/dependency-advisory.json",
+            "schemas/report.schema.json",
+        ):
+            self.assertIn(required, names, f"{required} missing from the wheel")
+        self.assertIn("maintainerguard = maintainerguard.cli:main", entry_points)
+        self.assertIn("mg = maintainerguard.cli:main", entry_points)
+
+        headers, _, long_description = metadata.partition("\n\n")
+        project = pyproject()["project"]
+        self.assertIn(f"Version: {__version__}", headers)
+        self.assertIn("Author: ", headers)
+        self.assertIn("Description-Content-Type:", headers)
+        self.assertIn("License-File: LICENSE", headers)
+        for classifier in project["classifiers"]:
+            self.assertIn(classifier, headers)
+        for keyword in project["keywords"]:
+            self.assertIn(keyword, headers)
+        self.assertGreater(
+            len(long_description),
+            1000,
+            "The readme must reach METADATA, otherwise PyPI shows no description.",
+        )
+
+    def test_sdist_carries_tests_but_not_the_demo_media(self):
+        hatchling_or_skip(self)
+        with tempfile.TemporaryDirectory() as directory:
+            _wheel, sdist = self.build(directory)
+            with tarfile.open(sdist) as archive:
+                names = archive.getnames()
+            size = sdist.stat().st_size
+
+        self.assertTrue(any(name.endswith("tests/test_scanners.py") for name in names))
+        self.assertTrue(any(name.endswith("pyproject.toml") for name in names))
+        self.assertFalse(
+            any("/assets/" in name or name.endswith(".gif") for name in names),
+            "The 13.9 MB demo GIF is not needed to install or run the package.",
+        )
+        self.assertFalse(any(name.endswith(".coverage") for name in names))
+        self.assertLess(size, 5_000_000, f"sdist grew to {size} bytes")
 
 
 if __name__ == "__main__":

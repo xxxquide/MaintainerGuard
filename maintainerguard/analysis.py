@@ -100,6 +100,14 @@ def analyze_pull_request(
                 evidence.append(ev)
                 scanner_findings.append(replace(finding, evidence_ids=[ev.id]))
     scanner_findings = filter_scanner_findings(scanner_findings)
+    scanner_findings = _scope_scanner_findings(
+        scanner_findings, files, bool(dependency_impact.affected_files)
+    )
+    # Only findings attributable to this change drive the verdict. Pre-existing
+    # repository findings are still reported, but they must not turn a one-file
+    # change into a high-risk review.
+    in_scope_findings = [item for item in scanner_findings if item.in_changed_scope]
+    pre_existing_findings = [item for item in scanner_findings if not item.in_changed_scope]
 
     policy_results = (
         evaluate_policies(files, config, test_impact, docs_impact, len(scanner_inputs or []), evidence_for_path)
@@ -108,7 +116,7 @@ def analyze_pull_request(
     )
     reasons = _build_reasons(
         security_areas,
-        scanner_findings,
+        in_scope_findings,
         dependency_impact,
         test_impact,
         docs_impact,
@@ -116,9 +124,9 @@ def analyze_pull_request(
         policy_results,
     )
     reasons = filter_reasons(reasons, evidence)
-    risk_level = _risk_level(reasons, scanner_findings, policy_results, config)
+    risk_level = _risk_level(reasons, in_scope_findings, policy_results, config)
     verdict = _verdict(
-        scanner_findings,
+        in_scope_findings,
         policy_results,
         test_impact,
         security_areas,
@@ -127,7 +135,7 @@ def analyze_pull_request(
     )
     checklist = _checklist(
         security_areas,
-        scanner_findings,
+        in_scope_findings,
         dependency_impact,
         test_impact,
         docs_impact,
@@ -141,7 +149,7 @@ def analyze_pull_request(
         verdict,
         risk_level,
         reasons,
-        scanner_findings,
+        in_scope_findings,
         security_areas,
         test_impact,
         docs_impact,
@@ -149,6 +157,18 @@ def analyze_pull_request(
     confidence = "High" if files and evidence else "Low"
     if any(item.confidence == "Medium" for item in reasons):
         confidence = "Medium"
+    # A file dropped by the input cap may be the one that mattered. The report
+    # must not claim High confidence about a change it only partly examined.
+    # Paths excluded by `paths.ignore` are a deliberate choice and do not count.
+    dropped_files = max(0, len(raw_files) - config.privacy.max_files_analyzed)
+    if dropped_files and confidence == "High":
+        confidence = "Medium"
+    if dropped_files:
+        summary = (
+            f"{summary} Note: {dropped_files} of {len(raw_files)} changed files were "
+            f"not analyzed because the configured limit is "
+            f"{config.privacy.max_files_analyzed}, so this conclusion is partial."
+        )
     limitations = [
         "MaintainerGuard identifies review signals; it does not prove the presence or absence of vulnerabilities.",
         "Absence-based test and documentation signals are inferred from supplied changed-file data.",
@@ -161,6 +181,12 @@ def analyze_pull_request(
     if diff_truncated:
         limitations.append(
             f"Supplied diff input was truncated to {config.privacy.max_diff_characters} characters before analysis."
+        )
+    if pre_existing_findings:
+        limitations.append(
+            f"{len(pre_existing_findings)} supplied scanner finding(s) point at files this change "
+            "does not touch. They are listed separately and did not affect the verdict, risk level, "
+            "or checklist."
         )
     return MergeReadinessReport(
         verdict=verdict,
@@ -222,6 +248,83 @@ def _skip_reason(pr: dict[str, Any], labels: list[str], config: Config) -> str:
     if set(labels) & set(config.github.skip_labels):
         return "a configured skip label is present"
     return ""
+
+
+def _candidate_paths(affected: list[str]) -> set[str]:
+    """Repository paths a scanner finding points at.
+
+    Entries that are package coordinates (``django@2.2.0``) or artifact
+    descriptors (``example-app:ci (debian 12.5)``) carry no repository path and
+    are excluded, so they never make a finding look out of scope.
+    """
+    paths: set[str] = set()
+    for entry in affected:
+        text = str(entry).strip()
+        if not text:
+            continue
+        if "@" in text and "/" not in text:
+            continue
+        head, separator, tail = text.rpartition(":")
+        if separator and head and tail.isdigit():
+            text = head
+        if " " in text or "(" in text:
+            continue
+        paths.add(text.lstrip("./").lower())
+    return paths
+
+
+def _scope_scanner_findings(
+    findings: list[ScannerFinding],
+    files: list[dict[str, Any]],
+    dependency_files_changed: bool,
+) -> list[ScannerFinding]:
+    """Mark whether each finding is attributable to the change under review."""
+    changed = {str(item["path"]).lstrip("./").lower() for item in files}
+    scoped: list[ScannerFinding] = []
+    for finding in findings:
+        paths = _candidate_paths(finding.affected)
+        if not paths:
+            scoped.append(
+                replace(
+                    finding,
+                    in_changed_scope=True,
+                    scope_reason=(
+                        "The scanner supplied no repository path for this finding, so it is "
+                        "treated as in scope rather than silently dismissed."
+                    ),
+                )
+            )
+        elif paths & changed:
+            scoped.append(
+                replace(
+                    finding,
+                    in_changed_scope=True,
+                    scope_reason="The reported location is among the files changed here.",
+                )
+            )
+        elif finding.category in {"dependency", "license"} and dependency_files_changed:
+            scoped.append(
+                replace(
+                    finding,
+                    in_changed_scope=True,
+                    scope_reason=(
+                        "A dependency or manifest file changed here, so this dependency "
+                        "finding is treated as in scope."
+                    ),
+                )
+            )
+        else:
+            scoped.append(
+                replace(
+                    finding,
+                    in_changed_scope=False,
+                    scope_reason=(
+                        "The reported location is outside the changed files: "
+                        + ", ".join(sorted(paths)[:3])
+                    ),
+                )
+            )
+    return scoped
 
 
 def _attach_path_evidence(impact, evidence_for_path: dict[str, str]):

@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report incorrect behavior in MaintainerGuard
+about: Report incorrect behavior in Veracity
 labels: bug
 ---
 
@@ -10,7 +10,7 @@ labels: bug
 
 ## Reproduction steps
 
-## MaintainerGuard version or commit
+## Veracity version or commit
 
 ## Environment
 

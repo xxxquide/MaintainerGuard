@@ -2,7 +2,7 @@
 
 ## Our pledge
 
-We pledge to make participation in MaintainerGuard respectful and welcoming,
+We pledge to make participation in Veracity respectful and welcoming,
 regardless of experience level, identity, background, or viewpoint.
 
 ## Expected behavior

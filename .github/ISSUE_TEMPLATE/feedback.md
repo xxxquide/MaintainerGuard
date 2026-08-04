@@ -6,7 +6,7 @@ labels: feedback wanted, discussion
 
 ## Maintainer context
 
-What kind of project or workflow are you using MaintainerGuard with?
+What kind of project or workflow are you using Veracity with?
 
 ## What would help before merge?
 

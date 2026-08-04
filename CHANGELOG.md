@@ -1,8 +1,47 @@
 # Changelog
 
-All notable changes to MaintainerGuard are documented here.
+All notable changes to Veracity are documented here.
 
 ## [Unreleased]
+
+## [0.4.0] - 2026-08-05
+
+### Renamed
+
+The project was renamed from MaintainerGuard to Veracity. This is a breaking
+change: the distribution, the commands and the configuration file all change name.
+See [docs/upgrading-to-v0.4.md](docs/upgrading-to-v0.4.md) for the migration.
+
+The old identity described things the software did not do. "Guard" promised
+protection that the tool's own disclaimer denies — it does not find vulnerabilities
+and does not prove code is secure. And the headline read "Evidence-first AI
+maintainer assistant" while the language model was off by default and could not
+affect any verdict.
+
+- Distribution and import package: `maintainerguard` becomes `veracity`.
+- Commands: `maintainerguard` becomes `veracity`, and `mg` becomes `vera`.
+- Configuration file: `.maintainerguard.toml` becomes `.veracity.toml`. If the old
+  file is present and the new one is not, loading now fails with an error naming
+  both, rather than silently using defaults.
+- Pull-request comment marker: `<!-- veracity:merge-readiness -->`. The first run
+  after upgrading will not recognise a comment left by an older version.
+- Skip label `skip-maintainerguard` becomes `skip-veracity`.
+- Environment variable `MG_REPORT_LENGTH` becomes `VERACITY_REPORT_LENGTH`.
+- Workflow files under `.github/workflows/` are renamed accordingly.
+- GitHub Action `branding.icon` changes from `shield` to `filter`.
+- Description everywhere becomes "Evidence-backed review verdicts from
+  multi-scanner output, scoped to the change under review."
+- README rewritten: verified-scanner table with the exact binary versions, the
+  attribution rule stated explicitly, and a comparison section naming what
+  reviewdog, GitHub code scanning, sarif-tools, DefectDojo and LLM reviewers do
+  better.
+- `docs/roadmap.md` replaced. The previous version planned nine releases through
+  v2.0 on top of a core that had never been checked against real scanner output.
+- New hero asset as SVG (8 KB). `assets/demo.gif` and the old PNG banner were
+  removed: they carried the old name and stale command output, and together weighed
+  about 16 MB. The repository now has no binary assets.
+- `tests/test_branding.py` fails if the old brand or the old command name reappears
+  outside the changelog, the upgrade guide and the configuration migration error.
 
 ### Fixed
 
@@ -47,7 +86,7 @@ the fix.
   and do not lower confidence.
 - The optional AI `summary` and claim texts were stored verbatim. A crafted or
   prompt-injected response could embed the published-comment marker
-  (`<!-- maintainerguard:merge-readiness -->`), which is how comments are
+  (`<!-- veracity:merge-readiness -->`), which is how comments are
   deduplicated, and could open a second `## Evidence` heading beside the
   deterministic one. AI text is now sanitized in `safe_enrich_report` as well as
   in `validate_ai_enrichment`: HTML comments and comment fragments are removed,
@@ -112,8 +151,8 @@ the fix.
   `[project]`: keywords and classifiers disagreed, `Author` was never emitted,
   and `readme` was dropped, leaving an empty long description on PyPI. Metadata
   now comes from `[project]`. hatchling is a build-time dependency only;
-  MaintainerGuard still has no third-party runtime dependencies.
-- `maintainerguard/__init__.py` is the single source for the version.
+  Veracity still has no third-party runtime dependencies.
+- `veracity/__init__.py` is the single source for the version.
   `[project]` declares `dynamic = ["version"]`, so the duplicate that caused the
   drift is gone.
 - `assets/` is excluded from the sdist, which drops it from 15.9 MB to about

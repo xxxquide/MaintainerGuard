@@ -4,7 +4,7 @@ import sys
 import unittest
 from pathlib import Path
 
-from maintainerguard.config import load_config
+from veracity.config import load_config
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,11 +19,11 @@ class SampleTests(unittest.TestCase):
             "SECURITY.md",
             "CHANGELOG.md",
             "CODE_OF_CONDUCT.md",
-            ".maintainerguard.toml",
+            ".veracity.toml",
             ".github/workflows/ci.yml",
-            ".github/workflows/maintainerguard-pr.yml",
-            ".github/workflows/maintainerguard-issue.yml",
-            ".github/workflows/maintainerguard-release.yml",
+            ".github/workflows/veracity-pr.yml",
+            ".github/workflows/veracity-issue.yml",
+            ".github/workflows/veracity-release.yml",
             ".github/ISSUE_TEMPLATE/bug_report.md",
             ".github/ISSUE_TEMPLATE/feature_request.md",
             ".github/ISSUE_TEMPLATE/scanner_adapter_request.md",
@@ -96,7 +96,7 @@ class SampleTests(unittest.TestCase):
         ]
         for command in commands:
             result = subprocess.run(
-                [sys.executable, "-m", "maintainerguard", *command],
+                [sys.executable, "-m", "veracity", *command],
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
@@ -132,7 +132,7 @@ class SampleTests(unittest.TestCase):
         ]
         for command, snapshot in snapshots:
             result = subprocess.run(
-                [sys.executable, "-m", "maintainerguard", *command],
+                [sys.executable, "-m", "veracity", *command],
                 cwd=ROOT,
                 check=True,
                 capture_output=True,

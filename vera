@@ -5,4 +5,4 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 PYTHONPATH="${SCRIPT_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
 export PYTHONPATH
 
-exec python3 -m maintainerguard "$@"
+exec python3 -m veracity "$@"

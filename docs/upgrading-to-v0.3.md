@@ -1,6 +1,6 @@
 # Upgrading to v0.3.0
 
-MaintainerGuard v0.3.0 focuses on scanner trust and documentation clarity.
+Veracity v0.3.0 focuses on scanner trust and documentation clarity.
 There are no breaking CLI or configuration changes from `v0.2.x`.
 
 ## Recommended Action version
@@ -8,7 +8,7 @@ There are no breaking CLI or configuration changes from `v0.2.x`.
 Use the current published Action tag in public workflows:
 
 ```yaml
-- uses: xxxquide/MaintainerGuard@v0.3.1
+- uses: xxxquide/veracity@v0.3.1
 ```
 
 Local development can still use `uses: ./` when testing this repository before a
@@ -31,25 +31,25 @@ release.
 
 - Safe defaults are unchanged: dry-run enabled, AI disabled, comments disabled,
   and no auto-merge behavior.
-- Existing `mg demo`, `mg init`, `mg doctor`, `mg verify`, `mg pr`, `mg issue`,
-  and `mg release` commands remain compatible.
+- Existing `vera demo`, `vera init`, `vera doctor`, `vera verify`, `vera pr`, `vera issue`,
+  and `vera release` commands remain compatible.
 - Trivy vulnerability normalization remains supported and covered by tests.
-- MaintainerGuard still explains supplied scanner output. It does not replace
+- Veracity still explains supplied scanner output. It does not replace
   scanners, prove exploitability, or claim to find every vulnerability.
 
 ## Suggested verification
 
 ```bash
-mg verify
-mg pr examples/sample-data/prs/dependency-update.json \
+vera verify
+vera pr examples/sample-data/prs/dependency-update.json \
   --scanner examples/sample-data/scanners/dependency-advisory.json
-mg release examples/sample-data/releases/v0.3.0.json
+vera release examples/sample-data/releases/v0.3.0.json
 ```
 
 For repository maintainers:
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 -m compileall -q maintainerguard
+python3 -m compileall -q veracity
 python3 -m pip wheel . --no-deps
 ```

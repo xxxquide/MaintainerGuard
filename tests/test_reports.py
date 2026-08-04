@@ -1,10 +1,10 @@
 import json
 import unittest
 
-from maintainerguard.analysis import analyze_pull_request
-from maintainerguard.config import load_config
-from maintainerguard.reports import render_report
-from maintainerguard.release import analyze_release
+from veracity.analysis import analyze_pull_request
+from veracity.config import load_config
+from veracity.reports import render_report
+from veracity.release import analyze_release
 
 
 class ReportTests(unittest.TestCase):
@@ -18,7 +18,7 @@ class ReportTests(unittest.TestCase):
             config=load_config(),
         )
         output = render_report(report, output_format="markdown", mode="detailed")
-        self.assertIn("# MaintainerGuard Merge Readiness Report", output)
+        self.assertIn("# Veracity Merge Readiness Report", output)
         self.assertIn("## Evidence", output)
         self.assertIn("## Limitations", output)
         self.assertIn("## Decision guidance", output)

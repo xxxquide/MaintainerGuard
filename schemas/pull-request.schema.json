@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://maintainerguard.dev/schemas/v1/pull-request.schema.json",
-  "title": "MaintainerGuard pull request input",
+  "$id": "https://veracity.dev/schemas/v1/pull-request.schema.json",
+  "title": "Veracity pull request input",
   "type": "object",
   "required": ["schema_version", "title", "files"],
   "properties": {

@@ -12,15 +12,15 @@ maintainer communities.
 
 Recommended About settings:
 
-- Description: `Evidence-first AI maintainer assistant for merge, security, issue, and release readiness.`
-- Website: `https://github.com/marketplace/actions/maintainerguard`
+- Description: `Evidence-backed review verdicts from multi-scanner output, scoped to the change under review.`
+- Website: `https://github.com/marketplace/actions/veracity`
 - Topics: `github-actions`, `maintainers`, `code-review`, `security`, `supply-chain-security`, `open-source`, `developer-tools`, `release-automation`
 
 ## README quality
 
-- Confirm the first screen explains what MaintainerGuard is.
+- Confirm the first screen explains what Veracity is.
 - Confirm badges render and link to real project resources.
-- Confirm the recommended Action usage is `xxxquide/MaintainerGuard@v0.3.1`.
+- Confirm the recommended Action usage is `xxxquide/veracity@v0.4.0`.
 - Confirm Quick Start commands work.
 - Confirm README links to sample reports, Marketplace, Security policy, and contributing docs.
 - Confirm limitations are visible and honest.
@@ -28,13 +28,13 @@ Recommended About settings:
 ## Marketplace listing
 
 - Confirm the Marketplace page renders the Action name, icon, color, and description.
-- Confirm the latest version is `v0.3.1`.
+- Confirm the latest version is `v0.4.0`.
 - Confirm the usage snippet points to the expected version.
 - Confirm README rendering looks clean on Marketplace.
 
 ## Release and tag
 
-- Confirm `v0.3.1` exists and points to the intended Action metadata release.
+- Confirm `v0.4.0` exists and points to the intended Action metadata release.
 - Do not move public tags unless there is an explicit, documented reason.
 - Use patch releases for public tag corrections.
 
@@ -43,7 +43,7 @@ Recommended About settings:
 - Run or review an external repository workflow using:
 
   ```yaml
-  uses: xxxquide/MaintainerGuard@v0.3.1
+  uses: xxxquide/veracity@v0.4.0
   ```
 
 - Confirm dry-run output works without comments.
@@ -71,9 +71,9 @@ Do not claim these settings are enabled unless verified in GitHub.
 ## No fake claims
 
 - Do not claim fake users, sponsors, testimonials, stars, benchmarks, or adoption.
-- Do not claim MaintainerGuard guarantees secure code.
-- Do not claim MaintainerGuard finds every vulnerability.
-- Do not claim MaintainerGuard replaces human review.
+- Do not claim Veracity guarantees secure code.
+- Do not claim Veracity finds every vulnerability.
+- Do not claim Veracity replaces human review.
 
 ## Repository hygiene
 

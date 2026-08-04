@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://maintainerguard.dev/schemas/v1/report.schema.json",
-  "title": "MaintainerGuard report output",
+  "$id": "https://veracity.dev/schemas/v1/report.schema.json",
+  "title": "Veracity report output",
   "type": "object",
   "required": ["report_type", "schema_version", "evidence", "limitations"],
   "properties": {

@@ -1,4 +1,4 @@
-"""Safe, strict TOML configuration for MaintainerGuard."""
+"""Safe, strict TOML configuration for Veracity."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from typing import Any
 
 
 class ConfigError(ValueError):
-    """Raised when MaintainerGuard configuration is invalid."""
+    """Raised when Veracity configuration is invalid."""
 
 
 @dataclass
@@ -31,7 +31,7 @@ class GitHubConfig:
     comment_on_bots: bool = False
     max_comment_characters: int = 30000
     skip_labels: list[str] = field(
-        default_factory=lambda: ["no-ai", "skip-ai", "skip-maintainerguard"]
+        default_factory=lambda: ["no-ai", "skip-ai", "skip-veracity"]
     )
 
 
@@ -236,8 +236,18 @@ def _apply_dataclass(target: Any, values: dict[str, Any], section: str) -> None:
 def load_config(path: str | Path | None = None) -> Config:
     config = copy.deepcopy(Config())
     if path is None:
-        candidate = Path(".maintainerguard.toml")
+        candidate = Path(".veracity.toml")
         if not candidate.exists():
+            # The project was renamed in 0.4.0. Silently falling back to defaults
+            # would look like a clean run against a configuration that is in fact
+            # being ignored, so say what happened instead.
+            legacy = Path(".maintainerguard.toml")
+            if legacy.exists():
+                raise ConfigError(
+                    f"Found {legacy} but no {candidate}. This project was renamed to "
+                    "Veracity in 0.4.0; rename the file to keep your settings, or pass "
+                    "--config explicitly. See docs/upgrading-to-v0.4.md."
+                )
             return config
         path = candidate
     path = Path(path)
@@ -406,7 +416,7 @@ def _validate_config(config: Config) -> None:
 def default_config_toml(policy_preset: str = "security") -> str:
     if policy_preset not in {"minimal", "security", "strict", "docs"}:
         raise ConfigError("policy_preset must be minimal, security, strict, or docs")
-    return f"""# MaintainerGuard safe-by-default configuration
+    return f"""# Veracity safe-by-default configuration
 [core]
 dry_run = true
 report_mode = "concise"
@@ -429,7 +439,7 @@ update_previous_comment = true
 comment_on_drafts = false
 comment_on_bots = false
 max_comment_characters = 30000
-skip_labels = ["no-ai", "skip-ai", "skip-maintainerguard"]
+skip_labels = ["no-ai", "skip-ai", "skip-veracity"]
 
 [privacy]
 max_diff_characters = 60000

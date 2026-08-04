@@ -12,7 +12,7 @@ from .config import Config
 from .models import CommentAction
 
 
-COMMENT_MARKER = "<!-- maintainerguard:merge-readiness -->"
+COMMENT_MARKER = "<!-- veracity:merge-readiness -->"
 
 
 TRUNCATION_NOTICE = (
@@ -172,7 +172,7 @@ class GitHubClient:
                 "Authorization": f"Bearer {self._token}",
                 "Accept": "application/vnd.github+json",
                 "X-GitHub-Api-Version": "2022-11-28",
-                "User-Agent": "MaintainerGuard/0.1",
+                "User-Agent": "Veracity/0.1",
             },
             method=method,
         )

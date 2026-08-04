@@ -5,7 +5,7 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from maintainerguard import __version__
+from veracity import __version__
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,10 +23,10 @@ def hatchling_or_skip(test) -> None:
 
 
 class PyprojectContractTests(unittest.TestCase):
-    def test_pyproject_exposes_maintainerguard_and_mg_scripts(self):
+    def test_pyproject_exposes_veracity_and_mg_scripts(self):
         scripts = pyproject()["project"]["scripts"]
-        self.assertEqual("maintainerguard.cli:main", scripts["maintainerguard"])
-        self.assertEqual("maintainerguard.cli:main", scripts["mg"])
+        self.assertEqual("veracity.cli:main", scripts["veracity"])
+        self.assertEqual("veracity.cli:main", scripts["vera"])
 
     def test_version_has_a_single_source(self):
         data = pyproject()
@@ -34,10 +34,10 @@ class PyprojectContractTests(unittest.TestCase):
         self.assertNotIn(
             "version",
             data["project"],
-            "A static version in [project] can drift from maintainerguard.__version__.",
+            "A static version in [project] can drift from veracity.__version__.",
         )
         self.assertEqual(
-            "maintainerguard/__init__.py",
+            "veracity/__init__.py",
             data["tool"]["hatch"]["version"]["path"],
         )
         self.assertRegex(__version__, r"^\d+\.\d+\.\d+")
@@ -49,7 +49,7 @@ class PyprojectContractTests(unittest.TestCase):
 
     def test_bundled_data_paths_are_declared_for_the_wheel(self):
         force_include = pyproject()["tool"]["hatch"]["build"]["targets"]["wheel"]["force-include"]
-        for relative in ("action.yml", ".maintainerguard.toml", "examples/sample-data", "schemas"):
+        for relative in ("action.yml", ".veracity.toml", "examples/sample-data", "schemas"):
             self.assertIn(relative, force_include)
 
 
@@ -82,17 +82,17 @@ class BuiltDistributionTests(unittest.TestCase):
                 ).decode("utf-8")
 
         for required in (
-            "maintainerguard/cli.py",
-            "maintainerguard/scanners.py",
+            "veracity/cli.py",
+            "veracity/scanners.py",
             "action.yml",
-            ".maintainerguard.toml",
+            ".veracity.toml",
             "examples/sample-data/prs/high-risk-auth.json",
             "examples/sample-data/scanners/dependency-advisory.json",
             "schemas/report.schema.json",
         ):
             self.assertIn(required, names, f"{required} missing from the wheel")
-        self.assertIn("maintainerguard = maintainerguard.cli:main", entry_points)
-        self.assertIn("mg = maintainerguard.cli:main", entry_points)
+        self.assertIn("veracity = veracity.cli:main", entry_points)
+        self.assertIn("vera = veracity.cli:main", entry_points)
 
         headers, _, long_description = metadata.partition("\n\n")
         project = pyproject()["project"]

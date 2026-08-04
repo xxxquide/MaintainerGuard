@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 
-from maintainerguard.cli import _split_paths
+from veracity.cli import _split_paths
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,7 +17,7 @@ class CLITests(unittest.TestCase):
         env = os.environ.copy()
         env["PYTHONPATH"] = str(ROOT) + os.pathsep + env.get("PYTHONPATH", "")
         return subprocess.run(
-            [sys.executable, "-m", "maintainerguard", *args],
+            [sys.executable, "-m", "veracity", *args],
             cwd=cwd or ROOT,
             env=env,
             capture_output=True,
@@ -26,7 +26,7 @@ class CLITests(unittest.TestCase):
 
     def test_print_config_and_demo_work_without_installation(self):
         config = subprocess.run(
-            [sys.executable, "-m", "maintainerguard", "print-config"],
+            [sys.executable, "-m", "veracity", "print-config"],
             check=True,
             capture_output=True,
             text=True,
@@ -34,12 +34,12 @@ class CLITests(unittest.TestCase):
         self.assertIn("dry_run = true", config.stdout)
 
         demo = subprocess.run(
-            [sys.executable, "-m", "maintainerguard", "demo", "--scenario", "docs-only"],
+            [sys.executable, "-m", "veracity", "demo", "--scenario", "docs-only"],
             check=True,
             capture_output=True,
             text=True,
         )
-        self.assertIn("MaintainerGuard Merge Readiness Report", demo.stdout)
+        self.assertIn("Veracity Merge Readiness Report", demo.stdout)
 
     def test_analyze_pr_loads_configured_scanner_inputs(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -58,7 +58,7 @@ class CLITests(unittest.TestCase):
                 [
                     sys.executable,
                     "-m",
-                    "maintainerguard",
+                    "veracity",
                     "--config",
                     str(config),
                     "analyze-pr",
@@ -86,7 +86,7 @@ class CLITests(unittest.TestCase):
                 '{"scanner":"tool","findings":[{"id":"SCAN-1","severity":"high","title":"Scanner signal"}]}'
             )
             result = subprocess.run(
-                [sys.executable, "-m", "maintainerguard", "action-run"],
+                [sys.executable, "-m", "veracity", "action-run"],
                 env={
                     "MG_MODE": "analyze-pr",
                     "MG_INPUT_PATH": str(pr),
@@ -115,11 +115,11 @@ class CLITests(unittest.TestCase):
 
         issue = self.run_cli(["issue", str(ROOT / "examples/sample-data/issues/bug-missing-reproduction.json")])
         self.assertEqual(0, issue.returncode, issue.stderr)
-        self.assertIn("MaintainerGuard Issue Triage Report", issue.stdout)
+        self.assertIn("Veracity Issue Triage Report", issue.stdout)
 
         release = self.run_cli(["release", str(ROOT / "examples/sample-data/releases/v0.3.0.json")])
         self.assertEqual(0, release.returncode, release.stderr)
-        self.assertIn("MaintainerGuard Release Readiness Report", release.stdout)
+        self.assertIn("Veracity Release Readiness Report", release.stdout)
 
     def test_existing_long_commands_still_work(self):
         result = self.run_cli(
@@ -138,11 +138,11 @@ class CLITests(unittest.TestCase):
             root = Path(directory)
             first = self.run_cli(["init"], cwd=root)
             self.assertEqual(0, first.returncode, first.stderr)
-            config = root / ".maintainerguard.toml"
+            config = root / ".veracity.toml"
             self.assertTrue(config.exists())
             self.assertIn("dry_run = true", config.read_text(encoding="utf-8"))
             self.assertIn('policy_preset = "security"', config.read_text(encoding="utf-8"))
-            self.assertIn("MaintainerGuard initialized.", first.stdout)
+            self.assertIn("Veracity initialized.", first.stdout)
 
             config.write_text("custom = true\n", encoding="utf-8")
             second = self.run_cli(["init"], cwd=root)
@@ -163,7 +163,7 @@ class CLITests(unittest.TestCase):
                     root = Path(directory)
                     result = self.run_cli(["init", "--preset", preset], cwd=root)
                     self.assertEqual(0, result.returncode, result.stderr)
-                    config = root / ".maintainerguard.toml"
+                    config = root / ".veracity.toml"
                     self.assertIn(
                         f'policy_preset = "{preset}"',
                         config.read_text(encoding="utf-8"),
@@ -190,13 +190,13 @@ class CLITests(unittest.TestCase):
             root = Path(directory)
             result = self.run_cli(["init", "--github-action"], cwd=root)
             self.assertEqual(0, result.returncode, result.stderr)
-            workflow = root / ".github/workflows/maintainerguard.yml"
+            workflow = root / ".github/workflows/veracity.yml"
             self.assertTrue(workflow.exists())
             text = workflow.read_text(encoding="utf-8")
             self.assertIn("permissions:", text)
             self.assertIn("contents: read", text)
             self.assertIn("pull-requests: read", text)
-            self.assertIn("uses: xxxquide/MaintainerGuard@v0.3.1", text)
+            self.assertIn("uses: xxxquide/veracity@v0.4.0", text)
             self.assertIn("mode: analyze-pr", text)
             self.assertIn('dry-run: "true"', text)
             self.assertIn('post-comment: "false"', text)
@@ -211,21 +211,21 @@ class CLITests(unittest.TestCase):
             self.run_cli(["init"], cwd=root)
             result = self.run_cli(["doctor"], cwd=root)
             self.assertEqual(0, result.returncode, result.stderr)
-            self.assertIn("MaintainerGuard Doctor", result.stdout)
-            self.assertRegex(result.stdout, r"OK\s+Config found: \.maintainerguard\.toml")
-            self.assertIn("MaintainerGuard is ready.", result.stdout)
+            self.assertIn("Veracity Doctor", result.stdout)
+            self.assertRegex(result.stdout, r"OK\s+Config found: \.veracity\.toml")
+            self.assertIn("Veracity is ready.", result.stdout)
 
     def test_doctor_suggests_init_when_config_is_missing(self):
         with tempfile.TemporaryDirectory() as directory:
             result = self.run_cli(["doctor"], cwd=Path(directory))
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertIn("Config not found", result.stdout)
-            self.assertIn("Run: mg init", result.stdout)
+            self.assertIn("Run: vera init", result.stdout)
 
     def test_verify_runs_smoke_checks(self):
         result = self.run_cli(["verify"])
         self.assertEqual(0, result.returncode, result.stderr)
-        self.assertIn("MaintainerGuard Verify", result.stdout)
+        self.assertIn("Veracity Verify", result.stdout)
         self.assertRegex(result.stdout, r"OK\s+demo: high-risk-auth")
         self.assertRegex(result.stdout, r"OK\s+sample release analysis")
         self.assertRegex(result.stdout, r"OK\s+scanner fixture normalization")

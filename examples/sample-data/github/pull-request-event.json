@@ -1,7 +1,7 @@
 {
   "action": "opened",
   "number": 103,
-  "repository": {"full_name": "example/maintainerguard-demo"},
+  "repository": {"full_name": "example/veracity-demo"},
   "pull_request": {
     "number": 103,
     "title": "Change session token validation",

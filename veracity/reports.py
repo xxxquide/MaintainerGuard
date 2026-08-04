@@ -29,7 +29,7 @@ def render_report(report: Any, *, output_format: str = "markdown", mode: str = "
 
 def _render_merge(report: MergeReadinessReport, mode: str) -> str:
     lines = [
-        "# MaintainerGuard Merge Readiness Report",
+        "# Veracity Merge Readiness Report",
         "",
         f"**Verdict:** {report.verdict}",
         "",
@@ -90,7 +90,7 @@ def _render_merge(report: MergeReadinessReport, mode: str) -> str:
         if len(shown) < len(pre_existing):
             lines.append(
                 f"- ...and {len(pre_existing) - len(shown)} more. "
-                "Set `report_mode = \"detailed\"` in .maintainerguard.toml for the full list."
+                "Set `report_mode = \"detailed\"` in .veracity.toml for the full list."
             )
     else:
         lines.append("- None. Every supplied finding is attributable to this change.")
@@ -139,7 +139,7 @@ def _finding_line(item: Any) -> str:
 
 def _render_issue(report: IssueTriageReport) -> str:
     lines = [
-        "# MaintainerGuard Issue Triage Report",
+        "# Veracity Issue Triage Report",
         "",
         f"**Issue type:** {report.issue_type}  ",
         f"**Confidence:** {report.confidence}  ",
@@ -183,7 +183,7 @@ def _render_issue(report: IssueTriageReport) -> str:
 
 def _render_release(report: ReleaseReadinessReport) -> str:
     lines = [
-        "# MaintainerGuard Release Readiness Report",
+        "# Veracity Release Readiness Report",
         "",
         f"**Version:** {report.version}",
         "",

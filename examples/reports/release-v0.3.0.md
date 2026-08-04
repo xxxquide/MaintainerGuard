@@ -1,4 +1,4 @@
-# MaintainerGuard Release Readiness Report
+# Veracity Release Readiness Report
 
 **Version:** 0.3.0
 
@@ -61,7 +61,7 @@ Test changes detected.
 
 | ID | Claim | Evidence | Confidence |
 |---|---|---|---|
-| `ev-66c40e63a757` | Merged change: Group duplicate SARIF scanner findings | release_pr: 201; maintainerguard/scanners.py, tests/test_scanners.py | High |
+| `ev-66c40e63a757` | Merged change: Group duplicate SARIF scanner findings | release_pr: 201; veracity/scanners.py, tests/test_scanners.py | High |
 | `ev-37668917c7ce` | Merged change: Add real-world scanner fixture coverage | release_pr: 202; examples/sample-data/scanners/codeql-like.sarif.json, examples/sample-data/scanners/semgrep-like.json, docs/scanner-inputs.md | High |
 | `ev-c58448de961a` | Merged change: Document v0.2 upgrade notes and scanner matrix | release_pr: 203; docs/upgrading-to-v0.3.md, examples/README.md, CHANGELOG.md | High |
 | `ev-b68cd96cde18` | release-scan reported REL-030 | scanner_finding: REL-030; release-scan reported a generic finding: Documentation-only release validation note. Review the supplied scanner evidence before merge. Scanner detail: Review generated examples and upgrade notes before publishing. | High |

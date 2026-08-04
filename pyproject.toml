@@ -3,13 +3,13 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "maintainerguard"
+name = "veracity"
 dynamic = ["version"]
-description = "Evidence-first AI maintainer assistant for merge, security, and release readiness."
+description = "Evidence-backed review verdicts from multi-scanner output, scoped to the change under review."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
-authors = [{ name = "MaintainerGuard contributors" }]
+authors = [{ name = "Veracity contributors" }]
 keywords = ["maintainers", "github-actions", "security", "release", "scanner", "open-source"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -24,43 +24,43 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/xxxquide/MaintainerGuard"
-Source = "https://github.com/xxxquide/MaintainerGuard"
-Changelog = "https://github.com/xxxquide/MaintainerGuard/blob/main/CHANGELOG.md"
-Issues = "https://github.com/xxxquide/MaintainerGuard/issues"
+Homepage = "https://github.com/xxxquide/veracity"
+Source = "https://github.com/xxxquide/veracity"
+Changelog = "https://github.com/xxxquide/veracity/blob/main/CHANGELOG.md"
+Issues = "https://github.com/xxxquide/veracity/issues"
 
 [project.scripts]
-maintainerguard = "maintainerguard.cli:main"
-mg = "maintainerguard.cli:main"
+veracity = "veracity.cli:main"
+vera = "veracity.cli:main"
 
 # Single source of truth for the version. The previous hand-written build
 # backend duplicated it, and the duplicate had already drifted from [project].
 [tool.hatch.version]
-path = "maintainerguard/__init__.py"
+path = "veracity/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["maintainerguard"]
+packages = ["veracity"]
 
 # The CLI resolves bundled data relative to the directory that contains the
 # installed package, so these keep their existing top-level layout in the wheel.
 [tool.hatch.build.targets.wheel.force-include]
 "action.yml" = "action.yml"
-".maintainerguard.toml" = ".maintainerguard.toml"
+".veracity.toml" = ".veracity.toml"
 "examples/sample-data" = "examples/sample-data"
 "schemas" = "schemas"
 
 [tool.hatch.build.targets.sdist]
 include = [
-  "maintainerguard",
+  "veracity",
   "tests",
   "examples",
   "schemas",
   "docs",
   "action.yml",
-  ".maintainerguard.toml",
+  ".veracity.toml",
   ".editorconfig",
   ".env.example",
-  "mg",
+  "vera",
   "pyproject.toml",
   "README.md",
   "CHANGELOG.md",

@@ -1,6 +1,6 @@
 # Development guide
 
-MaintainerGuard uses Python 3.11+ and the standard library. The package is split
+Veracity uses Python 3.11+ and the standard library. The package is split
 by responsibility: configuration, typed models, evidence, detectors, scanners,
 policies, risk analysis, noise filtering, reports, privacy, AI, GitHub,
 issue/release analysis, and CLI.
@@ -9,18 +9,18 @@ issue/release analysis, and CLI.
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 -m compileall -q maintainerguard
-python3 -m maintainerguard validate-config
-python3 -m maintainerguard demo --scenario high-risk-auth
-./mg verify
+python3 -m compileall -q veracity
+python3 -m veracity validate-config
+python3 -m veracity demo --scenario high-risk-auth
+./vera verify
 python3 -m pip wheel . --no-deps
 ```
 
 Tests use sample data and mocks; they must not require network access, API keys,
 or a real GitHub repository.
 
-After `python3 -m pip install -e .`, both `maintainerguard` and `mg` point to
-the same CLI entrypoint. The local `./mg` wrapper is available for source-tree
+After `python3 -m pip install -e .`, both `veracity` and `vera` point to
+the same CLI entrypoint. The local `./vera` wrapper is available for source-tree
 smoke checks before installation.
 
 ## Design rules
@@ -43,12 +43,12 @@ derived values.
 
 ## Action development
 
-`action.yml` delegates to `python3 -m maintainerguard action-run`. Keep Action
+`action.yml` delegates to `python3 -m veracity action-run`. Keep Action
 inputs mapped through environment variables in one place and preserve safe
 defaults: dry-run on, no comment publishing, update existing comments, no AI
 unless explicitly enabled, and no secrets required for local demos.
 
-The Action must remain portable when used as `uses: xxxquide/MaintainerGuard@tag`.
+The Action must remain portable when used as `uses: xxxquide/veracity@tag`.
 Keep `$GITHUB_ACTION_PATH` on `PYTHONPATH` and do not `cd` into the Action
 directory; config, scanner, and event paths should resolve from the caller
 workspace.
@@ -56,7 +56,7 @@ workspace.
 ## Packaging
 
 The package is built with [hatchling](https://hatch.pypa.io/latest/), declared in
-`[build-system]`. It is a build-time dependency only: MaintainerGuard still has
+`[build-system]`. It is a build-time dependency only: Veracity still has
 no third-party runtime dependencies.
 
 Earlier versions used a hand-written standard-library PEP 517 backend. It
@@ -66,14 +66,14 @@ entirely, which left an empty long description on PyPI.
 
 Two things to know when changing packaging:
 
-- **Version.** `maintainerguard/__init__.py` is the single source. `[project]`
+- **Version.** `veracity/__init__.py` is the single source. `[project]`
   declares `dynamic = ["version"]` and `[tool.hatch.version]` reads it from
   there, so the two cannot drift.
 - **Bundled data.** The CLI resolves `examples/sample-data`, `schemas`,
-  `action.yml`, and `.maintainerguard.toml` relative to the directory containing
+  `action.yml`, and `.veracity.toml` relative to the directory containing
   the installed package, so the wheel keeps them at the top level via
   `[tool.hatch.build.targets.wheel.force-include]`. If you move them, update
-  `_package_root()` in `maintainerguard/cli.py` in the same change.
+  `_package_root()` in `veracity/cli.py` in the same change.
 
 `assets/` is excluded from the sdist: the demo GIF and banner total about 16 MB,
 are not needed to install or run the package, and PyPI renders the readme from

@@ -1,4 +1,4 @@
-# MaintainerGuard Examples
+# Veracity Examples
 
 The examples directory contains sample input data and rendered reports that can
 be used without API keys or network access.
@@ -8,27 +8,27 @@ be used without API keys or network access.
 Run the high-risk authentication scenario first:
 
 ```bash
-mg demo --scenario high-risk-auth
+vera demo --scenario high-risk-auth
 ```
 
-It demonstrates the main MaintainerGuard value: changed files, policy signals,
+It demonstrates the main Veracity value: changed files, policy signals,
 test impact, scanner evidence, decision guidance, a maintainer checklist, and
 explicit limitations in one report.
 
 ## Other useful demos
 
 ```bash
-mg demo --scenario dependency-advisory
-mg demo --scenario ci-workflow-risk
-mg demo --scenario secret-finding
-mg demo --scenario docs-only
-mg demo --scenario test-only
-mg demo --scenario high-risk-auth --format json
+vera demo --scenario dependency-advisory
+vera demo --scenario ci-workflow-risk
+vera demo --scenario secret-finding
+vera demo --scenario docs-only
+vera demo --scenario test-only
+vera demo --scenario high-risk-auth --format json
 ```
 
 ## Sample data
 
-- `configs/` - safe example `.maintainerguard.toml` files for the built-in
+- `configs/` - safe example `.veracity.toml` files for the built-in
   `minimal`, `security`, `strict`, and `docs` policy presets.
 - `sample-data/prs/` - pull-request fixtures for merge readiness analysis.
 - `sample-data/issues/` - issue fixtures for triage reports.
@@ -39,13 +39,13 @@ mg demo --scenario high-risk-auth --format json
 ## Scanner fixture coverage
 
 These fixtures are intentionally sanitized and covered by tests. They show the
-scanner shapes MaintainerGuard can explain today without claiming to replace the
+scanner shapes Veracity can explain today without claiming to replace the
 underlying scanner.
 
 Print the same support list from the CLI:
 
 ```bash
-mg scanners
+vera scanners
 ```
 
 | Fixture | What it demonstrates |

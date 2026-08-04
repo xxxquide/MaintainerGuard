@@ -1,7 +1,7 @@
 import unittest
 
-from maintainerguard.issue import triage_issue
-from maintainerguard.release import analyze_release
+from veracity.issue import triage_issue
+from veracity.release import analyze_release
 
 
 class IssueAndReleaseTests(unittest.TestCase):

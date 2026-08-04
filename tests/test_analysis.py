@@ -1,7 +1,7 @@
 import unittest
 
-from maintainerguard.analysis import analyze_pull_request
-from maintainerguard.config import PolicyRule, load_config
+from veracity.analysis import analyze_pull_request
+from veracity.config import PolicyRule, load_config
 
 
 def pr(files, title="Example change", body="", labels=None):
@@ -99,7 +99,7 @@ class AnalysisTests(unittest.TestCase):
 
     def test_skip_label_returns_skipped_report(self):
         report = analyze_pull_request(
-            pr([{"path": "src/auth.py", "status": "modified"}], labels=["skip-maintainerguard"]),
+            pr([{"path": "src/auth.py", "status": "modified"}], labels=["skip-veracity"]),
             config=self.config,
         )
         self.assertTrue(report.skipped)

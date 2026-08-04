@@ -1,192 +1,145 @@
 <p align="center">
-  <img src="assets/maintainerguard-hero.png" alt="MaintainerGuard hero banner" width="100%">
-</p>
-
-<h1 align="center">MaintainerGuard</h1>
-
-<p align="center">
-  Evidence-first AI maintainer assistant for merge, security, issue, and release readiness.
+  <img src="assets/veracity-hero.svg" alt="Veracity" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/xxxquide/MaintainerGuard/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://github.com/xxxquide/MaintainerGuard/releases/tag/v0.3.1"><img alt="Latest release" src="https://img.shields.io/github/v/release/xxxquide/MaintainerGuard?label=release"></a>
-  <a href="https://github.com/marketplace/actions/maintainerguard"><img alt="GitHub Marketplace" src="https://img.shields.io/badge/GitHub%20Marketplace-MaintainerGuard-blue?logo=github"></a>
+  <strong>Every finding your scanners reported, attributed to the change under review, with the evidence.</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/xxxquide/veracity/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/xxxquide/veracity/actions/workflows/ci.yml/badge.svg"></a>
   <a href="pyproject.toml"><img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-blue"></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/xxxquide/MaintainerGuard"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/xxxquide/veracity"></a>
+  <img alt="No runtime dependencies" src="https://img.shields.io/badge/runtime%20dependencies-none-brightgreen">
+  <img alt="LLM optional" src="https://img.shields.io/badge/LLM-optional%2C%20off%20by%20default-lightgrey">
 </p>
 
-MaintainerGuard helps open-source maintainers turn pull-request metadata,
-changed files, scanner outputs, repository policies, issue reports, and release
-feeds into one concise maintainer report.
+---
 
-It answers the review question maintainers actually have:
+Your scanners already work. CodeQL, Semgrep, Trivy, Gitleaks and OSV-Scanner will
+happily tell you about four hundred findings in a repository. The question a
+maintainer actually has on a pull request is narrower:
 
-> Can this pull request or release be safely reviewed, merged, or shipped, and
-> what exactly should I verify before doing so?
+> Which of these does **this change** introduce, and what should I check before merging?
 
-MaintainerGuard is useful without AI. The deterministic evidence engine is the
-source of truth. Optional AI can improve wording only after every retained claim
-links to known evidence.
+Veracity answers that. It reads the reports your scanners already produce,
+attributes each finding to the change under review, and renders one Markdown
+report with a verdict, a checklist and an evidence table. It is deterministic,
+runs entirely locally, and needs no language model.
 
-![MaintainerGuard demo](assets/demo.gif)
+## What that looks like
 
-## Why evidence-first?
+The same one-file pull request, with a repository-wide `trivy fs` report supplied:
 
-Maintainers already juggle diffs, CI, CodeQL, dependency scanners, secret
-scanners, release notes, and local project rules. The hard part is not seeing
-one more alert. The hard part is knowing what matters, why it matters, and what
-to check before merging.
+| | Naive: every finding is "this PR's problem" | Veracity |
+|---|---|---|
+| Verdict | `Review required` | `Ready for maintainer review` |
+| Overall risk | High | Low |
+| Checklist items | 61 | 0 |
+| Report size | 50 639 chars | 24 483 chars |
+| Findings held back as pre-existing | 0 | 65, listed separately with reasons |
 
-MaintainerGuard reduces that review noise into one report with:
+All 61 vulnerabilities lived in `requirements.txt`, which the change never
+touched. Change `requirements.txt` instead and the same report correctly returns
+`Review required` at High risk, because then the dependency findings *are* in
+scope.
 
-- a verdict, risk level, confidence, and decision guidance;
-- security-sensitive, dependency, supply-chain, test, docs, and release signals;
-- scanner findings normalized into maintainer language;
-- repository policy checks;
-- a maintainer checklist;
-- an evidence table for the claims that matter.
+## What it does
 
-## What MaintainerGuard is not
+- **Reads real scanner output.** Native JSON and SARIF from Trivy, Semgrep,
+  Gitleaks and OSV-Scanner, plus any SARIF 2.1.0 producer. Verified against the
+  actual binaries — see the table below.
+- **Attributes findings to the change.** Each finding carries `in_changed_scope`
+  and a `scope_reason` saying why it was or was not counted.
+- **Respects decisions you already made.** SARIF results with an accepted
+  `suppressions` entry, or a `baselineState` of `unchanged`/`absent`, are
+  excluded. A finding you dismissed does not come back every run.
+- **Produces one report, not N comments.** Verdict, risk, confidence, decision
+  guidance, maintainer checklist, evidence table, limitations — in that order, so
+  a truncated GitHub comment loses the least important part rather than the most.
+- **Fails loudly, never silently.** An unrecognised scanner payload raises
+  `UnsupportedScannerInput`. "No findings" always means no findings, never "we
+  could not parse your file".
+- **Also does issue triage and release readiness** from local JSON feeds.
+- **No runtime dependencies.** Python 3.11+ standard library only.
 
-MaintainerGuard is not:
+## Verified scanner support
 
-- a replacement for human review;
-- a guarantee of secure code;
-- a vulnerability scanner that finds everything;
-- an autonomous merge bot;
-- a substitute for CodeQL, OSV, Semgrep, Gitleaks, or human security review;
-- a system that posts noisy inline AI comments.
+The interesting claim any tool like this makes is *"we support scanner X"*. Here
+that claim is a test. `tests/test_real_scanner_fidelity.py` runs against
+byte-for-byte output from real binaries, checked into
+`tests/fixtures/real-scanners/` and refreshable with `regenerate.sh`.
 
-MaintainerGuard is:
+| Command | Version verified | Result |
+|---|---|---|
+| `trivy fs --scanners vuln,misconfig,secret --format json` | 0.73.0 | all four finding classes normalized |
+| `trivy fs --format sarif` | 0.73.0 | via the SARIF adapter |
+| `gitleaks dir --report-format json` | 8.30.1 | top-level array accepted |
+| `gitleaks dir --report-format sarif` | 8.30.1 | via the SARIF adapter |
+| `osv-scanner scan source --format json` | 2.4.0 | source path preserved |
+| `osv-scanner scan source --format sarif` | 2.4.0 | via the SARIF adapter |
+| `semgrep --json` | OSS | `check_id`, severity and CWE preserved |
+| `semgrep --sarif` | OSS | via the SARIF adapter |
 
-- an evidence-first review assistant;
-- a merge readiness reporter;
-- a scanner result explainer;
-- a maintainer checklist generator;
-- a no-spam GitHub workflow helper.
+**CodeQL is covered by SARIF conformance tests, not by running CodeQL.** The
+CodeQL-specific behaviour that is tested — the flat `problem.severity` key,
+`security-severity` bands, `suppressions`, `baselineState`,
+`partialFingerprints` and CWE tags — is asserted against SARIF constructed to the
+shape GitHub documents. That is weaker evidence than the rows above, and it is
+stated separately for that reason.
 
-## Core features
+Prefer SARIF where a scanner offers it. It is the widest-covered path here, and it
+carries suppressions, baseline state and fingerprints that native formats often
+drop.
 
-- Deterministic merge-readiness reports in Markdown or JSON
-- Decision guidance such as `Request tests` or `Block until scanner finding is resolved`
-- Security-sensitive change detection without vulnerability overclaims
-- Dependency and supply-chain-sensitive file detection
-- Scanner adapters for generic JSON, SARIF-like/code scanning, OSV-like advisories, secret scanner results, Semgrep-like static analysis, and workflow policy outputs
-- Repository-specific policies with safe defaults
-- Issue triage with safe handling for possible private security reports
-- Release readiness reports with release verdict, checklist, and release notes draft
-- Optional OpenAI Responses API enrichment with redaction and evidence validation
-- GitHub dry-run mode and guarded update-one-comment publishing
-- First-class `action.yml` metadata for GitHub Action usage
-- No third-party runtime dependencies
+## How attribution works
+
+A finding is **in scope** when any of these hold:
+
+1. Its reported path is among the changed files.
+2. A dependency or manifest file changed, and the finding is a dependency or
+   license finding.
+3. The scanner gave no repository path at all.
+
+Rule 3 is deliberate. An unattributable finding is never silently demoted: if
+Veracity cannot show a finding is unrelated, it keeps it. Findings that *are*
+provably outside the change appear under `Pre-existing repository findings` with
+the reason, and do not affect the verdict, risk level or checklist.
 
 ## Quick start
 
-MaintainerGuard requires Python 3.11 or newer.
-
-Install with `pipx` after the repository is published:
+Requires Python 3.11 or newer.
 
 ```bash
-pipx install git+https://github.com/xxxquide/MaintainerGuard.git
-mg demo
-mg init
-mg presets
-mg scanners
-mg doctor
+pipx install git+https://github.com/xxxquide/veracity.git
+
+vera demo               # a bundled scenario, end to end
+vera init               # write a safe .veracity.toml
+vera scanners           # which scanner families are covered
+vera doctor             # check the local setup
 ```
 
-For local development from a checkout:
+From a checkout, `./vera demo` works without installing. Both `veracity` and the
+short `vera` are installed as entry points.
+
+Feed it your own data:
 
 ```bash
-git clone https://github.com/xxxquide/MaintainerGuard.git
-cd MaintainerGuard
-python3 -m pip install -e .
-mg verify
-mg demo
+vera pr pull-request.json \
+  --scanner trivy.json \
+  --scanner semgrep.sarif \
+  --scanner gitleaks.json
 ```
 
-The installed package exposes both `mg` and `maintainerguard`. From a source
-checkout, `./mg demo` also works without installation. The module form remains
-available for debugging:
+See the [CLI guide](docs/cli.md) and the [sample reports](examples/reports/).
 
-```bash
-python3 -m maintainerguard demo --scenario high-risk-auth
-```
+## GitHub Action
 
-See the [CLI guide](docs/cli.md) for command reference and troubleshooting.
-
-GitHub Marketplace: [MaintainerGuard](https://github.com/marketplace/actions/maintainerguard).
-
-## Local demo scenarios
-
-Run the default high-risk authentication demo:
-
-```bash
-mg demo
-```
-
-- `high-risk-auth`: authentication/session changes without related tests
-- `dependency-advisory`: dependency update with a blocking advisory scanner result
-- `ci-workflow-risk`: release workflow permission change with supply-chain scanner evidence
-- `secret-finding`: test fixture plus a supplied secret scanner finding
-- `docs-only`: low-risk documentation-only change
-- `test-only`: low-risk test-only change
-- `medium-risk-config`: configuration behavior change
-- `release-impact`: breaking CLI-style change with changelog/test files
-
-Sample reports:
-
-- [High-risk auth report](examples/reports/high-risk-auth.md)
-- [Dependency advisory report](examples/reports/dependency-advisory.md)
-- [CI workflow risk report](examples/reports/ci-workflow-risk.md)
-- [Secret finding report](examples/reports/secret-finding.md)
-- [Docs-only low-risk report](examples/reports/docs-only-low-risk.md)
-- [Test-only low-risk report](examples/reports/test-only-low-risk.md)
-- [Release readiness report](examples/reports/release-readiness.md)
-- [Issue triage report](examples/reports/issue-triage.md)
-
-## Example merge report shape
-
-```md
-# MaintainerGuard Merge Readiness Report
-
-**Verdict:** Tests required
-**Overall risk:** High
-**Confidence:** Medium
-
-## Executive summary
-
-"Change session token validation" affects Security-sensitive code.
-
-## Decision guidance
-
-**Recommended maintainer action:** Request tests
-
-**Reason:** A maintainer should act on this recommendation because
-security-sensitive areas were touched and related tests were not supplied.
-
-## Evidence
-
-| ID | Claim | Evidence | Confidence |
-|---|---|---|---|
-| `ev-...` | src/auth/session.py changed | changed_file: src/auth/session.py | High |
-```
-
-The full report also includes changed areas, risk reasons, scanner findings,
-dependency and supply-chain impact, test impact, documentation impact, release
-impact, policy checks, maintainer checklist, and limitations.
-
-## GitHub Action usage
-
-The included [action.yml](action.yml) is safe by default. It runs in dry-run mode
-unless you explicitly disable dry-run and enable comment posting. The examples
-below keep AI off and comments off unless comment publishing is explicitly shown.
-
-### Dry-run PR analysis
+Dry run by default. It posts nothing until you explicitly turn `dry-run` off and
+`post-comment` on.
 
 ```yaml
-name: MaintainerGuard
+name: Veracity
 
 on:
   pull_request:
@@ -197,14 +150,14 @@ permissions:
   pull-requests: read
 
 jobs:
-  analyze:
+  review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.3.1
+      - uses: xxxquide/veracity@v0.4.0
         with:
           mode: analyze-pr
           dry-run: "true"
@@ -212,190 +165,95 @@ jobs:
           fail-on-risk: none
 ```
 
-External repositories should use the published Action:
-
-```yaml
-uses: xxxquide/MaintainerGuard@v0.3.1
-```
-
-The Action imports its Python package from `$GITHUB_ACTION_PATH` while keeping
-the working directory as the caller repository, so `.maintainerguard.toml` and
-scanner paths resolve in the project being analyzed.
-
-Local development note: when testing changes inside this repository before a
-release, replace the Action step with:
-
-```yaml
-uses: ./
-```
-
-### Common Action variants
-
-Fail the workflow only for critical risk, while staying in dry-run mode:
-
-```yaml
-- uses: xxxquide/MaintainerGuard@v0.3.1
-  with:
-    mode: analyze-pr
-    dry-run: "true"
-    post-comment: "false"
-    fail-on-risk: critical
-```
-
-Validate `.maintainerguard.toml` without analyzing a PR or publishing anything:
-
-```yaml
-- uses: xxxquide/MaintainerGuard@v0.3.1
-  with:
-    mode: validate-config
-    dry-run: "true"
-    post-comment: "false"
-```
-
-Run the bundled demo with sample data and no PR comment publishing:
-
-```yaml
-- uses: xxxquide/MaintainerGuard@v0.3.1
-  with:
-    mode: demo
-    scenario-or-sample-input-path: high-risk-auth
-    dry-run: "true"
-    post-comment: "false"
-```
-
-### Publish one PR comment explicitly
-
-Comment publishing is opt-in only. Enable it after dry-run reports look useful,
-and grant only the permissions needed to read contents and write the PR/issue
-comment. `GITHUB_TOKEN` is passed through `env`; there is no `token` input.
-
-```yaml
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
-
-steps:
-  - uses: actions/checkout@v6
-  - uses: actions/setup-python@v6
-    with:
-      python-version: "3.11"
-  - uses: xxxquide/MaintainerGuard@v0.3.1
-    env:
-      GITHUB_TOKEN: ${{ github.token }}
-    with:
-      mode: analyze-pr
-      dry-run: "false"
-      post-comment: "true"
-      update-existing-comment: "true"
-      fail-on-risk: none
-```
-
-MaintainerGuard uses one hidden comment marker, updates the existing marked
-comment, and skips identical reports. It does not auto-merge.
-
-See [GitHub automation](docs/github-automation.md).
+Comment publishing uses one hidden marker, updates the existing marked comment,
+skips identical reports, and never merges anything. See
+[GitHub automation](docs/github-automation.md).
 
 ## Configuration
 
-MaintainerGuard reads `.maintainerguard.toml` from the current directory or an
-explicit `--config` path. Defaults are intentionally safe:
-
-- dry-run is enabled;
-- AI is disabled;
-- comment posting is disabled;
-- draft and bot-authored PR comments are disabled;
-- input size and file count are bounded;
-- skip labels include `no-ai`, `skip-ai`, and `skip-maintainerguard`.
+`.veracity.toml`, discovered in the working directory or passed with `--config`.
+Defaults are deliberately conservative: dry run on, AI off, comment posting off,
+draft and bot pull requests skipped, input size bounded.
 
 ```bash
-mg config
-mg presets
-mg scanners
-mg doctor
-mg validate-config
+vera config              # print a documented example
+vera presets             # minimal | security | strict | docs
+vera validate-config
 ```
 
-See [Configuration reference](docs/configuration.md) and
+Presets differ meaningfully rather than cosmetically: `minimal` has no policy
+checks, `docs` has one, `security` has four non-blocking, `strict` has three of
+four blocking. See [Configuration](docs/configuration.md) and
 [Maintainer policies](docs/maintainer-policies.md).
 
-Since v0.3.0, `mg init --preset minimal|security|strict|docs` can write a
-standard policy profile into `.maintainerguard.toml`. Custom `[[policy]]`
-entries remain supported and replace the selected preset when present.
+## Optional language model
 
-## Scanner integration
+Off by default, and it cannot change anything that matters. The deterministic
+verdict, risk level and blocking decisions are computed before any model is
+called, and a model cannot alter them. Model text is sanitized — HTML comments
+removed, Markdown headings flattened, length bounded — and rendered quoted, after
+the deterministic sections, so it can never impersonate the evidence table. Claims
+that reference evidence IDs which do not exist are discarded.
 
-MaintainerGuard explains scanner outputs. It does not replace scanners or
-independently confirm every finding.
+Run it without a model and you lose nothing but some wording. See
+[Privacy and security](docs/privacy-and-security.md).
 
-```bash
-mg pr examples/sample-data/prs/dependency-update.json \
-  --scanner examples/sample-data/scanners/dependency-advisory.json \
-  --scanner examples/sample-data/scanners/static-analysis.sarif.json
-```
+## What Veracity is not
 
-Supported MVP inputs include generic JSON, SARIF-like code scanning, OSV-like
-dependency advisories, secret scanner results, Semgrep-like static analysis, and
-workflow policy warnings. See [Scanner inputs](docs/scanner-inputs.md).
+- It is not a scanner. It explains the output of scanners you run.
+- It does not prove your code is secure, and it will not find what your scanners
+  missed.
+- It does not replace human review, and it never merges.
+- It does not phone home. No telemetry, no account, no hosted service.
 
-List the scanner fixture families covered by bundled examples and tests:
+## When to use something else
 
-```bash
-mg scanners
-```
+Honest comparisons, because these tools are good and they partly overlap:
 
-## Optional AI
+| Want | Use |
+|---|---|
+| Findings as inline review comments on the diff, in any CI, for any forge | [reviewdog](https://github.com/reviewdog/reviewdog) — SARIF-native, `-filter-mode=added` scopes to the diff |
+| Only-new-alerts triage inside GitHub's Security tab | GitHub code scanning — free for public repositories |
+| Differential Semgrep runs | `semgrep --baseline-commit` |
+| Merging, diffing or converting SARIF files as data | [microsoft/sarif-tools](https://github.com/microsoft/sarif-tools) |
+| Vulnerability management across 150+ scanners for a security team | [DefectDojo](https://github.com/DefectDojo/django-DefectDojo) |
+| A language model reviewing the code itself, free for open source | CodeRabbit, GitHub Copilot code review |
 
-AI is off by default. When enabled, MaintainerGuard sends only a bounded,
-redacted structured report to the configured OpenAI Responses API endpoint with
-`store: false`. Unsupported AI claims are discarded, and AI cannot change the
-deterministic verdict, risk level, or blocking scanner decision.
+Veracity's narrower bet: one consolidated maintainer-facing verdict, attribution
+explained per finding, no language model in the loop, and scanner support proven
+against real binaries rather than asserted.
 
-See [Privacy and security](docs/privacy-and-security.md).
+## Limitations
+
+- Analysis is bounded on purpose. Files past `privacy.max_files_analyzed` and
+  patch text past `privacy.max_diff_characters` are not read; when that happens,
+  confidence is capped and the report says how much it skipped.
+- Heuristics are heuristics. Test, documentation, dependency and
+  security-sensitive classification is pattern-based and will sometimes be wrong.
+  Every such claim carries the evidence it came from, so you can check it.
+- Breaking-change detection is conservative: it needs a removed declaration, a
+  deleted or renamed file, or an explicit marker. It will miss a signature change
+  that only edits arguments.
+- Release and issue analysis reads local JSON feeds, not live GitHub history.
 
 ## Development
 
 ```bash
-python3 -m unittest discover -s tests -v
-python3 -m compileall -q maintainerguard
+python3 -m unittest discover -s tests -v      # 130 tests
 python3 -m pip wheel . --no-deps
-mg verify
+./vera verify
 ```
 
-Contributor docs:
-
 - [Documentation index](docs/README.md)
-- [Examples guide](examples/README.md)
-- [Development guide](docs/development.md)
-- [Architecture notes](docs/architecture.md)
-- [Launch materials](docs/launch.md)
-- [Public launch checklist](docs/public-launch-checklist.md)
-- [Public release checklist](docs/public-release-checklist.md)
-- [Contributing](CONTRIBUTING.md)
-- [Support](SUPPORT.md)
-- [Security policy](SECURITY.md)
+- [Architecture](docs/architecture.md) · [Development](docs/development.md) · [Roadmap](docs/roadmap.md)
+- [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Support](SUPPORT.md)
 
-Good first contributions are welcome when they are focused and evidence-backed:
-
-- [Good first issues](https://github.com/xxxquide/MaintainerGuard/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22)
-- [Maintainer feedback discussions](https://github.com/xxxquide/MaintainerGuard/discussions)
-- [Scanner adapter requests](https://github.com/xxxquide/MaintainerGuard/issues/new/choose)
-
-## Project status and limitations
-
-This is a local-first open-source tool. It analyzes supplied metadata, changed
-file paths, bounded patch text, scanner outputs, and policy configuration. It
-does not execute untrusted repository code, prove security, scan repositories
-without authorization, automatically merge changes, or provide a hosted service.
-
-GitHub support covers event analysis, bounded PR file retrieval, dry-run output,
-and guarded update-one-comment publishing. Release and issue inputs are local
-JSON feeds in this version.
-
-See the [roadmap](docs/roadmap.md).
+Focused, evidence-backed contributions are welcome — especially a real scanner
+whose output Veracity gets wrong. Add its output to
+`tests/fixtures/real-scanners/` and let the failing test make the case.
 
 ## License
 
-Apache-2.0. MaintainerGuard is an aid for human maintainers. Its reports can be
-incomplete or wrong and must not be treated as a security guarantee or automatic
-merge decision.
+Apache-2.0. Veracity is an aid for human maintainers. Its reports can be
+incomplete or wrong and must not be treated as a security guarantee or an
+automatic merge decision.

@@ -1,9 +1,9 @@
-name: MaintainerGuard
-description: Evidence-first merge, issue, and release readiness reports for maintainers.
-author: MaintainerGuard contributors
+name: Veracity
+description: Evidence-backed review verdicts from multi-scanner output, scoped to the change under review.
+author: Veracity contributors
 
 branding:
-  icon: shield
+  icon: filter
   color: blue
 
 inputs:
@@ -12,9 +12,9 @@ inputs:
     required: false
     default: analyze-pr
   config-path:
-    description: Path to .maintainerguard.toml.
+    description: Path to .veracity.toml.
     required: false
-    default: .maintainerguard.toml
+    default: .veracity.toml
   output-format:
     description: markdown or json.
     required: false
@@ -24,11 +24,11 @@ inputs:
     required: false
     default: "true"
   post-comment:
-    description: Publish or update one MaintainerGuard PR comment when all safety gates permit it.
+    description: Publish or update one Veracity PR comment when all safety gates permit it.
     required: false
     default: "false"
   update-existing-comment:
-    description: Update the existing MaintainerGuard comment instead of creating duplicates.
+    description: Update the existing Veracity comment instead of creating duplicates.
     required: false
     default: "true"
   fail-on-risk:
@@ -55,7 +55,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Run MaintainerGuard
+    - name: Run Veracity
       shell: bash
       env:
         MG_MODE: ${{ inputs.mode }}
@@ -67,11 +67,11 @@ runs:
         MG_SCANNER_RESULT_PATHS: ${{ inputs.scanner-result-paths }}
         MG_INPUT_PATH: ${{ inputs.scenario-or-sample-input-path }}
         MG_AI_ENABLED: ${{ inputs.ai-enabled }}
-        MG_REPORT_LENGTH: ${{ inputs.report-length }}
+        VERACITY_REPORT_LENGTH: ${{ inputs.report-length }}
       run: |
         export PYTHONPATH="${GITHUB_ACTION_PATH}:${PYTHONPATH:-}"
         if [ -n "${{ inputs.config-path }}" ] && [ -f "${{ inputs.config-path }}" ]; then
-          python3 -m maintainerguard --config "${{ inputs.config-path }}" action-run
+          python3 -m veracity --config "${{ inputs.config-path }}" action-run
         else
-          python3 -m maintainerguard action-run
+          python3 -m veracity action-run
         fi

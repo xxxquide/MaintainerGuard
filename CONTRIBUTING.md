@@ -1,6 +1,6 @@
-# Contributing to MaintainerGuard
+# Contributing to Veracity
 
-MaintainerGuard welcomes focused contributions that improve evidence quality,
+Veracity welcomes focused contributions that improve evidence quality,
 maintainer usefulness, safety, documentation, or test coverage.
 
 ## Before opening a pull request
@@ -16,10 +16,10 @@ maintainer usefulness, safety, documentation, or test coverage.
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 -m compileall -q maintainerguard
+python3 -m compileall -q veracity
 python3 -m pip wheel . --no-deps
-python3 -m maintainerguard validate-config
-python3 -m maintainerguard demo --scenario high-risk-auth
+python3 -m veracity validate-config
+python3 -m veracity demo --scenario high-risk-auth
 ```
 
 Third-party dependencies require an explicit design discussion because the MVP
@@ -33,7 +33,7 @@ unrelated refactoring.
 
 ## Extension points
 
-- Scanner adapters: update `maintainerguard/scanners.py`, add sample input, add normalization tests, and document the format.
+- Scanner adapters: update `veracity/scanners.py`, add sample input, add normalization tests, and document the format.
 - Policy rules: update config validation, policy evaluation, docs, and tests.
 - Report sections: add model fields or evidence-backed derived output, then update snapshots and docs.
 - GitHub Action behavior: preserve dry-run defaults and one-comment behavior.

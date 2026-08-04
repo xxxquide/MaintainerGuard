@@ -1,4 +1,4 @@
-"""Typed models shared by MaintainerGuard modules."""
+"""Typed models shared by Veracity modules."""
 
 from __future__ import annotations
 

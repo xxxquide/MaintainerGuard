@@ -170,7 +170,7 @@ def analyze_pull_request(
             f"{config.privacy.max_files_analyzed}, so this conclusion is partial."
         )
     limitations = [
-        "MaintainerGuard identifies review signals; it does not prove the presence or absence of vulnerabilities.",
+        "Veracity identifies review signals; it does not prove the presence or absence of vulnerabilities.",
         "Absence-based test and documentation signals are inferred from supplied changed-file data.",
         "This report supports, but does not replace, human maintainer review.",
     ]

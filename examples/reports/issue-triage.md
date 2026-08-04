@@ -1,4 +1,4 @@
-# MaintainerGuard Issue Triage Report
+# Veracity Issue Triage Report
 
 **Issue type:** Bug report  
 **Confidence:** Medium  

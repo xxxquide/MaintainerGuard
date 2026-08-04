@@ -1,4 +1,4 @@
-"""MaintainerGuard command-line interface."""
+"""Veracity command-line interface."""
 
 from __future__ import annotations
 
@@ -45,22 +45,22 @@ SCANNER_FIXTURES = [
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog=_program_name(),
-        description="MaintainerGuard - evidence-first merge, security, and release readiness for open-source maintainers.",
+        description="Veracity - evidence-first merge, security, and release readiness for open-source maintainers.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Common commands:
-  mg demo
-  mg init
-  mg presets
-  mg scanners
-  mg doctor
-  mg verify
-  mg pr <file>
-  mg issue <file>
-  mg release <file>
+  vera demo
+  vera init
+  vera presets
+  vera scanners
+  vera doctor
+  vera verify
+  vera pr <file>
+  vera issue <file>
+  vera release <file>
 
 Long-form commands such as analyze-pr, analyze-issue, and analyze-release remain supported.""",
     )
-    parser.add_argument("--config", type=Path, help="Path to .maintainerguard.toml")
+    parser.add_argument("--config", type=Path, help="Path to .veracity.toml")
     subparsers = parser.add_subparsers(dest="command", required=True)
     demo = subparsers.add_parser("demo", help="Run the default demo or a named bundled scenario")
     demo.add_argument("--scenario", default="high-risk-auth")
@@ -90,7 +90,7 @@ Long-form commands such as analyze-pr, analyze-issue, and analyze-release remain
     subparsers.add_parser("validate-config", help="Validate configuration")
     subparsers.add_parser("print-config", help="Print a documented example configuration")
     subparsers.add_parser("config", help="Print a documented example configuration")
-    init = subparsers.add_parser("init", help="Create a safe local MaintainerGuard configuration")
+    init = subparsers.add_parser("init", help="Create a safe local Veracity configuration")
     init.add_argument(
         "--preset",
         choices=["minimal", "security", "strict", "docs"],
@@ -99,16 +99,16 @@ Long-form commands such as analyze-pr, analyze-issue, and analyze-release remain
     )
     init.add_argument("--github-action", action="store_true", help="Also create a safe dry-run GitHub Actions workflow")
     init.add_argument("--force", action="store_true", help="Overwrite files that already exist")
-    subparsers.add_parser("doctor", help="Check local MaintainerGuard setup")
+    subparsers.add_parser("doctor", help="Check local Veracity setup")
     subparsers.add_parser("verify", help="Run deterministic sample smoke checks")
     subparsers.add_parser("presets", help="List built-in policy presets")
     subparsers.add_parser("scanners", help="List scanner input families covered by bundled fixtures")
-    subparsers.add_parser("version", help="Print MaintainerGuard version")
+    subparsers.add_parser("version", help="Print Veracity version")
     github_run = subparsers.add_parser("github-run", help="Analyze a GitHub event")
     github_run.add_argument("event", type=Path)
     github_run.add_argument("--post", action="store_true", help="Explicitly allow publishing if configuration also permits it")
     github_run.add_argument("--format", choices=["markdown", "json"])
-    subparsers.add_parser("action-run", help="Run from the MaintainerGuard GitHub Action")
+    subparsers.add_parser("action-run", help="Run from the Veracity GitHub Action")
     return parser
 
 
@@ -167,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "action-run":
             return _action_run(config)
     except (ConfigError, ValueError, OSError, json.JSONDecodeError, RuntimeError) as exc:
-        print(f"maintainerguard: {exc}", file=sys.stderr)
+        print(f"veracity: {exc}", file=sys.stderr)
         return 2
     parser.error("Unknown command")
     return 2
@@ -175,19 +175,19 @@ def main(argv: list[str] | None = None) -> int:
 
 def _program_name() -> str:
     name = Path(sys.argv[0]).name
-    return name if name in {"mg", "maintainerguard"} else "mg"
+    return name if name in {"vera", "veracity"} else "vera"
 
 
 def _init(args: argparse.Namespace) -> int:
-    config_path = args.config or Path(".maintainerguard.toml")
+    config_path = args.config or Path(".veracity.toml")
     created: list[Path] = []
     skipped: list[Path] = []
     _write_setup_file(config_path, default_config_toml(args.preset), args.force, created, skipped)
     if args.github_action:
-        workflow = Path(".github") / "workflows" / "maintainerguard.yml"
+        workflow = Path(".github") / "workflows" / "veracity.yml"
         _write_setup_file(workflow, _safe_workflow_template(), args.force, created, skipped)
 
-    print("MaintainerGuard initialized.\n")
+    print("Veracity initialized.\n")
     if created:
         print("Created:")
         for path in created:
@@ -202,8 +202,8 @@ def _init(args: argparse.Namespace) -> int:
         print("No files changed.\n")
     print("Next steps:")
     print(f"1. Review {config_path.as_posix()}")
-    print("2. Run: mg doctor")
-    print("3. Run: mg demo")
+    print("2. Run: vera doctor")
+    print("3. Run: vera demo")
     print("4. Commit the config file")
     return 0
 
@@ -223,8 +223,8 @@ def _scanners() -> int:
     print("|---|---|---|---|")
     for filename, family, adapter, minimum in SCANNER_FIXTURES:
         print(f"| {filename} | {family} | {adapter} | {minimum}+ |")
-    print("\nMaintainerGuard explains supplied scanner output; it does not replace scanners or confirm exploitability.")
-    print("Run `mg verify` to normalize every bundled scanner fixture.")
+    print("\nVeracity explains supplied scanner output; it does not replace scanners or confirm exploitability.")
+    print("Run `vera verify` to normalize every bundled scanner fixture.")
     return 0
 
 
@@ -238,7 +238,7 @@ def _write_setup_file(path: Path, content: str, force: bool, created: list[Path]
 
 
 def _safe_workflow_template() -> str:
-    return """name: MaintainerGuard
+    return """name: Veracity
 
 on:
   pull_request:
@@ -256,7 +256,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: xxxquide/MaintainerGuard@v0.3.1
+      - uses: xxxquide/veracity@v0.4.0
         with:
           mode: analyze-pr
           dry-run: "true"
@@ -266,7 +266,7 @@ jobs:
 
 
 def _doctor(config_path: Path | None) -> int:
-    print("MaintainerGuard Doctor\n")
+    print("Veracity Doctor\n")
     problems = 0
     _status("OK", "CLI available")
     if sys.version_info >= (3, 11):
@@ -275,19 +275,19 @@ def _doctor(config_path: Path | None) -> int:
         _status("FAIL", "Python 3.11 or newer is required")
         problems += 1
 
-    candidate = config_path or Path(".maintainerguard.toml")
+    candidate = config_path or Path(".veracity.toml")
     config_exists = candidate.exists()
     if config_exists:
         _status("OK", f"Config found: {candidate.as_posix()}")
     else:
         _status("INFO", f"Config not found: {candidate.as_posix()}")
-        _status("INFO", "Run: mg init")
+        _status("INFO", "Run: vera init")
 
     try:
         config = load_config(candidate) if config_exists or config_path else load_config()
     except ConfigError as exc:
         _status("FAIL", f"Config is invalid: {exc}")
-        print("\nMaintainerGuard setup needs attention.")
+        print("\nVeracity setup needs attention.")
         return 2
     if config_exists:
         _status("OK", "Config is valid")
@@ -304,14 +304,14 @@ def _doctor(config_path: Path | None) -> int:
     _status("OK" if config.dry_run else "WARN", "Dry-run enabled by default" if config.dry_run else "Dry-run disabled by configuration")
 
     if problems:
-        print("\nMaintainerGuard setup needs attention.")
+        print("\nVeracity setup needs attention.")
         return 2
-    print("\nMaintainerGuard is ready.")
+    print("\nVeracity is ready.")
     return 0
 
 
 def _verify(config_path: Path | None) -> int:
-    print("MaintainerGuard Verify\n")
+    print("Veracity Verify\n")
     config = load_config(config_path) if config_path else load_config()
     checks = [
         ("config validation", lambda: load_config(config_path) if config_path else load_config()),
@@ -457,7 +457,7 @@ def _github_run(args: argparse.Namespace, config) -> int:
 def _action_run(config) -> int:
     mode = os.environ.get("MG_MODE", "analyze-pr").strip() or "analyze-pr"
     output_format = os.environ.get("MG_OUTPUT_FORMAT", config.output_format).strip() or config.output_format
-    report_mode = os.environ.get("MG_REPORT_LENGTH", config.report_mode).strip() or config.report_mode
+    report_mode = os.environ.get("VERACITY_REPORT_LENGTH", config.report_mode).strip() or config.report_mode
     config.output_format = output_format
     config.report_mode = report_mode
     config.dry_run = _truthy(os.environ.get("MG_DRY_RUN", str(config.dry_run)))

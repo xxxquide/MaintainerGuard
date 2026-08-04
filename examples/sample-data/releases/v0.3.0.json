@@ -6,7 +6,7 @@
       "number": 201,
       "title": "Group duplicate SARIF scanner findings",
       "files": [
-        {"path": "maintainerguard/scanners.py", "status": "modified"},
+        {"path": "veracity/scanners.py", "status": "modified"},
         {"path": "tests/test_scanners.py", "status": "modified"}
       ]
     },

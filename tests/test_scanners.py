@@ -1,6 +1,6 @@
 import unittest
 
-from maintainerguard.scanners import normalize_scanner_input
+from veracity.scanners import normalize_scanner_input
 
 
 class ScannerTests(unittest.TestCase):
@@ -426,8 +426,8 @@ class ScannerTests(unittest.TestCase):
                 self.assertTrue(findings[0].affected or findings[0].affected_dependency)
 
     def test_duplicate_generic_findings_are_removed_by_analysis(self):
-        from maintainerguard.analysis import analyze_pull_request
-        from maintainerguard.config import load_config
+        from veracity.analysis import analyze_pull_request
+        from veracity.config import load_config
 
         scanner = {
             "scanner": "tool",

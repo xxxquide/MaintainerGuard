@@ -1,4 +1,4 @@
-# MaintainerGuard safe-by-default example configuration.
+# Veracity safe-by-default example configuration.
 [core]
 dry_run = true
 report_mode = "concise"
@@ -20,7 +20,7 @@ update_previous_comment = true
 comment_on_drafts = false
 comment_on_bots = false
 max_comment_characters = 30000
-skip_labels = ["no-ai", "skip-ai", "skip-maintainerguard"]
+skip_labels = ["no-ai", "skip-ai", "skip-veracity"]
 
 [privacy]
 max_diff_characters = 60000

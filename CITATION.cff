@@ -1,13 +1,13 @@
 cff-version: 1.2.0
-message: "If MaintainerGuard helped your project, please cite it."
-title: "MaintainerGuard"
-abstract: "Evidence-first AI maintainer assistant for merge, security, issue, and release readiness."
+message: "If Veracity helped your project, please cite it."
+title: "Veracity"
+abstract: "Evidence-backed review verdicts from multi-scanner output, scoped to the change under review."
 authors:
   - family-names: Slobodianyk
     given-names: Roman
     country: UA
-repository-code: https://github.com/xxxquide/MaintainerGuard
-url: https://github.com/marketplace/actions/maintainerguard
+repository-code: https://github.com/xxxquide/veracity
+url: https://github.com/marketplace/actions/veracity
 license: Apache-2.0
 type: software
 keywords:

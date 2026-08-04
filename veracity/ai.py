@@ -50,7 +50,7 @@ def sanitize_ai_text(value: Any, limit: int) -> str:
     cleaned = _CONTROL.sub("", cleaned)
     cleaned = _BLANK_RUN.sub("\n\n", cleaned).strip()
     if len(cleaned) > limit:
-        cleaned = cleaned[:limit].rstrip() + " [truncated by MaintainerGuard]"
+        cleaned = cleaned[:limit].rstrip() + " [truncated by Veracity]"
     return cleaned
 
 
@@ -106,7 +106,7 @@ def enrich_with_openai(
         "text": {
             "format": {
                 "type": "json_schema",
-                "name": "maintainerguard_enrichment",
+                "name": "veracity_enrichment",
                 "strict": True,
                 "schema": AI_OUTPUT_SCHEMA,
             }

@@ -1,4 +1,4 @@
-"""MaintainerGuard public API."""
+"""Veracity public API."""
 
 from .analysis import analyze_pull_request
 from .issue import triage_issue
@@ -12,4 +12,4 @@ __all__ = [
     "triage_issue",
 ]
 
-__version__ = "0.3.1"
+__version__ = "0.4.0"

@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-MaintainerGuard is currently an MVP. Security fixes are applied to the latest
+Veracity is currently an MVP. Security fixes are applied to the latest
 version on the primary development branch.
 
 ## Reporting a vulnerability
@@ -17,7 +17,7 @@ personal data in a report.
 
 ## Security model
 
-MaintainerGuard is a defensive review-assistance tool. It does not claim to find
+Veracity is a defensive review-assistance tool. It does not claim to find
 all vulnerabilities or prove that a change is safe. It does not execute
 untrusted repository code. Scanner findings are treated as supplied evidence,
 not independently confirmed facts.

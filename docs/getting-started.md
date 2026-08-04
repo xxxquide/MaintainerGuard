@@ -1,16 +1,16 @@
 # Getting started
 
-MaintainerGuard runs locally with Python 3.11 or newer and no third-party
+Veracity runs locally with Python 3.11 or newer and no third-party
 runtime packages.
 
 ## See value immediately
 
 ```bash
-mg demo
-mg demo --scenario docs-only
-mg demo --scenario dependency-advisory
-mg demo --scenario ci-workflow-risk
-mg pr examples/sample-data/prs/dependency-update.json \
+vera demo
+vera demo --scenario docs-only
+vera demo --scenario dependency-advisory
+vera demo --scenario ci-workflow-risk
+vera pr examples/sample-data/prs/dependency-update.json \
   --scanner examples/sample-data/scanners/dependency-advisory.json
 ```
 
@@ -20,12 +20,12 @@ supplied critical scanner finding should be blocked.
 
 ## Configure a repository
 
-Copy or edit `.maintainerguard.toml`, then validate it:
+Copy or edit `.veracity.toml`, then validate it:
 
 ```bash
-mg init
-mg doctor
-mg validate-config
+vera init
+vera doctor
+vera validate-config
 ```
 
 Keep `dry_run = true`, AI disabled, and comment posting disabled until local
@@ -35,14 +35,14 @@ reports match maintainer expectations.
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 -m compileall -q maintainerguard
+python3 -m compileall -q veracity
 python3 -m pip wheel . --no-deps
-mg verify
+vera verify
 ```
 
-The wheel includes the bundled sample data used by `mg demo`, so the demo
-command works after installation. `maintainerguard` and
-`python3 -m maintainerguard ...` remain available for debugging.
+The wheel includes the bundled sample data used by `vera demo`, so the demo
+command works after installation. `veracity` and
+`python3 -m veracity ...` remain available for debugging.
 
 Continue with the configuration, policy, GitHub automation, and privacy guides
 before enabling integrations.
